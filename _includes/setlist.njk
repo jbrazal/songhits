@@ -3,110 +3,40 @@ layout: base.njk
 ---
 <style>
   /* ── Layout ───────────────────────────────────────────────── */
-  :root { --toc-w: 210px; --ctrl-h: 50px; }
+  :root { --toc-w: 210px; --ctrl-h: 48px; }
 
-  #toc-sidebar {
-    position: fixed;
-    top: 44px;
-    left: 0;
-    width: var(--toc-w);
-    bottom: var(--ctrl-h);
-    overflow-y: auto;
-    background: #080808;
-    border-right: 1px solid #1a1a1a;
-    padding: 14px 0 14px 0;
-    z-index: 100;
-    scrollbar-width: thin;
-    scrollbar-color: #222 transparent;
-  }
-  #toc-sidebar::-webkit-scrollbar { width: 4px; }
-  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
-
-  .toc-part-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #333;
-    padding: 10px 14px 4px;
-  }
-  .toc-part-label:first-child { padding-top: 2px; }
-
-  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
-  #toc-sidebar li { counter-increment: toc-n; }
-  #toc-sidebar a,
-  #toc-sidebar .toc-tbd {
-    display: block;
-    padding: 3px 14px 3px 10px;
-    font-size: 12px;
-    line-height: 1.35;
-    color: #444;
-    text-decoration: none;
-    border-left: 2px solid transparent;
-    transition: color 0.1s, border-color 0.1s;
-  }
-  #toc-sidebar a::before,
-  #toc-sidebar .toc-tbd::before {
-    content: counter(toc-n) ". ";
-    font-size: 10px;
-    color: #2a2a2a;
-    margin-right: 2px;
-  }
-  #toc-sidebar a:hover { color: #888; text-decoration: none; }
-  #toc-sidebar a.active {
-    color: var(--chord);
-    border-left-color: var(--chord);
-  }
-  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
-
-  /* ── Main content ─────────────────────────────────────────── */
-  #setlist-wrap {
-    margin-left: var(--toc-w);
-    padding: 28px 40px 120px 32px;
-    font-size: var(--zoom-size, 14px);
-  }
-
-  .setlist-title {
-    color: var(--red);
-    font-size: 1.4em;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    margin-bottom: 28px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--red);
-  }
-
-  .song-block { margin-bottom: 48px; }
-  .song-block-header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #1a1a1a;
-  }
-  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
-  .song-block-artist { color: var(--muted); font-size: 12px; }
-
-  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
-  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
-
-  /* ── Docked controls ──────────────────────────────────────── */
+  /* ── Controls bar – fixed below nav ──────────────────────── */
   #controls {
     position: fixed;
-    bottom: 0;
+    top: var(--nav-h);
     left: 0;
     right: 0;
     height: var(--ctrl-h);
     background: #0a0a0a;
-    border-top: 1px solid #1e1e1e;
-    padding: 0 18px;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     z-index: 9999;
     font-size: 13px;
   }
+
+  /* ── TOC toggle button ───────────────────────────────────── */
+  #btn-toc {
+    background: none;
+    border: 1px solid #1e1e1e;
+    color: #555;
+    padding: 4px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s, border-color 0.1s, background 0.1s;
+  }
+  #btn-toc:hover { background: #181818; color: #aaa; border-color: #333; }
+  #btn-toc.active { color: var(--chord); border-color: #333; }
 
   #btn-toggle {
     background: var(--section);
@@ -149,10 +79,145 @@ layout: base.njk
     flex-shrink: 0;
   }
 
-  /* ── Narrow screens: hide sidebar ────────────────────────── */
+  /* ── TOC sidebar ──────────────────────────────────────────── */
+  #toc-sidebar {
+    position: fixed;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    left: 0;
+    width: var(--toc-w);
+    bottom: 0;
+    overflow-y: auto;
+    background: #080808;
+    border-right: 1px solid #1a1a1a;
+    padding: 14px 0;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+    transition: transform 0.2s ease;
+  }
+  #toc-sidebar::-webkit-scrollbar { width: 4px; }
+  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .toc-part-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #333;
+    padding: 10px 14px 4px;
+  }
+  .toc-part-label:first-child { padding-top: 2px; }
+
+  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
+  #toc-sidebar li { counter-increment: toc-n; }
+  #toc-sidebar a,
+  #toc-sidebar .toc-tbd {
+    display: block;
+    padding: 3px 14px 3px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #444;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  #toc-sidebar a::before,
+  #toc-sidebar .toc-tbd::before {
+    content: counter(toc-n) ". ";
+    font-size: 10px;
+    color: #2a2a2a;
+    margin-right: 2px;
+  }
+  #toc-sidebar a:hover { color: #888; text-decoration: none; }
+  #toc-sidebar a.active { color: var(--chord); border-left-color: var(--chord); }
+  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
+
+  /* Desktop: collapse TOC */
+  body.toc-off #toc-sidebar { transform: translateX(-100%); pointer-events: none; }
+  body.toc-off #setlist-wrap { margin-left: 0; }
+
+  /* ── Mobile overlay backdrop ─────────────────────────────── */
+  #toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 150;
+    cursor: pointer;
+  }
+
+  /* ── Main content ─────────────────────────────────────────── */
+  #setlist-wrap {
+    margin-left: var(--toc-w);
+    padding: calc(var(--ctrl-h) + 20px) 40px 60px 32px;
+    font-size: var(--zoom-size, 14px);
+    transition: margin-left 0.2s ease;
+  }
+
+  .setlist-title {
+    color: var(--red);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+
+  .song-block { margin-bottom: 48px; }
+  .song-block-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
+  .song-block-artist { color: var(--muted); font-size: 12px; }
+
+  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
+  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+
+  /* ── Narrow screens ───────────────────────────────────────── */
   @media (max-width: 680px) {
-    #toc-sidebar   { display: none; }
-    #setlist-wrap  { margin-left: 0; padding: 20px 16px 120px; }
+    :root { --ctrl-h: 84px; }
+
+    body { overflow-x: hidden; }
+
+    #controls {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 7px 10px;
+      gap: 5px;
+      align-content: center;
+    }
+    .ctrl-label { display: none; }
+    .toolbar-sep { display: none; }
+    #btn-toggle { min-width: 72px; font-size: 12px; padding: 5px 10px; }
+    #speed-slider { width: 70px; }
+    #speed-val { min-width: 2.2em; font-size: 12px; }
+    .zoom-val { min-width: 2.6em; font-size: 12px; }
+    .ctrl-btn { width: 32px; height: 32px; font-size: 13px; }
+
+    /* TOC as slide-in overlay drawer */
+    #toc-sidebar {
+      width: 75%;
+      max-width: 260px;
+      transform: translateX(-100%);
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+    }
+    body.toc-on #toc-sidebar { transform: translateX(0); pointer-events: auto; }
+    body.toc-on #toc-overlay { display: block; }
+
+    #setlist-wrap {
+      margin-left: 0;
+      padding: calc(var(--ctrl-h) + 12px) 14px 40px;
+    }
+    body.toc-off #setlist-wrap { margin-left: 0; }
+
+    .cm-song-content { overflow-x: auto; }
   }
 
   /* ── Print ────────────────────────────────────────────────── */
@@ -163,6 +228,9 @@ layout: base.njk
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
   }
 </style>
+
+{# ── Mobile overlay backdrop ─────────────────────────────────── #}
+<div id="toc-overlay"></div>
 
 {# ── Floating sidebar TOC ─────────────────────────────────────── #}
 <aside id="toc-sidebar">
@@ -203,8 +271,10 @@ layout: base.njk
   {% endfor %}
 </div>
 
-{# ── Docked autoscroll controls ───────────────────────────────── #}
+{# ── Controls bar (top, below nav) ────────────────────────────── #}
 <div id="controls">
+  <button id="btn-toc" title="Toggle song list">☰</button>
+  <div class="toolbar-sep"></div>
   <button id="btn-toggle">▶ Play</button>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Speed</span>
@@ -245,11 +315,64 @@ layout: base.njk
     }
   });
 
+  // ── Sync --ctrl-h to actual controls height ───────────────
+  function syncCtrlH() {
+    var h = document.getElementById('controls').offsetHeight;
+    document.documentElement.style.setProperty('--ctrl-h', h + 'px');
+  }
+  syncCtrlH();
+  window.addEventListener('resize', syncCtrlH);
+
+  // ── TOC toggle ────────────────────────────────────────────
+  var body    = document.body;
+  var btnToc  = document.getElementById('btn-toc');
+  var overlay = document.getElementById('toc-overlay');
+
+  function isMobile() { return window.innerWidth <= 680; }
+
+  function tocIsOpen() {
+    return isMobile() ? body.classList.contains('toc-on')
+                      : !body.classList.contains('toc-off');
+  }
+
+  function openToc() {
+    if (isMobile()) body.classList.add('toc-on');
+    else            body.classList.remove('toc-off');
+    btnToc.classList.add('active');
+  }
+
+  function closeToc() {
+    if (isMobile()) body.classList.remove('toc-on');
+    else            body.classList.add('toc-off');
+    btnToc.classList.remove('active');
+  }
+
+  btnToc.onclick  = function () { tocIsOpen() ? closeToc() : openToc(); };
+  overlay.onclick = closeToc;
+
+  // Close drawer when jumping to a song on mobile
+  document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    a.addEventListener('click', function () {
+      if (isMobile()) closeToc();
+    });
+    // also used by IntersectionObserver below
+    a._tocId = id;
+  });
+
+  // Reset state on breakpoint cross
+  window.addEventListener('resize', function () {
+    body.classList.remove('toc-on', 'toc-off');
+    btnToc.classList.toggle('active', !isMobile());
+  });
+
+  // Desktop starts with TOC open
+  if (!isMobile()) btnToc.classList.add('active');
+
   // ── Active TOC link via IntersectionObserver ──────────────
   var tocLinks = {};
   document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
-    var id = a.getAttribute('href').slice(1);
-    tocLinks[id] = a;
+    tocLinks[a._tocId] = a;
   });
 
   var observer = new IntersectionObserver(function (entries) {
@@ -308,11 +431,11 @@ layout: base.njk
     document.getElementById('speed-val').textContent = speed.toFixed(1);
   }
 
-  document.getElementById('btn-toggle').onclick  = function () { playing ? stop() : play(); };
-  document.getElementById('btn-slower').onclick  = function () { setSpeed(speed - 0.5); };
-  document.getElementById('btn-faster').onclick  = function () { setSpeed(speed + 0.5); };
+  document.getElementById('btn-toggle').onclick   = function () { playing ? stop() : play(); };
+  document.getElementById('btn-slower').onclick   = function () { setSpeed(speed - 0.5); };
+  document.getElementById('btn-faster').onclick   = function () { setSpeed(speed + 0.5); };
   document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
-  document.getElementById('btn-top').onclick     = function () { stop(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  document.getElementById('btn-top').onclick      = function () { stop(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   // ── Zoom ──────────────────────────────────────────────────
   var ZOOM = [60,70,80,90,100,110,120,130,150,175,200], zi = 4;
