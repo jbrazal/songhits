@@ -1,0 +1,343 @@
+---
+layout: base.njk
+---
+<style>
+  /* ── Layout ───────────────────────────────────────────────── */
+  :root { --toc-w: 210px; --ctrl-h: 50px; }
+
+  #toc-sidebar {
+    position: fixed;
+    top: 44px;
+    left: 0;
+    width: var(--toc-w);
+    bottom: var(--ctrl-h);
+    overflow-y: auto;
+    background: #080808;
+    border-right: 1px solid #1a1a1a;
+    padding: 14px 0 14px 0;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+  }
+  #toc-sidebar::-webkit-scrollbar { width: 4px; }
+  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .toc-part-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #333;
+    padding: 10px 14px 4px;
+  }
+  .toc-part-label:first-child { padding-top: 2px; }
+
+  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
+  #toc-sidebar li { counter-increment: toc-n; }
+  #toc-sidebar a,
+  #toc-sidebar .toc-tbd {
+    display: block;
+    padding: 3px 14px 3px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #444;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  #toc-sidebar a::before,
+  #toc-sidebar .toc-tbd::before {
+    content: counter(toc-n) ". ";
+    font-size: 10px;
+    color: #2a2a2a;
+    margin-right: 2px;
+  }
+  #toc-sidebar a:hover { color: #888; text-decoration: none; }
+  #toc-sidebar a.active {
+    color: var(--chord);
+    border-left-color: var(--chord);
+  }
+  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
+
+  /* ── Main content ─────────────────────────────────────────── */
+  #setlist-wrap {
+    margin-left: var(--toc-w);
+    padding: 28px 40px 120px 32px;
+    font-size: var(--zoom-size, 14px);
+  }
+
+  .setlist-title {
+    color: var(--red);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+
+  .song-block { margin-bottom: 48px; }
+  .song-block-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
+  .song-block-artist { color: var(--muted); font-size: 12px; }
+
+  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
+  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+
+  /* ── Docked controls ──────────────────────────────────────── */
+  #controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--ctrl-h);
+    background: #0a0a0a;
+    border-top: 1px solid #1e1e1e;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  #btn-toggle {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-toggle.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Narrow screens: hide sidebar ────────────────────────── */
+  @media (max-width: 680px) {
+    #toc-sidebar   { display: none; }
+    #setlist-wrap  { margin-left: 0; padding: 20px 16px 120px; }
+  }
+
+  /* ── Print ────────────────────────────────────────────────── */
+  @media print {
+    nav, #toc-sidebar, #controls { display: none; }
+    #setlist-wrap { margin: 0; padding: 0; }
+    .song-block { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+{# ── Floating sidebar TOC ─────────────────────────────────────── #}
+<aside id="toc-sidebar">
+  {% for part in parts %}
+  <div class="toc-part-label">{{ part.name }}</div>
+  <ul>
+    {% for song in part.songs %}
+    <li>
+      {% if song.slug %}
+        <a href="#{{ song.slug }}">{{ song.title }}</a>
+      {% else %}
+        <span class="toc-tbd">{{ song.title }}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endfor %}
+</aside>
+
+{# ── Main content ─────────────────────────────────────────────── #}
+<div id="setlist-wrap">
+  <h1 class="setlist-title">{{ title }}</h1>
+
+  {% for part in parts %}
+    {% for song in part.songs %}
+    <div class="song-block" id="{{ song.slug if song.slug else (song.title | lower | replace(' ', '-') | replace("'", '') | replace('&', 'and')) }}">
+      <div class="song-block-header">
+        <span class="song-block-title">{{ song.title }}</span>
+        {% if song.artist %}<span class="song-block-artist">— {{ song.artist }}</span>{% endif %}
+      </div>
+      {% if song.slug %}
+        <div class="cm-song-content cmSong" data-slug="{{ song.slug }}"></div>
+      {% else %}
+        <p class="chart-pending">{% if song.tbd %}TBD{% else %}Chart coming soon{% endif %}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+{# ── Docked autoscroll controls ───────────────────────────────── #}
+<div id="controls">
+  <button id="btn-toggle">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower">−</button>
+  <input type="range" id="speed-slider" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster">+</button>
+  <span id="speed-val">1.5</span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Zoom</span>
+  <button class="ctrl-btn" id="btn-zoom-out">−</button>
+  <span class="zoom-val" id="zoom-val">100%</span>
+  <button class="ctrl-btn" id="btn-zoom-in">+</button>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script src="/assets/chord-mark.js"></script>
+<script>
+(function () {
+  var chordMark = window['chord-mark'];
+
+  // Song sources embedded at build time
+  var SONGS = {% setlistSongsJson parts %};
+
+  // Render all songs
+  document.querySelectorAll('.cm-song-content[data-slug]').forEach(function (el) {
+    var slug = el.dataset.slug;
+    var src  = SONGS[slug];
+    if (!src) { el.textContent = '(chart not found)'; return; }
+    try {
+      el.innerHTML = chordMark.renderSong(chordMark.parseSong(src), {
+        alignBars: true, printBarSeparators: 'always', printChordsDuration: 'uneven',
+      });
+    } catch (e) {
+      var d = document.createElement('div');
+      d.className = 'cm-raw-fallback';
+      d.textContent = src;
+      el.appendChild(d);
+    }
+  });
+
+  // ── Active TOC link via IntersectionObserver ──────────────
+  var tocLinks = {};
+  document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    tocLinks[id] = a;
+  });
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.id;
+        Object.values(tocLinks).forEach(function (a) { a.classList.remove('active'); });
+        var active = tocLinks[id];
+        if (active) {
+          active.classList.add('active');
+          active.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+
+  document.querySelectorAll('.song-block[id]').forEach(function (el) {
+    observer.observe(el);
+  });
+
+  // ── Autoscroll ────────────────────────────────────────────
+  var playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;
+
+  function tick(ts) {
+    if (!playing) return;
+    if (lastTime !== null) {
+      var dt = ts - lastTime;
+      carry += speed * dt * 0.045;
+      var px = Math.floor(carry);
+      if (px > 0) { window.scrollBy(0, px); carry -= px; }
+    }
+    lastTime = ts;
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) { stop(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function play() {
+    playing = true; lastTime = null; carry = 0;
+    var btn = document.getElementById('btn-toggle');
+    btn.textContent = '⏸ Pause';
+    btn.classList.add('playing');
+    raf = requestAnimationFrame(tick);
+  }
+
+  function stop() {
+    playing = false;
+    cancelAnimationFrame(raf); lastTime = null;
+    var btn = document.getElementById('btn-toggle');
+    btn.textContent = '▶ Play';
+    btn.classList.remove('playing');
+  }
+
+  function setSpeed(val) {
+    speed = Math.round(Math.max(0.2, Math.min(8, +val)) * 10) / 10;
+    document.getElementById('speed-slider').value = speed;
+    document.getElementById('speed-val').textContent = speed.toFixed(1);
+  }
+
+  document.getElementById('btn-toggle').onclick  = function () { playing ? stop() : play(); };
+  document.getElementById('btn-slower').onclick  = function () { setSpeed(speed - 0.5); };
+  document.getElementById('btn-faster').onclick  = function () { setSpeed(speed + 0.5); };
+  document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
+  document.getElementById('btn-top').onclick     = function () { stop(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+  // ── Zoom ──────────────────────────────────────────────────
+  var ZOOM = [60,70,80,90,100,110,120,130,150,175,200], zi = 4;
+  function applyZoom() {
+    var pct = ZOOM[zi];
+    document.getElementById('setlist-wrap').style.setProperty('--zoom-size', (pct / 100 * 14) + 'px');
+    document.getElementById('zoom-val').textContent = pct + '%';
+  }
+  document.getElementById('btn-zoom-out').onclick = function () { zi = Math.max(0, zi - 1); applyZoom(); };
+  document.getElementById('btn-zoom-in').onclick  = function () { zi = Math.min(ZOOM.length - 1, zi + 1); applyZoom(); };
+
+  // ── Keyboard ──────────────────────────────────────────────
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT') return;
+    switch (e.key) {
+      case ' ':           e.preventDefault(); playing ? stop() : play();       break;
+      case 'ArrowUp':     e.preventDefault(); setSpeed(speed + 0.5);           break;
+      case 'ArrowDown':   e.preventDefault(); setSpeed(speed - 0.5);           break;
+      case 'Home':        e.preventDefault(); stop(); window.scrollTo({top:0, behavior:'smooth'}); break;
+      case '+': case '=': e.preventDefault(); zi = Math.min(ZOOM.length-1, zi+1); applyZoom(); break;
+      case '-':           e.preventDefault(); zi = Math.max(0, zi-1); applyZoom(); break;
+    }
+  });
+
+  setSpeed(speed);
+  applyZoom();
+})();
+</script>

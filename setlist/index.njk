@@ -1,0 +1,40 @@
+---
+layout: base.njk
+title: Setlists
+---
+<style>
+  #setlists-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+  h1 {
+    color: var(--red);
+    font-size: 1.4em;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+  .setlist-list { list-style: none; }
+  .setlist-list li { margin-bottom: 8px; }
+  .setlist-list a {
+    display: inline-block;
+    color: var(--blue);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 6px 0;
+  }
+  .setlist-song-count { color: var(--muted); font-size: 12px; margin-left: 8px; }
+</style>
+
+<div id="setlists-wrap">
+  <h1>Setlists</h1>
+  <ul class="setlist-list">
+    {% for sl in collections.setlists %}
+    <li>
+      <a href="{{ sl.url }}">{{ sl.data.title }}</a>
+      <span class="setlist-song-count">{{ sl.data.parts | countSongs }} songs</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>

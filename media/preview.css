@@ -1,0 +1,307 @@
+/* ============================================================
+   ChordMark Preview — main stylesheet
+   Targets the HTML emitted by chord-mark's default renderer.
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- page ------------------------------------------ */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  background: var(--vscode-editor-background, #1e1e1e);
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- toolbar --------------------------------------- */
+.cm-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+  border-bottom: 1px solid var(--vscode-panel-border, #3c3c3c);
+  flex-shrink: 0;
+}
+
+.cm-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cm-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vscode-descriptionForeground, #888);
+  margin-right: 4px;
+}
+
+.cm-btn {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, #ccc);
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.1s;
+}
+
+.cm-btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground, #45494e);
+}
+
+.cm-btn-reset {
+  font-size: 13px;
+}
+
+.cm-transpose-value {
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+}
+
+/* ---------- preview body ---------------------------------- */
+.cm-preview-body {
+  padding: 24px 32px;
+  flex: 1;
+  overflow: auto;
+}
+
+.cm-error {
+  background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+  border: 1px solid var(--vscode-inputValidation-errorBorder, #f48771);
+  color: var(--vscode-errorForeground, #f48771);
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.cm-empty {
+  color: var(--vscode-descriptionForeground, #666);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* ============================================================
+   chord-mark renderer output classes
+   ============================================================ */
+
+/* -- Song root --------------------------------------------- */
+.cmSong {
+  max-width: 900px;
+  line-height: 1;
+}
+
+/* -- Section ----------------------------------------------- */
+.cmSection {
+  margin-bottom: 1em;
+}
+
+.cmSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--vscode-symbolIcon-moduleForeground, #4ec9b0);
+  margin: 0 0 6px 0;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--vscode-editorIndentGuide-background, #333);
+}
+
+.cmSectionMultiplier {
+  color: var(--vscode-symbolIcon-colorForeground, #c678dd);
+  font-weight: normal;
+}
+
+/* -- Time signature & key ---------------------------------- */
+.cmTimeSignature,
+.cmKeyDeclaration {
+  color: var(--vscode-symbolIcon-constructorForeground, #56b6c2);
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+/* -- Chord line -------------------------------------------- */
+.cmChordLine {
+  display: block;
+  white-space: pre;
+  color: var(--vscode-symbolIcon-functionForeground, #dcdcaa);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.cmChord {
+  display: inline;
+}
+
+.cmChordSymbol {
+  color: var(--vscode-symbolIcon-functionForeground, #dcdcaa);
+}
+
+.cmChordDuration {
+  color: var(--vscode-descriptionForeground, #666);
+  font-weight: normal;
+  font-size: 0.85em;
+}
+
+.cmBarSeparator {
+  color: var(--vscode-editorLineNumber-foreground, #555);
+  opacity: 0.7;
+}
+
+.cmSubBeatGroupOpener,
+.cmSubBeatGroupCloser {
+  color: var(--vscode-editor-foreground, #aaa);
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+/* -- Lyric line -------------------------------------------- */
+.cmLyricLine {
+  display: block;
+  white-space: pre;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  line-height: 1;
+}
+
+.cmLyric {
+  display: inline;
+}
+
+/* -- No-chord marker --------------------------------------- */
+.cmNoChord {
+  color: var(--vscode-descriptionForeground, #888);
+  font-style: italic;
+}
+
+/* -- Roman numeral display --------------------------------- */
+.cmChordLine-romanNumeral .cmChordSymbol,
+.cmRomanNumeral {
+  color: var(--vscode-symbolIcon-functionForeground, #c586c0);
+}
+
+.cmRomanNumeral-diatonic {
+  font-weight: bold;
+  background: var(--vscode-symbolIcon-functionForeground, #dcdcaa);
+  color: var(--vscode-editor-background, #1e1e1e);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.cmRomanNumeral-borrowed {
+  color: var(--vscode-editor-background, #1e1e1e);
+  background: rgba(220, 220, 170, 0.6);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.cmRomanNumeral-unknown {
+  opacity: 0.7;
+}
+
+/* -- Empty / structural lines ------------------------------ */
+.cmEmptyLine {
+  display: block;
+  height: 0.6em;
+}
+
+/* ============================================================
+   Light theme overrides (when VS Code uses a light theme)
+   ============================================================ */
+body.vscode-light .cmSectionLabel {
+  color: #007070;
+  border-bottom-color: #ddd;
+}
+
+body.vscode-light .cmChordLine,
+body.vscode-light .cmChordSymbol {
+  color: #8b5800;
+}
+
+body.vscode-light .cmBarSeparator {
+  color: #aaa;
+}
+
+body.vscode-light .cmLyricLine {
+  color: #333;
+}
+
+body.vscode-light .cmChordDuration {
+  color: #999;
+}
+
+body.vscode-light .cm-toolbar {
+  background: #f3f3f3;
+  border-bottom-color: #ddd;
+}
+
+body.vscode-light .cm-btn {
+  background: #e5e5e5;
+  color: #333;
+}
+
+/* ============================================================
+   High contrast overrides
+   ============================================================ */
+body.vscode-high-contrast .cmSectionLabel {
+  color: #00ffff;
+  border-bottom-color: #fff;
+}
+
+body.vscode-high-contrast .cmChordSymbol {
+  color: #ffff00;
+}
+
+body.vscode-high-contrast .cmLyricLine {
+  color: #ffffff;
+}
+
+/* ============================================================
+   Print / chord-only theme
+   ============================================================ */
+.cm-theme-print .cmSong {
+  color: #111;
+  background: #fff;
+  font-family: 'Times New Roman', serif;
+}
+
+/* ============================================================
+   PDF / print media
+   ============================================================ */
+.cm-btn-pdf {
+  width: auto;
+  padding: 0 8px;
+  font-size: 11px;
+  gap: 4px;
+}
+
+.cm-toolbar-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--vscode-panel-border, #3c3c3c);
+  margin: 0 4px;
+}

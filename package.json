@@ -1,0 +1,148 @@
+{
+  "name": "songhits",
+  "displayName": "SongHits",
+  "description": "ChordMark chord chart collection with live preview, transpose, and PDF export",
+  "version": "0.1.0",
+  "publisher": "jebra",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization"
+  ],
+  "keywords": ["chordmark", "chord", "music", "lyrics", "chart"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "chordmark",
+        "aliases": ["ChordMark", "chordmark"],
+        "extensions": [".chordmark", ".cm"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "chordmark",
+        "scopeName": "source.chordmark",
+        "path": "./syntaxes/chordmark.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "chordmark.openPreview",
+        "title": "ChordMark: Open Preview",
+        "category": "ChordMark",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "chordmark.openPreviewToSide",
+        "title": "ChordMark: Open Preview to Side",
+        "category": "ChordMark",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "chordmark.exportPdf",
+        "title": "ChordMark: Export to PDF",
+        "category": "ChordMark",
+        "icon": "$(file-pdf)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "chordmark.openPreviewToSide",
+          "when": "resourceLangId == chordmark",
+          "group": "navigation"
+        },
+        {
+          "command": "chordmark.exportPdf",
+          "when": "resourceLangId == chordmark",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "chordmark.openPreview",
+          "when": "resourceLangId == chordmark"
+        },
+        {
+          "command": "chordmark.openPreviewToSide",
+          "when": "resourceLangId == chordmark"
+        },
+        {
+          "command": "chordmark.exportPdf",
+          "when": "resourceLangId == chordmark"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "chordmark.openPreviewToSide",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "resourceLangId == chordmark"
+      },
+      {
+        "command": "chordmark.exportPdf",
+        "key": "ctrl+shift+p",
+        "mac": "cmd+shift+p",
+        "when": "resourceLangId == chordmark"
+      }
+    ],
+    "configuration": {
+      "title": "ChordMark Preview",
+      "properties": {
+        "chordmark.preview.theme": {
+          "type": "string",
+          "default": "default",
+          "enum": ["default", "dark", "print"],
+          "description": "Color theme used in the ChordMark preview panel"
+        },
+        "chordmark.preview.transposeValue": {
+          "type": "number",
+          "default": 0,
+          "minimum": -11,
+          "maximum": 11,
+          "description": "Number of semitones to transpose chords in the preview (-11 to 11)"
+        },
+        "chordmark.preview.chartType": {
+          "type": "string",
+          "default": "all",
+          "enum": ["all", "chordsOnly", "lyricsOnly"],
+          "enumDescriptions": [
+            "Show both chords and lyrics",
+            "Show only chord grids (no lyrics)",
+            "Show only lyrics (no chords)"
+          ],
+          "description": "What to display in the preview"
+        },
+        "chordmark.preview.alignBars": {
+          "type": "boolean",
+          "default": true,
+          "description": "Align bar separators across chord and lyric lines"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "vsce package --no-dependencies",
+    "site:build": "eleventy",
+    "site:serve": "eleventy --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.74.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "chord-mark": "^0.17.0"
+  }
+}

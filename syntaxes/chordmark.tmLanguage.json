@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "ChordMark",
+  "scopeName": "source.chordmark",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#section-label" },
+    { "include": "#time-signature" },
+    { "include": "#key-declaration" },
+    { "include": "#chord-line" },
+    { "include": "#lyric-line" }
+  ],
+  "repository": {
+    "comment": {
+      "match": "^//.*$",
+      "name": "comment.line.double-slash.chordmark"
+    },
+    "section-label": {
+      "match": "^(#)([a-zA-Z]+)(\\d*)(\\s.*)?$",
+      "captures": {
+        "1": { "name": "punctuation.definition.heading.chordmark" },
+        "2": { "name": "entity.name.section.chordmark keyword.control.chordmark" },
+        "3": { "name": "constant.numeric.chordmark" },
+        "4": { "name": "string.unquoted.chordmark" }
+      }
+    },
+    "time-signature": {
+      "match": "^(\\d+)/(\\d+)$",
+      "captures": {
+        "1": { "name": "constant.numeric.chordmark" },
+        "2": { "name": "constant.numeric.chordmark" }
+      },
+      "name": "keyword.other.time-signature.chordmark"
+    },
+    "key-declaration": {
+      "match": "^(key:?)\\s*([A-Ga-g][b#]?(?:m(?:aj)?|min|minor|major)?)\\s*$",
+      "captures": {
+        "1": { "name": "keyword.other.key.chordmark" },
+        "2": { "name": "support.type.chord.chordmark" }
+      }
+    },
+    "chord-line": {
+      "comment": "A line that starts with a chord symbol (capital letter A-G optionally followed by chord quality)",
+      "match": "^(?=[A-GNn%]|\\[)(.*)$",
+      "captures": {
+        "1": {
+          "patterns": [
+            { "include": "#no-chord" },
+            { "include": "#repeat-marker" },
+            { "include": "#chord-symbol" },
+            { "include": "#bar-separator" },
+            { "include": "#beat-dot" },
+            { "include": "#sub-beat-delimiters" }
+          ]
+        }
+      }
+    },
+    "no-chord": {
+      "match": "\\bNC\\b",
+      "name": "keyword.other.no-chord.chordmark"
+    },
+    "repeat-marker": {
+      "match": "%%?",
+      "name": "keyword.other.repeat.chordmark"
+    },
+    "chord-symbol": {
+      "match": "[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?",
+      "name": "support.type.chord.chordmark"
+    },
+    "bar-separator": {
+      "match": "\\|",
+      "name": "punctuation.separator.bar.chordmark"
+    },
+    "beat-dot": {
+      "match": "\\.+",
+      "name": "constant.character.beat.chordmark"
+    },
+    "sub-beat-delimiters": {
+      "match": "[\\[\\]]",
+      "name": "punctuation.brackets.chordmark"
+    },
+    "lyric-line": {
+      "comment": "Lines with lyrics — may contain chord position markers",
+      "match": "^(?![#/0-9A-G%\\[])(.*)$",
+      "captures": {
+        "1": {
+          "patterns": [
+            { "include": "#chord-position-marker" }
+          ]
+        }
+      },
+      "name": "string.unquoted.lyric.chordmark"
+    },
+    "chord-position-marker": {
+      "match": "_",
+      "name": "keyword.operator.chord-position.chordmark"
+    }
+  }
+}
