@@ -4,8 +4,6 @@ title: First In Two
 parts:
   - name: Pop R&B
     songs:
-      - title: Wannabe
-        artist: Spice Girls
       - slug: break-my-heart
         title: Break My Heart
         artist: Dua Lipa

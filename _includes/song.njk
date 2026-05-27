@@ -133,6 +133,17 @@ layout: base.njk
   <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
   <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
   <div class="toolbar-sep"></div>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <div class="toolbar-sep"></div>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
 </div>
 
@@ -165,6 +176,24 @@ layout: base.njk
   const SOURCE = {{ content | dump | safe }};
   let transpose = 0;
 
+  // ── Preferences ────────────────────────────────────────────
+  let symbolType = localStorage.getItem('sh-symbolType') || 'chord';
+  let chartType  = localStorage.getItem('sh-chartType')  || 'all';
+
+  document.getElementById('sel-symbol').value = symbolType;
+  document.getElementById('sel-chart').value  = chartType;
+
+  document.getElementById('sel-symbol').onchange = function () {
+    symbolType = this.value;
+    localStorage.setItem('sh-symbolType', symbolType);
+    render();
+  };
+  document.getElementById('sel-chart').onchange = function () {
+    chartType = this.value;
+    localStorage.setItem('sh-chartType', chartType);
+    render();
+  };
+
   function fmt(v) { return v > 0 ? '+' + v : String(v); }
 
   function render() {
@@ -178,6 +207,8 @@ layout: base.njk
         alignBars:           true,
         printBarSeparators:  'always',
         printChordsDuration: 'uneven',
+        symbolType:          symbolType,
+        chartType:           chartType,
       });
       errEl.style.display   = 'none';
       rawEl.style.display   = 'none';

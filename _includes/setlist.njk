@@ -287,6 +287,17 @@ layout: base.njk
   <button class="ctrl-btn" id="btn-zoom-out">−</button>
   <span class="zoom-val" id="zoom-val">100%</span>
   <button class="ctrl-btn" id="btn-zoom-in">+</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
   <button id="btn-top">⬆ Top</button>
 </div>
 
@@ -298,22 +309,46 @@ layout: base.njk
   // Song sources embedded at build time
   var SONGS = {% setlistSongsJson parts %};
 
-  // Render all songs
-  document.querySelectorAll('.cm-song-content[data-slug]').forEach(function (el) {
-    var slug = el.dataset.slug;
-    var src  = SONGS[slug];
-    if (!src) { el.textContent = '(chart not found)'; return; }
-    try {
-      el.innerHTML = chordMark.renderSong(chordMark.parseSong(src), {
-        alignBars: true, printBarSeparators: 'always', printChordsDuration: 'uneven',
-      });
-    } catch (e) {
-      var d = document.createElement('div');
-      d.className = 'cm-raw-fallback';
-      d.textContent = src;
-      el.appendChild(d);
-    }
-  });
+  // ── Preferences ──────────────────────────────────────────
+  var symbolType = localStorage.getItem('sh-symbolType') || 'chord';
+  var chartType  = localStorage.getItem('sh-chartType')  || 'all';
+
+  function renderAll() {
+    document.querySelectorAll('.cm-song-content[data-slug]').forEach(function (el) {
+      var slug = el.dataset.slug;
+      var src  = SONGS[slug];
+      if (!src) { el.textContent = '(chart not found)'; return; }
+      el.innerHTML = '';
+      try {
+        el.innerHTML = chordMark.renderSong(chordMark.parseSong(src), {
+          alignBars: true, printBarSeparators: 'always', printChordsDuration: 'uneven',
+          symbolType: symbolType,
+          chartType:  chartType,
+        });
+      } catch (e) {
+        var d = document.createElement('div');
+        d.className = 'cm-raw-fallback';
+        d.textContent = src;
+        el.appendChild(d);
+      }
+    });
+  }
+
+  document.getElementById('sel-symbol').value = symbolType;
+  document.getElementById('sel-chart').value  = chartType;
+
+  document.getElementById('sel-symbol').onchange = function () {
+    symbolType = this.value;
+    localStorage.setItem('sh-symbolType', symbolType);
+    renderAll();
+  };
+  document.getElementById('sel-chart').onchange = function () {
+    chartType = this.value;
+    localStorage.setItem('sh-chartType', chartType);
+    renderAll();
+  };
+
+  renderAll();
 
   // ── Sync --ctrl-h to actual controls height ───────────────
   function syncCtrlH() {
@@ -426,7 +461,7 @@ layout: base.njk
   }
 
   function setSpeed(val) {
-    speed = Math.round(Math.max(0.2, Math.min(8, +val)) * 10) / 10;
+    speed = Math.round(Math.max(0.1, Math.min(8, +val)) * 10) / 10;
     document.getElementById('speed-slider').value = speed;
     document.getElementById('speed-val').textContent = speed.toFixed(1);
   }
