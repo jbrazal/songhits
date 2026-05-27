@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
   <title>{% if title %}{{ title }}{% if artist %} — {{ artist }}{% endif %} | SongHits{% else %}SongHits{% endif %}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,7 +60,7 @@
     .cmSong {
       max-width: 900px;
       line-height: 1;
-      font-family: 'Courier New', Courier, monospace;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
     }
     .cmSection { margin-bottom: 1.2em; }
 

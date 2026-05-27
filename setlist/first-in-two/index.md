@@ -4,7 +4,7 @@ title: First In Two
 parts:
   - name: Pop R&B
     songs:
-      - slug: break-my-heart
+      - slug: break-my-heart--dua-lipa
         title: Break My Heart
         artist: Dua Lipa
       - slug: dive--live-cover

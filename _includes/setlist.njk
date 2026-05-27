@@ -288,6 +288,7 @@ layout: base.njk
   <span class="zoom-val" id="zoom-val">100%</span>
   <button class="ctrl-btn" id="btn-zoom-in">+</button>
   <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
   <select id="sel-symbol" class="pref-select" title="Symbol type">
     <option value="chord">Chord Symbols</option>
     <option value="roman">Roman Numerals</option>
@@ -310,8 +311,50 @@ layout: base.njk
   var SONGS = {% setlistSongsJson parts %};
 
   // ── Preferences ──────────────────────────────────────────
+  var MONO_FONTS = [
+    { label: 'Courier',  value: "'Courier New', Courier, monospace" }
+  ];
+  var PROP_FONTS = [
+    { label: 'Verdana',        value: 'Verdana, Geneva, sans-serif' },
+    { label: 'Arial',          value: 'Arial, sans-serif' },
+    { label: 'Segoe UI',       value: "'Segoe UI', system-ui, sans-serif" },
+    { label: 'Roboto',         value: "'Roboto', sans-serif" },
+    { label: 'Montserrat',     value: "'Montserrat', sans-serif" },
+    { label: 'Nunito',         value: "'Nunito', sans-serif" },
+    { label: 'Inter',          value: "'Inter', sans-serif" },
+    { label: 'Open Sans',      value: "'Open Sans', sans-serif" },
+    { label: 'Helvetica Neue', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+    { label: 'Futura',         value: "'Futura', 'Century Gothic', sans-serif" }
+  ];
+
+  var fontMono  = localStorage.getItem('sh-fontMono') || "'Courier New', Courier, monospace";
+  var fontProp  = localStorage.getItem('sh-fontProp') || 'Verdana, Geneva, sans-serif';
   var symbolType = localStorage.getItem('sh-symbolType') || 'chord';
   var chartType  = localStorage.getItem('sh-chartType')  || 'all';
+
+  function applyFont(val) {
+    document.documentElement.style.setProperty('--chart-font', val);
+  }
+
+  function updateFontSelect() {
+    var lyricsOnly = chartType === 'lyrics';
+    var fonts   = lyricsOnly ? PROP_FONTS : MONO_FONTS;
+    var current = lyricsOnly ? fontProp   : fontMono;
+    var sel = document.getElementById('sel-font');
+    sel.innerHTML = '';
+    fonts.forEach(function (f) {
+      var opt = document.createElement('option');
+      opt.value = f.value; opt.textContent = f.label;
+      sel.appendChild(opt);
+    });
+    if (!fonts.some(function (f) { return f.value === current; })) {
+      current = fonts[0].value;
+      if (lyricsOnly) fontProp = current; else fontMono = current;
+    }
+    sel.value = current;
+    applyFont(current);
+  }
+  updateFontSelect();
 
   function renderAll() {
     document.querySelectorAll('.cm-song-content[data-slug]').forEach(function (el) {
@@ -337,6 +380,12 @@ layout: base.njk
   document.getElementById('sel-symbol').value = symbolType;
   document.getElementById('sel-chart').value  = chartType;
 
+  document.getElementById('sel-font').onchange = function () {
+    var val = this.value;
+    if (chartType === 'lyrics') { fontProp = val; localStorage.setItem('sh-fontProp', val); }
+    else                        { fontMono = val; localStorage.setItem('sh-fontMono', val); }
+    applyFont(val);
+  };
   document.getElementById('sel-symbol').onchange = function () {
     symbolType = this.value;
     localStorage.setItem('sh-symbolType', symbolType);
@@ -345,6 +394,7 @@ layout: base.njk
   document.getElementById('sel-chart').onchange = function () {
     chartType = this.value;
     localStorage.setItem('sh-chartType', chartType);
+    updateFontSelect();
     renderAll();
   };
 
