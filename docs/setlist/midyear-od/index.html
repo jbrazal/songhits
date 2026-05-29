@@ -1,6 +1,162 @@
----
-layout: base.njk
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>Midyear Overdrive | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #555555;
+      --chord:   #fbbf24;
+      --lyric:   #6b7f8e;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/">Songs</a>
+  <a href="/setlist/">Setlists</a>
+</nav>
 <style>
   /* ── Layout ───────────────────────────────────────────────── */
   :root { --toc-w: 210px; --ctrl-h: 48px; }
@@ -229,49 +385,125 @@ layout: base.njk
   }
 </style>
 
-{# ── Mobile overlay backdrop ─────────────────────────────────── #}
+
 <div id="toc-overlay"></div>
 
-{# ── Floating sidebar TOC ─────────────────────────────────────── #}
+
 <aside id="toc-sidebar">
-  {% for part in parts %}
-  <div class="toc-part-label">{{ part.name }}</div>
+  
+  <div class="toc-part-label">Set</div>
   <ul>
-    {% for song in part.songs %}
+    
     <li>
-      {% if song.slug %}
-        <a href="#{{ song.slug }}">{{ song.title }}</a>
-      {% else %}
-        <span class="toc-tbd">{{ song.title }}</span>
-      {% endif %}
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
     </li>
-    {% endfor %}
+    
+    <li>
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+      
+    </li>
+    
   </ul>
-  {% endfor %}
+  
 </aside>
 
-{# ── Main content ─────────────────────────────────────────────── #}
-<div id="setlist-wrap">
-  <h1 class="setlist-title">{{ title }}</h1>
 
-  {% for part in parts %}
-    {% for song in part.songs %}
-    <div class="song-block" id="{{ song.slug if song.slug else (song.title | lower | replace(' ', '-') | replace("'", '') | replace('&', 'and')) }}">
+<div id="setlist-wrap">
+  <h1 class="setlist-title">Midyear Overdrive</h1>
+
+  
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
       <div class="song-block-header">
-        <span class="song-block-title">{{ song.title }}</span>
-        {% if song.artist %}<span class="song-block-artist">— {{ song.artist }}</span>{% endif %}
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
       </div>
-      {% if song.slug %}
-        <div class="cm-song-content cmSong" data-slug="{{ song.slug }}"></div>
-      {% else %}
-        <p class="chart-pending">{% if song.tbd %}TBD{% else %}Chart coming soon{% endif %}</p>
-      {% endif %}
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
     </div>
-    {% endfor %}
-  {% endfor %}
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
+      <div class="song-block-header">
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
+      <div class="song-block-header">
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
+      <div class="song-block-header">
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
+      <div class="song-block-header">
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="break-my-heart--dua-lipa">
+      <div class="song-block-header">
+        <span class="song-block-title">Break My Heart</span>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="break-my-heart--dua-lipa"></div>
+      
+    </div>
+    
+  
 </div>
 
-{# ── Controls bar (top, below nav) ────────────────────────────── #}
+
 <div id="controls">
   <button id="btn-toc" title="Toggle song list">☰</button>
   <div class="toolbar-sep"></div>
@@ -308,7 +540,7 @@ layout: base.njk
   var chordMark = window['chord-mark'];
 
   // Song sources embedded at build time
-  var SONGS = {% setlistSongsJson parts %};
+  var SONGS = {"break-my-heart--dua-lipa":"//Artist: Dua Lipa  \r\n\r\nkey Em\r\n\r\n#i\r\nEm C Bm Em \r\n \r\n#v\r\nEm\r\n_ I've always been the one to say the first goodbye \r\nC Bm Em\r\n_ Had to love and lose a _hundred million times_\r\nC\r\nHad to get it wrong to know just what I like_\r\nBm\r\nNow I'm fal-_ling\r\nEm\r\nYou_ say my name like I have never heard before\r\nC Bm\r\nI'm_ indecisive, but, this time, _I know for sure\r\nEm\r\nI_ hope I'm not the only one that feels it all\r\nC\r\n_Are you fal-ling?\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nI won_\r\n \r\n \r\n#v\r\nEm\r\n_ der when you go if I stay on your mind\r\nC Bm\r\nTwo can_ play that game, but you win me _every time\r\nEm\r\nE_veryone before you was a waste of time\r\nC\r\nYeah, _you got me\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nBreak my\r\n \r\n \r\n#b\r\nC D\r\n_ _ heart\r\nBm Em D C\r\n_Break my_ _heart_\r\nD B7\r\nAm I_ falling _in love with the one that could break my heart?\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n \r\n \r\n#o\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?"};
 
   // ── Preferences ──────────────────────────────────────────
   var MONO_FONTS = [
@@ -549,3 +781,6 @@ layout: base.njk
   applyZoom();
 })();
 </script>
+
+</body>
+</html>

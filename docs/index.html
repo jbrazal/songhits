@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>SongHits | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #555555;
+      --chord:   #fbbf24;
+      --lyric:   #6b7f8e;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/">Songs</a>
+  <a href="/setlist/">Setlists</a>
+</nav>
+<style>
+  #home-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  .home-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--section);
+    margin: 0 0 14px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  /* ── Setlists ─────────────────────────────────────────────── */
+  .setlist-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .setlist-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 6px;
+    padding: 12px 18px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.12s;
+  }
+  .setlist-card:hover { border-color: var(--blue); text-decoration: none; }
+  .setlist-card-name { font-size: 14px; font-weight: 700; color: var(--red); }
+  .setlist-card-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* ── Songs ────────────────────────────────────────────────── */
+  .songs-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  #song-search {
+    background: #111;
+    border: 1px solid #222;
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    width: 260px;
+    outline: none;
+  }
+  #song-search:focus { border-color: var(--blue); }
+  #song-search::placeholder { color: #444; }
+
+  .songs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .song-card {
+    background: #0e0e0e;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 9px 13px;
+    text-decoration: none;
+    display: block;
+    transition: border-color 0.1s;
+  }
+  .song-card:hover { border-color: #333; text-decoration: none; }
+  .song-card-title  { color: var(--text); font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .song-card-artist { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .song-card.hidden { display: none; }
+</style>
+
+<div id="home-wrap">
+
+  
+  <div class="home-section-title">Setlists</div>
+  <div class="setlist-cards">
+    
+    <a class="setlist-card" href="/setlist/first-in-two/">
+      <div class="setlist-card-name">First In Two</div>
+      <div class="setlist-card-count">34 songs</div>
+    </a>
+    
+    <a class="setlist-card" href="/setlist/midyear-od/">
+      <div class="setlist-card-name">Midyear Overdrive</div>
+      <div class="setlist-card-count">6 songs</div>
+    </a>
+    
+  </div>
+  
+
+  <div class="home-section-title">Songs</div>
+  <div class="songs-filter">
+    <input id="song-search" type="search" placeholder="Filter songs…" autocomplete="off">
+  </div>
+  <div class="songs-grid" id="songs-grid">
+    
+    <a class="song-card" href="/songs/2002--anne-marie/"
+       data-title="2002"
+       data-artist="anne marie">
+      <div class="song-card-title">2002</div>
+      <div class="song-card-artist">Anne Marie</div>
+    </a>
+    
+    <a class="song-card" href="/songs/big-girls-dont-cry--fergie/"
+       data-title="big girls dont cry"
+       data-artist="fergie">
+      <div class="song-card-title">Big Girls Dont Cry</div>
+      <div class="song-card-artist">Fergie</div>
+    </a>
+    
+    <a class="song-card" href="/songs/break-my-heart/"
+       data-title="break my heart"
+       data-artist="">
+      <div class="song-card-title">Break My Heart</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/break-my-heart--dua-lipa/"
+       data-title="break my heart"
+       data-artist="dua lipa">
+      <div class="song-card-title">Break My Heart</div>
+      <div class="song-card-artist">Dua Lipa</div>
+    </a>
+    
+    <a class="song-card" href="/songs/close-to-you--annie-tracey/"
+       data-title="close to you"
+       data-artist="annie tracey">
+      <div class="song-card-title">Close To You</div>
+      <div class="song-card-artist">Annie Tracey</div>
+    </a>
+    
+    <a class="song-card" href="/songs/dance-monkey--tones-and-i/"
+       data-title="dance monkey"
+       data-artist="tones and i">
+      <div class="song-card-title">Dance Monkey</div>
+      <div class="song-card-artist">Tones And I</div>
+    </a>
+    
+    <a class="song-card" href="/songs/die-on-this-hill--sienna-spiro/"
+       data-title="die on this hill"
+       data-artist="sienna spiro">
+      <div class="song-card-title">Die On This Hill</div>
+      <div class="song-card-artist">Sienna Spiro</div>
+    </a>
+    
+    <a class="song-card" href="/songs/dive--live-cover/"
+       data-title="dive"
+       data-artist="live cover">
+      <div class="song-card-title">Dive</div>
+      <div class="song-card-artist">Live Cover</div>
+    </a>
+    
+    <a class="song-card" href="/songs/domino--jessie-j/"
+       data-title="domino"
+       data-artist="jessie j">
+      <div class="song-card-title">Domino</div>
+      <div class="song-card-artist">Jessie J</div>
+    </a>
+    
+    <a class="song-card" href="/songs/ebony--ivory--freestyle/"
+       data-title="ebony"
+       data-artist="ivory">
+      <div class="song-card-title">Ebony</div>
+      <div class="song-card-artist">Ivory</div>
+    </a>
+    
+    <a class="song-card" href="/songs/fall-in-love-alone--stacey-ryan/"
+       data-title="fall in love alone"
+       data-artist="stacey ryan">
+      <div class="song-card-title">Fall In Love Alone</div>
+      <div class="song-card-artist">Stacey Ryan</div>
+    </a>
+    
+    <a class="song-card" href="/songs/foolish-heart/"
+       data-title="foolish heart"
+       data-artist="">
+      <div class="song-card-title">Foolish Heart</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/get-in-girl--meghan-trainor/"
+       data-title="get in girl"
+       data-artist="meghan trainor">
+      <div class="song-card-title">Get In Girl</div>
+      <div class="song-card-artist">Meghan Trainor</div>
+    </a>
+    
+    <a class="song-card" href="/songs/how-deep-is-your-love--zara-larsson/"
+       data-title="how deep is your love"
+       data-artist="zara larsson">
+      <div class="song-card-title">How Deep Is Your Love</div>
+      <div class="song-card-artist">Zara Larsson</div>
+    </a>
+    
+    <a class="song-card" href="/songs/i-just-might--bruno-mars/"
+       data-title="i just might"
+       data-artist="bruno mars">
+      <div class="song-card-title">I Just Might</div>
+      <div class="song-card-artist">Bruno Mars</div>
+    </a>
+    
+    <a class="song-card" href="/songs/just-the-two-of-us--bill-withers/"
+       data-title="just the two of us"
+       data-artist="bill withers">
+      <div class="song-card-title">Just The Two Of Us</div>
+      <div class="song-card-artist">Bill Withers</div>
+    </a>
+    
+    <a class="song-card" href="/songs/killing-me-softly/"
+       data-title="killing me softly"
+       data-artist="">
+      <div class="song-card-title">Killing Me Softly</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/lets-get-it-started/"
+       data-title="lets get it started"
+       data-artist="">
+      <div class="song-card-title">Lets Get It Started</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/Love/"
+       data-title="love"
+       data-artist="">
+      <div class="song-card-title">Love</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/lush-life--zara-larsson/"
+       data-title="lush life"
+       data-artist="zara larsson">
+      <div class="song-card-title">Lush Life</div>
+      <div class="song-card-artist">Zara Larsson</div>
+    </a>
+    
+    <a class="song-card" href="/songs/maling-akala--brownman-revival/"
+       data-title="maling akala"
+       data-artist="brownman revival">
+      <div class="song-card-title">Maling Akala</div>
+      <div class="song-card-artist">Brownman Revival</div>
+    </a>
+    
+    <a class="song-card" href="/songs/manchild/"
+       data-title="manchild"
+       data-artist="">
+      <div class="song-card-title">Manchild</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/manila-girl--put3ska/"
+       data-title="manila girl"
+       data-artist="put3ska">
+      <div class="song-card-title">Manila Girl</div>
+      <div class="song-card-artist">Put3ska</div>
+    </a>
+    
+    <a class="song-card" href="/songs/palayo-sa-mundo--jolianne/"
+       data-title="palayo sa mundo"
+       data-artist="jolianne">
+      <div class="song-card-title">Palayo Sa Mundo</div>
+      <div class="song-card-artist">Jolianne</div>
+    </a>
+    
+    <a class="song-card" href="/songs/pda-john-legend/"
+       data-title="pda john legend"
+       data-artist="">
+      <div class="song-card-title">Pda John Legend</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/raining-in-manila--lola-amour/"
+       data-title="raining in manila"
+       data-artist="lola amour">
+      <div class="song-card-title">Raining In Manila</div>
+      <div class="song-card-artist">Lola Amour</div>
+    </a>
+    
+    <a class="song-card" href="/songs/river--bishop-briggs/"
+       data-title="river"
+       data-artist="bishop briggs">
+      <div class="song-card-title">River</div>
+      <div class="song-card-artist">Bishop Briggs</div>
+    </a>
+    
+    <a class="song-card" href="/songs/sining-marilag-medley/"
+       data-title="sining marilag medley"
+       data-artist="">
+      <div class="song-card-title">Sining Marilag Medley</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/superstition--stevie-wonder/"
+       data-title="superstition"
+       data-artist="stevie wonder">
+      <div class="song-card-title">Superstition</div>
+      <div class="song-card-artist">Stevie Wonder</div>
+    </a>
+    
+    <a class="song-card" href="/songs/titanium--david-guetta/"
+       data-title="titanium"
+       data-artist="david guetta">
+      <div class="song-card-title">Titanium</div>
+      <div class="song-card-artist">David Guetta</div>
+    </a>
+    
+    <a class="song-card" href="/songs/unwritten--natasha-bedingfield/"
+       data-title="unwritten"
+       data-artist="natasha bedingfield">
+      <div class="song-card-title">Unwritten</div>
+      <div class="song-card-artist">Natasha Bedingfield</div>
+    </a>
+    
+    <a class="song-card" href="/songs/uptown-funk--bruno-mars/"
+       data-title="uptown funk"
+       data-artist="bruno mars">
+      <div class="song-card-title">Uptown Funk</div>
+      <div class="song-card-artist">Bruno Mars</div>
+    </a>
+    
+    <a class="song-card" href="/songs/what-a-girl-wants/"
+       data-title="what a girl wants"
+       data-artist="">
+      <div class="song-card-title">What A Girl Wants</div>
+      
+    </a>
+    
+    <a class="song-card" href="/songs/youll-be-safe-here/"
+       data-title="youll be safe here"
+       data-artist="">
+      <div class="song-card-title">Youll Be Safe Here</div>
+      
+    </a>
+    
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('song-search').addEventListener('input', function () {
+    var q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.song-card').forEach(function (el) {
+      var match = !q || el.dataset.title.includes(q) || el.dataset.artist.includes(q);
+      el.classList.toggle('hidden', !match);
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -42,7 +42,7 @@ parts:
       - slug: ebony--ivory--freestyle
         title: Ebony & Ivory
         artist: Freestyle
-      - slug: Foolish-Heart
+      - slug: foolish-heart
         title: Foolish Heart
         artist: Steve Perry
       - slug: pda-john-legend

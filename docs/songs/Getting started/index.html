@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting started | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #555555;
+      --chord:   #fbbf24;
+      --lyric:   #6b7f8e;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <span class="nav-brand">SongHits</span>
+  <a href="/">Songs</a>
+  <a href="/setlist/">Setlists</a>
+</nav>
+<style>
+  #song-toolbar {
+    position: sticky;
+    top: 44px;
+    z-index: 400;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #song-toolbar .song-heading {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #song-toolbar .song-heading strong { color: #e8e8e8; font-size: 14px; }
+  #song-toolbar .song-heading span   { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  #transpose-val {
+    display: inline-block;
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--chord);
+    font-size: 13px;
+  }
+  .ctrl-btn-wide {
+    width: auto;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+  #song-body {
+    padding: 28px 32px 80px;
+    max-width: 960px;
+  }
+  #cm-error {
+    background: #3a1010;
+    border: 1px solid #7a3030;
+    color: #f48771;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    white-space: pre-wrap;
+  }
+  #cm-raw {
+    white-space: pre-wrap;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  @media print {
+    nav, #song-toolbar { display: none; }
+    #song-body { padding: 0; }
+    .cmSection { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+<div id="song-toolbar">
+  <div class="song-heading">
+    <strong>Getting started</strong>
+  </div>
+  <span class="ctrl-label">Transpose</span>
+  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
+  <span id="transpose-val">0</span>
+  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
+  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+</div>
+
+<div id="song-body">
+  <div id="cm-error" style="display:none"></div>
+  <div id="cm-content" class="cmSong"></div>
+  <div id="cm-raw"    style="display:none"></div>
+</div>
+
+<script src="/assets/chord-mark.js"></script>
+<script>
+(function () {
+  const chordMark = window['chord-mark'];
+  const SOURCE = &quot;Welcome to Chord Chart Studio!&#92;r&#92;n&#92;r&#92;nChord Chart Studio is the official editor of the ChordMark format. &#92;r&#92;nYou can use it to quickly write accurate transcription of songs made up of chords and lyrics. &#92;r&#92;n&#92;r&#92;nA % D7.. E7..&#92;r&#92;n_Just write _some chords, some _lyrics&#92;r&#92;n%&#92;r&#92;n_And see how it _looks: _terrific!&#92;r&#92;n&#92;r&#92;nWhere to start? You can either:&#92;r&#92;n- check the sample song on the left&#92;r&#92;n- read the user guide, by clicking the big yellow button in the top right corner&#92;r&#92;n&#92;r&#92;nHave fun! &#92;r&#92;n&quot;;
+  let transpose = 0;
+
+  function fmt(v) { return v > 0 ? '+' + v : String(v); }
+
+  function render() {
+    const content = document.getElementById('cm-content');
+    const errEl   = document.getElementById('cm-error');
+    const rawEl   = document.getElementById('cm-raw');
+    try {
+      const parsed = chordMark.parseSong(SOURCE);
+      content.innerHTML = chordMark.renderSong(parsed, {
+        transposeValue:      transpose,
+        alignBars:           true,
+        printBarSeparators:  'always',
+        printChordsDuration: 'uneven',
+      });
+      errEl.style.display   = 'none';
+      rawEl.style.display   = 'none';
+      content.style.display = '';
+    } catch (e) {
+      errEl.textContent    = 'Parse error: ' + (e && e.message ? e.message : String(e));
+      errEl.style.display  = 'block';
+      rawEl.textContent    = SOURCE;
+      rawEl.style.display  = 'block';
+      content.style.display = 'none';
+    }
+    document.getElementById('transpose-val').textContent = fmt(transpose);
+  }
+
+  document.getElementById('btn-up').onclick    = () => { transpose = Math.min(11, transpose + 1);  render(); };
+  document.getElementById('btn-down').onclick  = () => { transpose = Math.max(-11, transpose - 1); render(); };
+  document.getElementById('btn-reset').onclick = () => { transpose = 0; render(); };
+  document.getElementById('btn-pdf').onclick   = () => window.print();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === '.')        { transpose = Math.min(11, transpose + 1);  render(); }
+    else if (e.key === ',')   { transpose = Math.max(-11, transpose - 1); render(); }
+    else if (e.key === '0')   { transpose = 0; render(); }
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>

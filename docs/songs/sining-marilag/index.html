@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sining Marilag | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #555555;
+      --chord:   #fbbf24;
+      --lyric:   #6b7f8e;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <span class="nav-brand">SongHits</span>
+  <a href="/">Songs</a>
+  <a href="/setlist/">Setlists</a>
+</nav>
+<style>
+  #song-toolbar {
+    position: sticky;
+    top: 44px;
+    z-index: 400;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #song-toolbar .song-heading {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #song-toolbar .song-heading strong { color: #e8e8e8; font-size: 14px; }
+  #song-toolbar .song-heading span   { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  #transpose-val {
+    display: inline-block;
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--chord);
+    font-size: 13px;
+  }
+  .ctrl-btn-wide {
+    width: auto;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+  #song-body {
+    padding: 28px 32px 80px;
+    max-width: 960px;
+  }
+  #cm-error {
+    background: #3a1010;
+    border: 1px solid #7a3030;
+    color: #f48771;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    white-space: pre-wrap;
+  }
+  #cm-raw {
+    white-space: pre-wrap;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  @media print {
+    nav, #song-toolbar { display: none; }
+    #song-body { padding: 0; }
+    .cmSection { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+<div id="song-toolbar">
+  <div class="song-heading">
+    <strong>Sining Marilag</strong>
+  </div>
+  <span class="ctrl-label">Transpose</span>
+  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
+  <span id="transpose-val">0</span>
+  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
+  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+</div>
+
+<div id="song-body">
+  <div id="cm-error" style="display:none"></div>
+  <div id="cm-content" class="cmSong"></div>
+  <div id="cm-raw"    style="display:none"></div>
+</div>
+
+<script src="/assets/chord-mark.js"></script>
+<script>
+(function () {
+  const chordMark = window['chord-mark'];
+  const SOURCE = &quot;#i&#92;r&#92;nDmaj7 Bm7 C#m7&#92;r&#92;nEm7 Asus2&#92;r&#92;n&#92;r&#92;n#v&#92;r&#92;nE6sus4 Dmaj7&#92;r&#92;n_ _A flower is not a flower until they bloom&#92;r&#92;nBm7&#92;r&#92;nLike my _first time living life the day I met you&#92;r&#92;nC#m7&#92;r&#92;n_Hate to think that humans have to die some day&#92;r&#92;nEm7 Asus2 E6sus4&#92;r&#92;nA _thousand years _won&#39;t do_&#92;r&#92;n&#92;r&#92;n#p&#92;r&#92;nDmaj7&#92;r&#92;n_ No wonder I fell in love, even though I&#39;m scared to love&#92;r&#92;nBm7&#92;r&#92;n_Baby, I know the pain is unbearable (there&#39;s no way)&#92;r&#92;nC#m7&#92;r&#92;n_ Pinsala&#39;y ikinamada mo, binibining may salamangka&#92;r&#92;nEm7 Asus2&#92;r&#92;n_ You&#39;ve turned my limbics _into a bouquet&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#c&#92;r&#92;nDmaj7&#92;r&#92;nIkaw ay tila _sining sa museong &#39;di naluluma&#92;r&#92;nBm7&#92;r&#92;nBini_bini kong ginto, hanggang kaluluwa&#92;r&#92;nC#m7 Em7 Asus2 E6sus4&#92;r&#92;nGonna _keep you like a Nu couchÃ©, all my _life_ _&#92;r&#92;nDmaj7&#92;r&#92;nAt kung sa tin_gin mo na ang oras mo&#39;y lumipas na&#92;r&#92;nBm7&#92;r&#92;nAko&#39;y pa_tuloy na mararahuyo sa ganda&#92;r&#92;nC#m7 Em7 Asus2 E6sus4&#92;r&#92;nI&#39;d still _kiss you every single day, all my _life_ _&#92;r&#92;n&#92;r&#92;n&#92;r&#92;n#i&#92;r&#92;n&#92;r&#92;nE5&#92;r&#92;n&#92;r&#92;n_Hotshot, running in mind nonstop, vertigo&#92;r&#92;n&#92;r&#92;nCurled plot, whiskey in a teapot, ethanol&#92;r&#92;n&#92;r&#92;nBurnin&#39; like KELT9b, bright heavenly body&#92;r&#92;n&#92;r&#92;nOnly music can define you and it sounds like, ah&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#Break&#92;r&#92;n&#92;r&#92;nF#maj7 C# A#m7 G# F#maj7 C#&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#v&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C#&#92;r&#92;n&#92;r&#92;n_ _D&#39;am_alfi in a bar, A_u in a goose&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nA _photo of me knocked _Chuck, point black smooth&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nI_kaw ang minsan sa m_ga palagi&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nAng mi_tolohiya sa&#39;yo&#39;y _maaari&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#p&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;n_Shawty, you don&#39;t need no _makeup&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nBrowneyed chick, _northside beauty, _stand out&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nPretty, pretty lady _Big Bang doesn&#39;t _make sense&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nI see Go_d in your face, _girl, I mean it&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nMarila_g _&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#c&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C#&#92;r&#92;n&#92;r&#92;n_ Ang _himala&#39;y sa&#39;yo ibibin_tang _&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C# A#m7 G#&#92;r&#92;n&#92;r&#92;n_ _Haven&#39;t felt _ so div_ine &#39;til I look_ed in your e_yes&#92;r&#92;n&#92;r&#92;nD#m7&#92;r&#92;n&#92;r&#92;nI see my fu_ture&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nBaby, _loving you _saved me&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#v&#92;r&#92;n&#92;r&#92;nF#maj7&#92;r&#92;n&#92;r&#92;nI wonder what _genre was in Heaven&#92;r&#92;n&#92;r&#92;nC# A#m7&#92;r&#92;n&#92;r&#92;n_When I caught a glimpse of it coming from your _lips, babe&#92;r&#92;n&#92;r&#92;nG# F#maj7&#92;r&#92;n&#92;r&#92;nMusic _to my ears, babe, makin&#39; the whole place _okay&#92;r&#92;n&#92;r&#92;nC#&#92;r&#92;n&#92;r&#92;nGirl, you _are my Friday&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nA reason to give _my thanks, I love e_very part of you&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nCan w_e slow _down?&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nGirl, I don&#39;t_ wanna miss _a thing&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nIbigin ka&#39;y _drama sa tea_trong, upua&#39;y limitado&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nBa_wat kislap ng _mata&#39;y kawalan, oo, hey&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#p&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;n_Shawty, you don&#39;t need no _makeup&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nBrowneyed chick, _northside beauty, _stand out&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nPretty, pretty lady _Big Bang doesn&#39;t _make sense&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nI see Go_d in your face, _girl, I mean it&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;nMarila_g _&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#c&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C#&#92;r&#92;n&#92;r&#92;n_ Ang _himala&#39;y sa&#39;yo ibibin_tang _&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C# A#m7 G#&#92;r&#92;n&#92;r&#92;n_ _Haven&#39;t felt _ so div_ine &#39;til I look_ed in your e_yes&#92;r&#92;n&#92;r&#92;nD#m7&#92;r&#92;n&#92;r&#92;nI see my fu_ture&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;nBaby, _loving you _saved me&#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n &#92;r&#92;n&#92;r&#92;n#o&#92;r&#92;n&#92;r&#92;nF#maj7 C#&#92;r&#92;n&#92;r&#92;n_Hotshot, running _in mind nonstop, vertigo&#92;r&#92;n&#92;r&#92;nA#m7 G#&#92;r&#92;n&#92;r&#92;n_Curled plot, whiskey _in a teapot, ethanol&#92;r&#92;n&#92;r&#92;nD#m7&#92;r&#92;n&#92;r&#92;n_Burnin&#39; like KELT9b, bright heavenly body&#92;r&#92;n&#92;r&#92;nA#m7 G# F#maj7 C# A#m7 G#&#92;r&#92;n&#92;r&#92;nOnly _music can define you _and it sounds like_ _ _ _&quot;;
+  let transpose = 0;
+
+  function fmt(v) { return v > 0 ? '+' + v : String(v); }
+
+  function render() {
+    const content = document.getElementById('cm-content');
+    const errEl   = document.getElementById('cm-error');
+    const rawEl   = document.getElementById('cm-raw');
+    try {
+      const parsed = chordMark.parseSong(SOURCE);
+      content.innerHTML = chordMark.renderSong(parsed, {
+        transposeValue:      transpose,
+        alignBars:           true,
+        printBarSeparators:  'always',
+        printChordsDuration: 'uneven',
+      });
+      errEl.style.display   = 'none';
+      rawEl.style.display   = 'none';
+      content.style.display = '';
+    } catch (e) {
+      errEl.textContent    = 'Parse error: ' + (e && e.message ? e.message : String(e));
+      errEl.style.display  = 'block';
+      rawEl.textContent    = SOURCE;
+      rawEl.style.display  = 'block';
+      content.style.display = 'none';
+    }
+    document.getElementById('transpose-val').textContent = fmt(transpose);
+  }
+
+  document.getElementById('btn-up').onclick    = () => { transpose = Math.min(11, transpose + 1);  render(); };
+  document.getElementById('btn-down').onclick  = () => { transpose = Math.max(-11, transpose - 1); render(); };
+  document.getElementById('btn-reset').onclick = () => { transpose = 0; render(); };
+  document.getElementById('btn-pdf').onclick   = () => window.print();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === '.')        { transpose = Math.min(11, transpose + 1);  render(); }
+    else if (e.key === ',')   { transpose = Math.max(-11, transpose - 1); render(); }
+    else if (e.key === '0')   { transpose = 0; render(); }
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
