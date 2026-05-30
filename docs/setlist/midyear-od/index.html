@@ -306,7 +306,7 @@
   #setlist-wrap {
     margin-left: var(--toc-w);
     padding: calc(var(--ctrl-h) + 20px) 40px 60px 32px;
-    font-size: var(--zoom-size, 14px);
+    font-size: 14px;
     transition: margin-left 0.2s ease;
   }
 
@@ -322,11 +322,15 @@
 
   .song-block { margin-bottom: 48px; }
   .song-block-header {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    z-index: 40;
+    background: var(--bg);
     display: flex;
     align-items: baseline;
     gap: 10px;
     margin-bottom: 10px;
-    padding-bottom: 6px;
+    padding: 6px 0;
     border-bottom: 1px solid #1a1a1a;
   }
   .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
@@ -515,9 +519,9 @@
   <button class="ctrl-btn" id="btn-faster">+</button>
   <span id="speed-val">1.5</span>
   <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Zoom</span>
+  <span class="ctrl-label">Size</span>
   <button class="ctrl-btn" id="btn-zoom-out">−</button>
-  <span class="zoom-val" id="zoom-val">100%</span>
+  <span class="zoom-val" id="zoom-val">14px</span>
   <button class="ctrl-btn" id="btn-zoom-in">+</button>
   <div class="toolbar-sep"></div>
   <select id="sel-font" class="pref-select" title="Chart font"></select>
@@ -754,15 +758,15 @@
   document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
   document.getElementById('btn-top').onclick      = function () { stop(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
-  // ── Zoom ──────────────────────────────────────────────────
-  var ZOOM = [60,70,80,90,100,110,120,130,150,175,200], zi = 4;
+  // ── Font size ─────────────────────────────────────────────
+  var SIZES = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28], zi = 4;
   function applyZoom() {
-    var pct = ZOOM[zi];
-    document.getElementById('setlist-wrap').style.setProperty('--zoom-size', (pct / 100 * 14) + 'px');
-    document.getElementById('zoom-val').textContent = pct + '%';
+    var px = SIZES[zi];
+    document.getElementById('setlist-wrap').style.fontSize = px + 'px';
+    document.getElementById('zoom-val').textContent = px + 'px';
   }
   document.getElementById('btn-zoom-out').onclick = function () { zi = Math.max(0, zi - 1); applyZoom(); };
-  document.getElementById('btn-zoom-in').onclick  = function () { zi = Math.min(ZOOM.length - 1, zi + 1); applyZoom(); };
+  document.getElementById('btn-zoom-in').onclick  = function () { zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); };
 
   // ── Keyboard ──────────────────────────────────────────────
   document.addEventListener('keydown', function (e) {
@@ -772,7 +776,7 @@
       case 'ArrowUp':     e.preventDefault(); setSpeed(speed + 0.5);           break;
       case 'ArrowDown':   e.preventDefault(); setSpeed(speed - 0.5);           break;
       case 'Home':        e.preventDefault(); stop(); window.scrollTo({top:0, behavior:'smooth'}); break;
-      case '+': case '=': e.preventDefault(); zi = Math.min(ZOOM.length-1, zi+1); applyZoom(); break;
+      case '+': case '=': e.preventDefault(); zi = Math.min(SIZES.length-1, zi+1); applyZoom(); break;
       case '-':           e.preventDefault(); zi = Math.max(0, zi-1); applyZoom(); break;
     }
   });
