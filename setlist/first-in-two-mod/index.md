@@ -1,6 +1,6 @@
 ---
 layout: setlist.njk
-title: First In Two
+title: First In Two (Modified)
 parts:
   - name: Pop R&B
     songs:
@@ -25,9 +25,9 @@ parts:
       - slug: Love
         title: Love
         artist: Keyshia Cole
-      - slug: big-girls-dont-cry--fergie
-        title: "Big Girls Don't Cry"
-        artist: Fergie
+      - slug: what-a-girl-wants
+        title: What a Girl Wants
+        artist: Christina Aguilera
   - name: Soul
     songs:
       - slug: die-on-this-hill--sienna-spiro
@@ -39,9 +39,9 @@ parts:
       - slug: close-to-you--annie-tracey
         title: Close to You
         artist: Annie Tracey
-      - slug: what-a-girl-wants
-        title: What a Girl Wants
-        artist: Christina Aguilera
+      - slug: big-girls-dont-cry--fergie
+        title: "Big Girls Don't Cry"
+        artist: Fergie
       - slug: ebony--ivory--freestyle
         title: Ebony & Ivory
         artist: Freestyle
@@ -112,20 +112,10 @@ parts:
       - slug: dance-monkey--tones-and-i
         title: Dance Monkey
         artist: Tones and I
-      - slug: uptown-funk--bruno-mars
-        title: Uptown Funk
+      - slug: treasure-bruno-mars
+        title: Treasure
         artist: Bruno Mars
       - slug: raining-in-manila--lola-amour
         title: Raining in Manila
         artist: Lola Amour
-  - name: Encore
-    songs:
-      - slug: treasure-bruno-mars
-        title: Treasure
-        artist: Bruno Mars
-      - slug: moves-like-jagger
-        title: Moves Live Jagger
-        artist: Maroon 5
-      
-
 ---
