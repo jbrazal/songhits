@@ -7,6 +7,9 @@ parts:
       - slug: break-my-heart--dua-lipa
         title: Break My Heart
         artist: Dua Lipa
+      - slug: dont-start-now--dua-lipa
+        title: Don't Start Now
+        artist: Dua Lipa
       - slug: dive--live-cover
         title: Dive
         artist: Olivia Dean
