@@ -16,6 +16,9 @@ parts:
       - slug:  sining-marilag-medley
         title: Sining Marilag Medley
         artist: Dionela
+      - slug: marilag-dionela
+        title: Marilag
+        artist: Dionela
       - slug: palayo-sa-mundo--jolianne
         title: Palayo sa Mundo
         artist: Jolianne
