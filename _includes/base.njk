@@ -153,9 +153,9 @@
 </head>
 <body>
 <nav>
- <a href="/"> <span class="nav-brand">SongHits</span></a>
-  <a href="/">Songs</a>
-  <a href="/setlist/">Setlists</a>
+ <a href="{{ '/' | url }}"> <span class="nav-brand">SongHits</span></a>
+  <a href="{{ '/songs/' | url }}">Songs</a>
+  <a href="{{ '/setlist/' | url }}">Setlists</a>
 </nav>
 {{ content | safe }}
 </body>

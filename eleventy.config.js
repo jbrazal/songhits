@@ -89,9 +89,10 @@ module.exports = function (eleventyConfig) {
 
   // ── Eleventy config ─────────────────────────────────────────
   return {
+    pathPrefix: '/songhits/',
     dir: {
       input: '.',
-      output: '_site',
+      output: 'docs',
       includes: '_includes',
       layouts: '_includes',
     },
