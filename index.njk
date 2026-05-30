@@ -87,7 +87,7 @@ title: SongHits
   <div class="home-section-title">Setlists</div>
   <div class="setlist-cards">
     {% for sl in collections.setlists %}
-    <a class="setlist-card" href="{{ sl.url }}">
+    <a class="setlist-card" href="{{ sl.url | url }}">
       <div class="setlist-card-name">{{ sl.data.title }}</div>
       <div class="setlist-card-count">{{ sl.data.parts | countSongs }} songs</div>
     </a>
@@ -101,7 +101,7 @@ title: SongHits
   </div>
   <div class="songs-grid" id="songs-grid">
     {% for song in collections.songs %}
-    <a class="song-card" href="{{ song.url }}"
+    <a class="song-card" href="{{ song.url | url }}"
        data-title="{{ song.data.title | lower }}"
        data-artist="{{ song.data.artist | lower }}">
       <div class="song-card-title">{{ song.data.title }}</div>

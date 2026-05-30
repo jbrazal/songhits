@@ -32,7 +32,7 @@ title: Setlists
   <ul class="setlist-list">
     {% for sl in collections.setlists %}
     <li>
-      <a href="{{ sl.url }}">{{ sl.data.title }}</a>
+      <a href="{{ sl.url | url }}">{{ sl.data.title }}</a>
       <span class="setlist-song-count">{{ sl.data.parts | countSongs }} songs</span>
     </li>
     {% endfor %}
