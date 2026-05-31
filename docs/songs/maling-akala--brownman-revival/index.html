@@ -149,6 +149,27 @@
       flex-shrink: 0;
     }
     .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
   </style>
 </head>
 <body>
@@ -283,6 +304,8 @@
   <div class="song-heading">
     <strong>Maling Akala</strong><span>— Brownman Revival</span>
   </div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
   <span class="ctrl-label">Transpose</span>
   <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
   <span id="transpose-val">0</span>
@@ -448,6 +471,18 @@
   });
 
   render();
+
+  // ── Tempo blinker ────────────────────────────────────────────
+  (function () {
+    var m = SOURCE.match(/^tempo:\s*(\d+)/m);
+    if (m) {
+      var bpm = parseInt(m[1], 10);
+      var blinker = document.getElementById('tempo-blinker');
+      blinker.style.animationDuration = (60 / bpm) + 's';
+      blinker.title = bpm + ' BPM';
+      blinker.classList.add('active');
+    }
+  })();
 
   // ── Autoscroll ──────────────────────────────────────────────
   let playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;

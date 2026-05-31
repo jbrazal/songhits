@@ -149,6 +149,27 @@
       flex-shrink: 0;
     }
     .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
   </style>
 </head>
 <body>
@@ -511,6 +532,8 @@
 <div id="controls">
   <button id="btn-toc" title="Toggle song list">☰</button>
   <div class="toolbar-sep"></div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
   <button id="btn-toggle">▶ Play</button>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Speed</span>
@@ -690,6 +713,26 @@
   // Desktop starts with TOC open
   if (!isMobile()) btnToc.classList.add('active');
 
+  // ── Tempo blinker ─────────────────────────────────────────
+  var bpmMap = {};
+  Object.keys(SONGS).forEach(function (slug) {
+    var m = SONGS[slug].match(/^tempo:\s*(\d+)/m);
+    if (m) bpmMap[slug] = parseInt(m[1], 10);
+  });
+
+  function updateBlinker(slug) {
+    var blinker = document.getElementById('tempo-blinker');
+    var bpm = bpmMap[slug];
+    if (bpm) {
+      blinker.style.animationDuration = (60 / bpm) + 's';
+      blinker.title = bpm + ' BPM';
+      blinker.classList.add('active');
+    } else {
+      blinker.classList.remove('active');
+      blinker.title = '';
+    }
+  }
+
   // ── Active TOC link via IntersectionObserver ──────────────
   var tocLinks = {};
   document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
@@ -706,6 +749,7 @@
           active.classList.add('active');
           active.scrollIntoView({ block: 'nearest' });
         }
+        updateBlinker(id);
       }
     });
   }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
@@ -713,6 +757,10 @@
   document.querySelectorAll('.song-block[id]').forEach(function (el) {
     observer.observe(el);
   });
+
+  // Initialise blinker to the first song on load
+  var firstBlock = document.querySelector('.song-block[id]');
+  if (firstBlock) updateBlinker(firstBlock.id);
 
   // ── Autoscroll ────────────────────────────────────────────
   var playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;
