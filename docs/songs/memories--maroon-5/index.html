@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>Memories — Maroon 5 | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #555555;
+      --chord:   #fbbf24;
+      --lyric:   #6b7f8e;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/songhits/songs/">Songs</a>
+  <a href="/songhits/setlist/">Setlists</a>
+</nav>
+<style>
+  #song-toolbar {
+    position: sticky;
+    top: 44px;
+    z-index: 400;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #song-toolbar .song-heading {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #song-toolbar .song-heading strong { color: #e8e8e8; font-size: 14px; }
+  #song-toolbar .song-heading span   { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  #transpose-val {
+    display: inline-block;
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--chord);
+    font-size: 13px;
+  }
+  .ctrl-btn-wide {
+    width: auto;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+  #song-body {
+    padding: 28px 32px 80px;
+    max-width: 960px;
+  }
+  #cm-error {
+    background: #3a1010;
+    border: 1px solid #7a3030;
+    color: #f48771;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    white-space: pre-wrap;
+  }
+  #cm-raw {
+    white-space: pre-wrap;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ── Docked controls ──────────────────────────────────────── */
+  #scroll-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: #0a0a0a;
+    border-top: 1px solid #1e1e1e;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  #btn-play {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-play.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  @media print {
+    nav, #song-toolbar, #scroll-controls { display: none; }
+    #song-body { padding: 0; }
+    .cmSection { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+<div id="song-toolbar">
+  <div class="song-heading">
+    <strong>Memories</strong><span>— Maroon 5</span>
+  </div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Transpose</span>
+  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
+  <span id="transpose-val">0</span>
+  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
+  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <div class="toolbar-sep"></div>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+</div>
+
+<div id="song-body">
+  <div id="cm-error" style="display:none"></div>
+  <div id="cm-content" class="cmSong"></div>
+  <div id="cm-raw"    style="display:none"></div>
+</div>
+
+<div id="scroll-controls">
+  <button id="btn-play">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower">−</button>
+  <input type="range" id="speed-slider" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster">+</button>
+  <span id="speed-val">1.5</span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Size</span>
+  <button class="ctrl-btn" id="btn-zoom-out">−</button>
+  <span class="zoom-val" id="size-val">14px</span>
+  <button class="ctrl-btn" id="btn-zoom-in">+</button>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script src="/songhits/assets/chord-mark.js"></script>
+<script>
+(function () {
+  const chordMark = window['chord-mark'];
+  const SOURCE = "AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC G Am Em\nF C F G\n\n#v\nC G Am Em\nF C F G\n\n#p\nF C G Am\nF C G G\n\n#c\nC G Am Em\nF C F G\n\n#b\nAm Em F C\nF C G G\n\n#o\nC G Am Em\nF C\n";
+  let transpose = 0;
+
+  // ── Preferences ────────────────────────────────────────────
+  const MONO_FONTS = [
+    { label: 'Courier',  value: "'Courier New', Courier, monospace" }
+  ];
+  const PROP_FONTS = [
+    { label: 'Verdana',        value: 'Verdana, Geneva, sans-serif' },
+    { label: 'Arial',          value: 'Arial, sans-serif' },
+    { label: 'Segoe UI',       value: "'Segoe UI', system-ui, sans-serif" },
+    { label: 'Roboto',         value: "'Roboto', sans-serif" },
+    { label: 'Montserrat',     value: "'Montserrat', sans-serif" },
+    { label: 'Nunito',         value: "'Nunito', sans-serif" },
+    { label: 'Inter',          value: "'Inter', sans-serif" },
+    { label: 'Open Sans',      value: "'Open Sans', sans-serif" },
+    { label: 'Helvetica Neue', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+    { label: 'Futura',         value: "'Futura', 'Century Gothic', sans-serif" }
+  ];
+
+  let fontMono  = localStorage.getItem('sh-fontMono') || "'Courier New', Courier, monospace";
+  let fontProp  = localStorage.getItem('sh-fontProp') || 'Verdana, Geneva, sans-serif';
+  let symbolType = localStorage.getItem('sh-symbolType') || 'chord';
+  let chartType  = localStorage.getItem('sh-chartType')  || 'all';
+
+  function applyFont(val) {
+    document.documentElement.style.setProperty('--chart-font', val);
+  }
+
+  function updateFontSelect() {
+    const lyricsOnly = chartType === 'lyrics';
+    const fonts   = lyricsOnly ? PROP_FONTS : MONO_FONTS;
+    let current   = lyricsOnly ? fontProp   : fontMono;
+    const sel = document.getElementById('sel-font');
+    sel.innerHTML = '';
+    fonts.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.value; opt.textContent = f.label;
+      sel.appendChild(opt);
+    });
+    if (!fonts.some(f => f.value === current)) {
+      current = fonts[0].value;
+      if (lyricsOnly) fontProp = current; else fontMono = current;
+    }
+    sel.value = current;
+    applyFont(current);
+  }
+
+  document.getElementById('sel-symbol').value = symbolType;
+  document.getElementById('sel-chart').value  = chartType;
+  updateFontSelect();
+
+  document.getElementById('sel-font').onchange = function () {
+    const val = this.value;
+    if (chartType === 'lyrics') { fontProp = val; localStorage.setItem('sh-fontProp', val); }
+    else                        { fontMono = val; localStorage.setItem('sh-fontMono', val); }
+    applyFont(val);
+  };
+  document.getElementById('sel-symbol').onchange = function () {
+    symbolType = this.value;
+    localStorage.setItem('sh-symbolType', symbolType);
+    render();
+  };
+  document.getElementById('sel-chart').onchange = function () {
+    chartType = this.value;
+    localStorage.setItem('sh-chartType', chartType);
+    updateFontSelect();
+    render();
+  };
+
+  function fmt(v) { return v > 0 ? '+' + v : String(v); }
+
+  function render() {
+    const content = document.getElementById('cm-content');
+    const errEl   = document.getElementById('cm-error');
+    const rawEl   = document.getElementById('cm-raw');
+    try {
+      const parsed = chordMark.parseSong(SOURCE);
+      content.innerHTML = chordMark.renderSong(parsed, {
+        transposeValue:      transpose,
+        alignBars:           true,
+        printBarSeparators:  'always',
+        printChordsDuration: 'uneven',
+        symbolType:          symbolType,
+        chartType:           chartType,
+      });
+      errEl.style.display   = 'none';
+      rawEl.style.display   = 'none';
+      content.style.display = '';
+    } catch (e) {
+      errEl.textContent    = 'Parse error: ' + (e && e.message ? e.message : String(e));
+      errEl.style.display  = 'block';
+      rawEl.textContent    = SOURCE;
+      rawEl.style.display  = 'block';
+      content.style.display = 'none';
+    }
+    document.getElementById('transpose-val').textContent = fmt(transpose);
+  }
+
+  document.getElementById('btn-up').onclick    = () => { transpose = Math.min(11, transpose + 1);  render(); };
+  document.getElementById('btn-down').onclick  = () => { transpose = Math.max(-11, transpose - 1); render(); };
+  document.getElementById('btn-reset').onclick = () => { transpose = 0; render(); };
+  document.getElementById('btn-pdf').onclick   = () => window.print();
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === '.')        { transpose = Math.min(11, transpose + 1);  render(); }
+    else if (e.key === ',')   { transpose = Math.max(-11, transpose - 1); render(); }
+    else if (e.key === '0')   { transpose = 0; render(); }
+    else if (e.key === ' ')   { e.preventDefault(); playing ? stopScroll() : startScroll(); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); setSpeed(speed + 0.5); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setSpeed(speed - 0.5); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); }
+    else if (e.key === '-')         { e.preventDefault(); zi = Math.max(0, zi - 1); applyZoom(); }
+    else if (e.key === 'Home')      { e.preventDefault(); stopScroll(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+
+  render();
+
+  // ── Tempo blinker ────────────────────────────────────────────
+  (function () {
+    var m = SOURCE.match(/^tempo:\s*(\d+)/m);
+    if (m) {
+      var bpm = parseInt(m[1], 10);
+      var blinker = document.getElementById('tempo-blinker');
+      blinker.style.animationDuration = (60 / bpm) + 's';
+      blinker.title = bpm + ' BPM';
+      blinker.classList.add('active');
+    }
+  })();
+
+  // ── Autoscroll ──────────────────────────────────────────────
+  let playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;
+
+  function tick(ts) {
+    if (!playing) return;
+    if (lastTime !== null) {
+      const dt = ts - lastTime;
+      carry += speed * dt * 0.045;
+      const px = Math.floor(carry);
+      if (px > 0) { window.scrollBy(0, px); carry -= px; }
+    }
+    lastTime = ts;
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) { stopScroll(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function startScroll() {
+    playing = true; lastTime = null; carry = 0;
+    document.getElementById('btn-play').textContent = '⏸ Pause';
+    document.getElementById('btn-play').classList.add('playing');
+    raf = requestAnimationFrame(tick);
+  }
+
+  function stopScroll() {
+    playing = false;
+    cancelAnimationFrame(raf); lastTime = null;
+    document.getElementById('btn-play').textContent = '▶ Play';
+    document.getElementById('btn-play').classList.remove('playing');
+  }
+
+  function setSpeed(val) {
+    speed = Math.round(Math.max(0.2, Math.min(8, +val)) * 10) / 10;
+    document.getElementById('speed-slider').value = speed;
+    document.getElementById('speed-val').textContent = speed.toFixed(1);
+  }
+
+  document.getElementById('btn-play').onclick    = () => playing ? stopScroll() : startScroll();
+  document.getElementById('btn-slower').onclick  = () => setSpeed(speed - 0.5);
+  document.getElementById('btn-faster').onclick  = () => setSpeed(speed + 0.5);
+  document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
+  document.getElementById('btn-top').onclick     = () => { stopScroll(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+  // ── Font size ────────────────────────────────────────────────
+  const SIZES = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28];
+  let zi = 4;
+  function applyZoom() {
+    const px = SIZES[zi];
+    document.getElementById('song-body').style.fontSize = px + 'px';
+    document.getElementById('size-val').textContent = px + 'px';
+  }
+  document.getElementById('btn-zoom-out').onclick = () => { zi = Math.max(0, zi - 1); applyZoom(); };
+  document.getElementById('btn-zoom-in').onclick  = () => { zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); };
+
+  setSpeed(speed);
+  applyZoom();
+})();
+</script>
+
+</body>
+</html>
