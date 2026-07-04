@@ -11,15 +11,27 @@
     "Programming Languages",
     "Visualization"
   ],
-  "keywords": ["chordmark", "chord", "music", "lyrics", "chart"],
+  "keywords": [
+    "chordmark",
+    "chord",
+    "music",
+    "lyrics",
+    "chart"
+  ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
       {
         "id": "chordmark",
-        "aliases": ["ChordMark", "chordmark"],
-        "extensions": [".chordmark", ".cm"],
+        "aliases": [
+          "ChordMark",
+          "chordmark"
+        ],
+        "extensions": [
+          ".chordmark",
+          ".cm"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -98,7 +110,11 @@
         "chordmark.preview.theme": {
           "type": "string",
           "default": "default",
-          "enum": ["default", "dark", "print"],
+          "enum": [
+            "default",
+            "dark",
+            "print"
+          ],
           "description": "Color theme used in the ChordMark preview panel"
         },
         "chordmark.preview.transposeValue": {
@@ -111,7 +127,11 @@
         "chordmark.preview.chartType": {
           "type": "string",
           "default": "all",
-          "enum": ["all", "chordsOnly", "lyricsOnly"],
+          "enum": [
+            "all",
+            "chordsOnly",
+            "lyricsOnly"
+          ],
           "enumDescriptions": [
             "Show both chords and lyrics",
             "Show only chord grids (no lyrics)",
@@ -136,13 +156,14 @@
     "site:serve": "eleventy --serve"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^2.0.1",
+    "@11ty/eleventy": "^3.1.5",
     "@types/node": "^18.0.0",
     "@types/vscode": "^1.74.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.28.0",
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "chord-mark": "^0.17.0"
+    "chord-mark": "^0.17.0",
+    "eleventy": "^2.0.1"
   }
 }

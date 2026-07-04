@@ -7,7 +7,7 @@ parts:
       - slug: break-my-heart--dua-lipa
         title: Break My Heart
         artist: Dua Lipa
-      - slug: dont-start-now--dua-lipa
+      - slug: dont-start-now-dua-lipa
         title: Don't Start Now
         artist: Dua Lipa
       - slug: dive--live-cover
@@ -15,6 +15,9 @@ parts:
         artist: Olivia Dean
       - slug:  sining-marilag-medley
         title: Sining Marilag Medley
+        artist: Dionela
+      - slug: marilag-dionela
+        title: Marilag
         artist: Dionela
       - slug: palayo-sa-mundo--jolianne
         title: Palayo sa Mundo
@@ -25,9 +28,9 @@ parts:
       - slug: Love
         title: Love
         artist: Keyshia Cole
-      - slug: what-a-girl-wants
-        title: What a Girl Wants
-        artist: Christina Aguilera
+      - slug: big-girls-dont-cry--fergie
+        title: "Big Girls Don't Cry"
+        artist: Fergie
   - name: Soul
     songs:
       - slug: die-on-this-hill--sienna-spiro
@@ -39,9 +42,9 @@ parts:
       - slug: close-to-you--annie-tracey
         title: Close to You
         artist: Annie Tracey
-      - slug: big-girls-dont-cry--fergie
-        title: "Big Girls Don't Cry"
-        artist: Fergie
+      - slug: what-a-girl-wants
+        title: What a Girl Wants
+        artist: Christina Aguilera
       - slug: ebony--ivory--freestyle
         title: Ebony & Ivory
         artist: Freestyle
@@ -118,4 +121,14 @@ parts:
       - slug: raining-in-manila--lola-amour
         title: Raining in Manila
         artist: Lola Amour
+  - name: Encore
+    songs:
+      - slug: treasure-bruno-mars
+        title: Treasure
+        artist: Bruno Mars
+      - slug: moves-like-jagger
+        title: Moves Live Jagger
+        artist: Maroon 5
+      
+
 ---
