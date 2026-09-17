@@ -6,7 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
-  <title>Dont Start Now Dua Lipa | SongHits</title>
+  <title>Don&#39;t Start Now — Dua Lipa | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,9 +15,9 @@
       --surface: #111111;
       --border:  #222222;
       --text:    #cccccc;
-      --muted:   #555555;
+      --muted:   #929292;
       --chord:   #fbbf24;
-      --lyric:   #6b7f8e;
+      --lyric:   #a6bac9;
       --section: #4ade80;
       --red:     #f87171;
       --blue:    #60a5fa;
@@ -170,6 +170,15 @@
       opacity: 1;
       animation-play-state: running;
     }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
   </style>
 </head>
 <body>
@@ -214,7 +223,7 @@
     font-size: 11px;
   }
   #song-body {
-    padding: 28px 32px 80px;
+    padding: 28px 32px calc(var(--scroll-h, 50px) + 24px);
     max-width: 960px;
   }
   #cm-error {
@@ -292,6 +301,13 @@
     flex-shrink: 0;
   }
 
+  @media (max-width: 760px) {
+    #song-toolbar, #scroll-controls { flex-wrap: wrap; height: auto; padding: 7px 10px; gap: 6px; }
+    #song-toolbar .song-heading { flex: 1 0 100%; }
+    .ctrl-label, .toolbar-sep { display: none; }
+    #song-body { padding-left: 12px; padding-right: 12px; overflow-x: auto; }
+    .ctrl-btn { width: 32px; height: 32px; }
+  }
   @media print {
     nav, #song-toolbar, #scroll-controls { display: none; }
     #song-body { padding: 0; }
@@ -302,7 +318,7 @@
 
 <div id="song-toolbar">
   <div class="song-heading">
-    <strong>Dont Start Now Dua Lipa</strong>
+    <strong>Don&#39;t Start Now</strong><span>— Dua Lipa</span>
   </div>
   <span id="tempo-blinker" title=""></span>
   <div class="toolbar-sep"></div>
@@ -327,7 +343,7 @@
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
 </div>
 
-<div id="song-body">
+<div id="song-body" data-slug="dont-start-now-dua-lipa" data-tempo="">
   <div id="cm-error" style="display:none"></div>
   <div id="cm-content" class="cmSong"></div>
   <div id="cm-raw"    style="display:none"></div>
@@ -337,210 +353,22 @@
   <button id="btn-play">▶ Play</button>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Speed</span>
-  <button class="ctrl-btn" id="btn-slower">−</button>
-  <input type="range" id="speed-slider" min="0.2" max="8" step="0.1" value="1.5">
-  <button class="ctrl-btn" id="btn-faster">+</button>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Scroll slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Scroll faster">+</button>
   <span id="speed-val">1.5</span>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Size</span>
-  <button class="ctrl-btn" id="btn-zoom-out">−</button>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
   <span class="zoom-val" id="size-val">14px</span>
-  <button class="ctrl-btn" id="btn-zoom-in">+</button>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
   <button id="btn-top">⬆ Top</button>
 </div>
 
+<script id="song-source" type="application/json">"#i\r\nBm D\r\n_ If you don't wanna _see me\r\nE5 Em Bm\r\n_ Did a full one _eighty, _crazy\r\n \r\n \r\n#v\r\nG D\r\n_Thinking 'bout the way I _was\r\nA6 Em Bm\r\nDid the _heartbreak _change me?_ Maybe\r\nG D A6\r\n_But look at where I ended _up_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D\r\nDon't start _caring about me _now\r\n \r\n \r\n#v\r\nA6 Em Bm\r\nAren't _you the _guy who _tried to\r\nG D\r\n_Hurt me with the word \"good_bye\"?\r\nA6 Em Bm\r\nThough it _took some _time to_ survive you\r\nG D A6\r\nI'm _better on the other _side_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D A6\r\nDon't start _caring about me _now_\r\n \r\n \r\n#b\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nD A6\r\n_ Don't start _now\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\n \r\n \r\n#c\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up (Don't show up), don't co_me out (Don't come out)\r\nG D A6\r\nDon't start _caring about me _now ('Bout me _now)\r\nEm Bm\r\nWalk a_way (Walk away), you know _how (You know how)\r\nG D A6\r\nDon't start _caring about me _now_ (So)\r\n \r\n \r\n#o\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away (So)\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away, oh"</script>
 <script src="/songhits/assets/chord-mark.js"></script>
-<script>
-(function () {
-  const chordMark = window['chord-mark'];
-  const SOURCE = "#i\r\nBm D\r\n_ If you don't wanna _see me\r\nE5 Em Bm\r\n_ Did a full one _eighty, _crazy\r\n \r\n \r\n#v\r\nG D\r\n_Thinking 'bout the way I _was\r\nA6 Em Bm\r\nDid the _heartbreak _change me?_ Maybe\r\nG D A6\r\n_But look at where I ended _up_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D\r\nDon't start _caring about me _now\r\n \r\n \r\n#v\r\nA6 Em Bm\r\nAren't _you the _guy who _tried to\r\nG D\r\n_Hurt me with the word \"good_bye\"?\r\nA6 Em Bm\r\nThough it _took some _time to_ survive you\r\nG D A6\r\nI'm _better on the other _side_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D A6\r\nDon't start _caring about me _now_\r\n \r\n \r\n#b\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nD A6\r\n_ Don't start _now\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\n \r\n \r\n#c\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up (Don't show up), don't co_me out (Don't come out)\r\nG D A6\r\nDon't start _caring about me _now ('Bout me _now)\r\nEm Bm\r\nWalk a_way (Walk away), you know _how (You know how)\r\nG D A6\r\nDon't start _caring about me _now_ (So)\r\n \r\n \r\n#o\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away (So)\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away, oh";
-  let transpose = 0;
-
-  // ── Preferences ────────────────────────────────────────────
-  const MONO_FONTS = [
-    { label: 'Courier',  value: "'Courier New', Courier, monospace" }
-  ];
-  const PROP_FONTS = [
-    { label: 'Verdana',        value: 'Verdana, Geneva, sans-serif' },
-    { label: 'Arial',          value: 'Arial, sans-serif' },
-    { label: 'Segoe UI',       value: "'Segoe UI', system-ui, sans-serif" },
-    { label: 'Roboto',         value: "'Roboto', sans-serif" },
-    { label: 'Montserrat',     value: "'Montserrat', sans-serif" },
-    { label: 'Nunito',         value: "'Nunito', sans-serif" },
-    { label: 'Inter',          value: "'Inter', sans-serif" },
-    { label: 'Open Sans',      value: "'Open Sans', sans-serif" },
-    { label: 'Helvetica Neue', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-    { label: 'Futura',         value: "'Futura', 'Century Gothic', sans-serif" }
-  ];
-
-  let fontMono  = localStorage.getItem('sh-fontMono') || "'Courier New', Courier, monospace";
-  let fontProp  = localStorage.getItem('sh-fontProp') || 'Verdana, Geneva, sans-serif';
-  let symbolType = localStorage.getItem('sh-symbolType') || 'chord';
-  let chartType  = localStorage.getItem('sh-chartType')  || 'all';
-
-  function applyFont(val) {
-    document.documentElement.style.setProperty('--chart-font', val);
-  }
-
-  function updateFontSelect() {
-    const lyricsOnly = chartType === 'lyrics';
-    const fonts   = lyricsOnly ? PROP_FONTS : MONO_FONTS;
-    let current   = lyricsOnly ? fontProp   : fontMono;
-    const sel = document.getElementById('sel-font');
-    sel.innerHTML = '';
-    fonts.forEach(f => {
-      const opt = document.createElement('option');
-      opt.value = f.value; opt.textContent = f.label;
-      sel.appendChild(opt);
-    });
-    if (!fonts.some(f => f.value === current)) {
-      current = fonts[0].value;
-      if (lyricsOnly) fontProp = current; else fontMono = current;
-    }
-    sel.value = current;
-    applyFont(current);
-  }
-
-  document.getElementById('sel-symbol').value = symbolType;
-  document.getElementById('sel-chart').value  = chartType;
-  updateFontSelect();
-
-  document.getElementById('sel-font').onchange = function () {
-    const val = this.value;
-    if (chartType === 'lyrics') { fontProp = val; localStorage.setItem('sh-fontProp', val); }
-    else                        { fontMono = val; localStorage.setItem('sh-fontMono', val); }
-    applyFont(val);
-  };
-  document.getElementById('sel-symbol').onchange = function () {
-    symbolType = this.value;
-    localStorage.setItem('sh-symbolType', symbolType);
-    render();
-  };
-  document.getElementById('sel-chart').onchange = function () {
-    chartType = this.value;
-    localStorage.setItem('sh-chartType', chartType);
-    updateFontSelect();
-    render();
-  };
-
-  function fmt(v) { return v > 0 ? '+' + v : String(v); }
-
-  function render() {
-    const content = document.getElementById('cm-content');
-    const errEl   = document.getElementById('cm-error');
-    const rawEl   = document.getElementById('cm-raw');
-    try {
-      const parsed = chordMark.parseSong(SOURCE);
-      content.innerHTML = chordMark.renderSong(parsed, {
-        transposeValue:      transpose,
-        alignBars:           true,
-        printBarSeparators:  'always',
-        printChordsDuration: 'uneven',
-        symbolType:          symbolType,
-        chartType:           chartType,
-      });
-      errEl.style.display   = 'none';
-      rawEl.style.display   = 'none';
-      content.style.display = '';
-    } catch (e) {
-      errEl.textContent    = 'Parse error: ' + (e && e.message ? e.message : String(e));
-      errEl.style.display  = 'block';
-      rawEl.textContent    = SOURCE;
-      rawEl.style.display  = 'block';
-      content.style.display = 'none';
-    }
-    document.getElementById('transpose-val').textContent = fmt(transpose);
-  }
-
-  document.getElementById('btn-up').onclick    = () => { transpose = Math.min(11, transpose + 1);  render(); };
-  document.getElementById('btn-down').onclick  = () => { transpose = Math.max(-11, transpose - 1); render(); };
-  document.getElementById('btn-reset').onclick = () => { transpose = 0; render(); };
-  document.getElementById('btn-pdf').onclick   = () => window.print();
-
-  document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT') return;
-    if (e.key === '.')        { transpose = Math.min(11, transpose + 1);  render(); }
-    else if (e.key === ',')   { transpose = Math.max(-11, transpose - 1); render(); }
-    else if (e.key === '0')   { transpose = 0; render(); }
-    else if (e.key === ' ')   { e.preventDefault(); playing ? stopScroll() : startScroll(); }
-    else if (e.key === 'ArrowUp')   { e.preventDefault(); setSpeed(speed + 0.5); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); setSpeed(speed - 0.5); }
-    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); }
-    else if (e.key === '-')         { e.preventDefault(); zi = Math.max(0, zi - 1); applyZoom(); }
-    else if (e.key === 'Home')      { e.preventDefault(); stopScroll(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  });
-
-  render();
-
-  // ── Tempo blinker ────────────────────────────────────────────
-  (function () {
-    var m = SOURCE.match(/^tempo:\s*(\d+)/m);
-    if (m) {
-      var bpm = parseInt(m[1], 10);
-      var blinker = document.getElementById('tempo-blinker');
-      blinker.style.animationDuration = (60 / bpm) + 's';
-      blinker.title = bpm + ' BPM';
-      blinker.classList.add('active');
-    }
-  })();
-
-  // ── Autoscroll ──────────────────────────────────────────────
-  let playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;
-
-  function tick(ts) {
-    if (!playing) return;
-    if (lastTime !== null) {
-      const dt = ts - lastTime;
-      carry += speed * dt * 0.045;
-      const px = Math.floor(carry);
-      if (px > 0) { window.scrollBy(0, px); carry -= px; }
-    }
-    lastTime = ts;
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) { stopScroll(); return; }
-    raf = requestAnimationFrame(tick);
-  }
-
-  function startScroll() {
-    playing = true; lastTime = null; carry = 0;
-    document.getElementById('btn-play').textContent = '⏸ Pause';
-    document.getElementById('btn-play').classList.add('playing');
-    raf = requestAnimationFrame(tick);
-  }
-
-  function stopScroll() {
-    playing = false;
-    cancelAnimationFrame(raf); lastTime = null;
-    document.getElementById('btn-play').textContent = '▶ Play';
-    document.getElementById('btn-play').classList.remove('playing');
-  }
-
-  function setSpeed(val) {
-    speed = Math.round(Math.max(0.2, Math.min(8, +val)) * 10) / 10;
-    document.getElementById('speed-slider').value = speed;
-    document.getElementById('speed-val').textContent = speed.toFixed(1);
-  }
-
-  document.getElementById('btn-play').onclick    = () => playing ? stopScroll() : startScroll();
-  document.getElementById('btn-slower').onclick  = () => setSpeed(speed - 0.5);
-  document.getElementById('btn-faster').onclick  = () => setSpeed(speed + 0.5);
-  document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
-  document.getElementById('btn-top').onclick     = () => { stopScroll(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-
-  // ── Font size ────────────────────────────────────────────────
-  const SIZES = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28];
-  let zi = 4;
-  function applyZoom() {
-    const px = SIZES[zi];
-    document.getElementById('song-body').style.fontSize = px + 'px';
-    document.getElementById('size-val').textContent = px + 'px';
-  }
-  document.getElementById('btn-zoom-out').onclick = () => { zi = Math.max(0, zi - 1); applyZoom(); };
-  document.getElementById('btn-zoom-in').onclick  = () => { zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); };
-
-  setSpeed(speed);
-  applyZoom();
-})();
-</script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/song.js"></script>
 
 </body>
 </html>

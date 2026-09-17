@@ -20,12 +20,13 @@ async function main() {
   const ctx = await esbuild.context({
     bundle: true,
     platform: 'node',
-    target: 'node18',
+    target: 'node16',
     external: ['vscode'],
     sourcemap: !production,
     minify: production,
     logLevel: 'info',
-    entryPoints: ['src/extension.ts'],
+    absWorkingDir: __dirname,
+    entryPoints: [path.join(__dirname, 'src', 'extension.ts')],
     outfile: 'out/extension.js',
     format: 'cjs',
   });

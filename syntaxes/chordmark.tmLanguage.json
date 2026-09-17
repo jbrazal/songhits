@@ -3,12 +3,24 @@
   "name": "ChordMark",
   "scopeName": "source.chordmark",
   "patterns": [
-    { "include": "#comment" },
-    { "include": "#section-label" },
-    { "include": "#time-signature" },
-    { "include": "#key-declaration" },
-    { "include": "#chord-line" },
-    { "include": "#lyric-line" }
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#section-label"
+    },
+    {
+      "include": "#time-signature"
+    },
+    {
+      "include": "#key-declaration"
+    },
+    {
+      "include": "#chord-line"
+    },
+    {
+      "include": "#lyric-line"
+    }
   ],
   "repository": {
     "comment": {
@@ -18,39 +30,67 @@
     "section-label": {
       "match": "^(#)([a-zA-Z]+)(\\d*)(\\s.*)?$",
       "captures": {
-        "1": { "name": "punctuation.definition.heading.chordmark" },
-        "2": { "name": "entity.name.section.chordmark keyword.control.chordmark" },
-        "3": { "name": "constant.numeric.chordmark" },
-        "4": { "name": "string.unquoted.chordmark" }
+        "1": {
+          "name": "punctuation.definition.heading.chordmark"
+        },
+        "2": {
+          "name": "entity.name.section.chordmark keyword.control.chordmark"
+        },
+        "3": {
+          "name": "constant.numeric.chordmark"
+        },
+        "4": {
+          "name": "string.unquoted.chordmark"
+        }
       }
     },
     "time-signature": {
       "match": "^(\\d+)/(\\d+)$",
       "captures": {
-        "1": { "name": "constant.numeric.chordmark" },
-        "2": { "name": "constant.numeric.chordmark" }
+        "1": {
+          "name": "constant.numeric.chordmark"
+        },
+        "2": {
+          "name": "constant.numeric.chordmark"
+        }
       },
       "name": "keyword.other.time-signature.chordmark"
     },
     "key-declaration": {
       "match": "^(key:?)\\s*([A-Ga-g][b#]?(?:m(?:aj)?|min|minor|major)?)\\s*$",
       "captures": {
-        "1": { "name": "keyword.other.key.chordmark" },
-        "2": { "name": "support.type.chord.chordmark" }
+        "1": {
+          "name": "keyword.other.key.chordmark"
+        },
+        "2": {
+          "name": "support.type.chord.chordmark"
+        }
       }
     },
     "chord-line": {
-      "comment": "A line that starts with a chord symbol (capital letter A-G optionally followed by chord quality)",
-      "match": "^(?=[A-GNn%]|\\[)(.*)$",
+      "comment": "Only complete chord-token lines receive chord highlighting; ordinary lyrics fall through.",
+      "match": "^(?=\\s*(?:(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)|\\[(?:(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)\\s+){1,3}(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)\\])\\.*(?:\\s+(?:(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)|\\[(?:(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)\\s+){1,3}(?:NC|%{1,2}|[A-G][b#]?(?:maj|min|m|M|aug|dim|sus|add|\\d+|°|ø|Δ|[b#]\\d+)*(?:/[A-G][b#]?)?)\\])\\.*)*\\s*(?:\\\\)?\\s*$)(.*)$",
       "captures": {
         "1": {
           "patterns": [
-            { "include": "#no-chord" },
-            { "include": "#repeat-marker" },
-            { "include": "#chord-symbol" },
-            { "include": "#bar-separator" },
-            { "include": "#beat-dot" },
-            { "include": "#sub-beat-delimiters" }
+            {
+              "include": "#no-chord"
+            },
+            {
+              "include": "#repeat-marker"
+            },
+            {
+              "include": "#chord-symbol"
+            },
+            {
+              "include": "#bar-separator"
+            },
+            {
+              "include": "#beat-dot"
+            },
+            {
+              "include": "#sub-beat-delimiters"
+            }
           ]
         }
       }
@@ -81,11 +121,13 @@
     },
     "lyric-line": {
       "comment": "Lines with lyrics — may contain chord position markers",
-      "match": "^(?![#/0-9A-G%\\[])(.*)$",
+      "match": "^(.*)$",
       "captures": {
         "1": {
           "patterns": [
-            { "include": "#chord-position-marker" }
+            {
+              "include": "#chord-position-marker"
+            }
           ]
         }
       },

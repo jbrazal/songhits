@@ -99,8 +99,8 @@
       },
       {
         "command": "chordmark.exportPdf",
-        "key": "ctrl+shift+p",
-        "mac": "cmd+shift+p",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
         "when": "resourceLangId == chordmark"
       }
     ],
@@ -153,17 +153,22 @@
     "watch": "node esbuild.js --watch",
     "package": "vsce package --no-dependencies",
     "site:build": "eleventy",
-    "site:serve": "eleventy --serve"
+    "site:serve": "eleventy --serve",
+    "chordmark:validate": "node scripts/validate-chordmark.cjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.cjs",
+    "check": "npm run typecheck && npm test && npm run build && npm run site:build -- --output=_site/check"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.5",
+    "@11ty/eleventy": "3.1.5",
     "@types/node": "^18.0.0",
-    "@types/vscode": "^1.74.0",
+    "@types/vscode": "1.74.0",
+    "@vscode/vsce": "3.9.2",
     "esbuild": "^0.28.0",
+    "jsdom": "26.1.0",
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "chord-mark": "^0.17.0",
-    "eleventy": "^2.0.1"
+    "chord-mark": "^0.17.0"
   }
 }

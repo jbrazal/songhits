@@ -24,7 +24,6 @@ Thumbs.db
 .pnp.js
 
 # Package managers
-package-lock.json
 npm-shrinkwrap.json
 
 # Temp files
@@ -47,3 +46,5 @@ coverage/
 *.ntvs*
 *.njsproj
 *.sln
+
+*.vsix

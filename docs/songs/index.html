@@ -15,9 +15,9 @@
       --surface: #111111;
       --border:  #222222;
       --text:    #cccccc;
-      --muted:   #555555;
+      --muted:   #929292;
       --chord:   #fbbf24;
-      --lyric:   #6b7f8e;
+      --lyric:   #a6bac9;
       --section: #4ade80;
       --red:     #f87171;
       --blue:    #60a5fa;
@@ -170,6 +170,15 @@
       opacity: 1;
       animation-play-state: running;
     }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
   </style>
 </head>
 <body>
@@ -240,11 +249,39 @@
       <div class="song-card-artist">Anne Marie</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/all-along-the-watchtower--jimi-hendrix/"
+       data-title="all along the watchtower"
+       data-artist="jimi hendrix">
+      <div class="song-card-title">All Along The Watchtower</div>
+      <div class="song-card-artist">Jimi Hendrix</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/all-the-small-things--blink-182/"
        data-title="all the small things"
        data-artist="blink 182">
       <div class="song-card-title">All The Small Things</div>
       <div class="song-card-artist">Blink 182</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/ang-himig-natin--juan-de-la-cruz-band/"
+       data-title="ang himig natin"
+       data-artist="juan de la cruz band">
+      <div class="song-card-title">Ang Himig Natin</div>
+      <div class="song-card-artist">Juan de la Cruz Band</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/bad-dreams--teddy-swims/"
+       data-title="bad dreams"
+       data-artist="teddy swims">
+      <div class="song-card-title">Bad Dreams</div>
+      <div class="song-card-artist">Teddy Swims</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/best-part--daniel-caesar/"
+       data-title="best part"
+       data-artist="daniel caesar">
+      <div class="song-card-title">Best Part</div>
+      <div class="song-card-artist">Daniel Caesar</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/big-girls-dont-cry--fergie/"
@@ -268,6 +305,13 @@
       <div class="song-card-artist">The Corrs</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/buwan--juan-karlos/"
+       data-title="buwan"
+       data-artist="juan karlos">
+      <div class="song-card-title">Buwan</div>
+      <div class="song-card-artist">Juan Karlos</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/circles--post-malone/"
        data-title="circles"
        data-artist="post malone">
@@ -289,6 +333,20 @@
       <div class="song-card-artist">Elton John Dua Lipa</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/come-together--the-beatles/"
+       data-title="come together"
+       data-artist="the beatles">
+      <div class="song-card-title">Come Together</div>
+      <div class="song-card-artist">The Beatles</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/crazy--gnarls-barkley/"
+       data-title="crazy"
+       data-artist="gnarls barkley">
+      <div class="song-card-title">Crazy</div>
+      <div class="song-card-artist">Gnarls Barkley</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/dance-monkey--tones-and-i/"
        data-title="dance monkey"
        data-artist="tones and i">
@@ -301,6 +359,13 @@
        data-artist="dua lipa">
       <div class="song-card-title">Dance The Night</div>
       <div class="song-card-artist">Dua Lipa</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/diamonds--rihanna/"
+       data-title="diamonds"
+       data-artist="rihanna">
+      <div class="song-card-title">Diamonds</div>
+      <div class="song-card-artist">Rihanna</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/die-on-this-hill--sienna-spiro/"
@@ -331,11 +396,18 @@
       <div class="song-card-artist">Meghan Trainor</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/dont-let-me-down--the-beatles/"
+       data-title="don&#39;t let me down"
+       data-artist="the beatles">
+      <div class="song-card-title">Don&#39;t Let Me Down</div>
+      <div class="song-card-artist">The Beatles</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/dont-start-now-dua-lipa/"
-       data-title="dont start now dua lipa"
-       data-artist="">
-      <div class="song-card-title">Dont Start Now Dua Lipa</div>
-      
+       data-title="don&#39;t start now"
+       data-artist="dua lipa">
+      <div class="song-card-title">Don&#39;t Start Now</div>
+      <div class="song-card-artist">Dua Lipa</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/dont-stop-believin--journey/"
@@ -346,10 +418,17 @@
     </a>
     
     <a class="song-card" href="/songhits/songs/ebony--ivory--freestyle/"
-       data-title="ebony"
-       data-artist="ivory">
-      <div class="song-card-title">Ebony</div>
-      <div class="song-card-artist">Ivory</div>
+       data-title="ebony ivory"
+       data-artist="freestyle">
+      <div class="song-card-title">Ebony Ivory</div>
+      <div class="song-card-artist">Freestyle</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/everytime-i-see-you--fra-lippo-lippi/"
+       data-title="everytime i see you"
+       data-artist="fra lippo lippi">
+      <div class="song-card-title">Everytime I See You</div>
+      <div class="song-card-artist">Fra Lippo Lippi</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/exes-and-ohs--elle-king/"
@@ -387,6 +466,34 @@
       <div class="song-card-artist">Meghan Trainor</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/gravity--john-mayer/"
+       data-title="gravity"
+       data-artist="john mayer">
+      <div class="song-card-title">Gravity</div>
+      <div class="song-card-artist">John Mayer</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/hanggang-ngayon--kyla/"
+       data-title="hanggang ngayon"
+       data-artist="kyla">
+      <div class="song-card-title">Hanggang Ngayon</div>
+      <div class="song-card-artist">Kyla</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/hawak-kamay--yeng-constantino/"
+       data-title="hawak kamay"
+       data-artist="yeng constantino">
+      <div class="song-card-title">Hawak Kamay</div>
+      <div class="song-card-artist">Yeng Constantino</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/hey-soul-sister--train/"
+       data-title="hey soul sister"
+       data-artist="train">
+      <div class="song-card-title">Hey Soul Sister</div>
+      <div class="song-card-artist">Train</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/how-deep-is-your-love--zara-larsson/"
        data-title="how deep is your love"
        data-artist="zara larsson">
@@ -401,6 +508,20 @@
       <div class="song-card-artist">Bruno Mars</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/ill-be--edwin-mccain/"
+       data-title="i&#39;ll be"
+       data-artist="edwin mccain">
+      <div class="song-card-title">I&#39;ll Be</div>
+      <div class="song-card-artist">Edwin McCain</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/im-with-you--avril-lavigne/"
+       data-title="im with you"
+       data-artist="avril lavigne">
+      <div class="song-card-title">Im With You</div>
+      <div class="song-card-artist">Avril Lavigne</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/im-yours--jason-mraz/"
        data-title="im yours"
        data-artist="jason mraz">
@@ -408,11 +529,32 @@
       <div class="song-card-artist">Jason Mraz</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/irreplaceable--beyonce/"
+       data-title="irreplaceable"
+       data-artist="beyonce">
+      <div class="song-card-title">Irreplaceable</div>
+      <div class="song-card-artist">Beyonce</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/jamming--bob-marley/"
+       data-title="jamming"
+       data-artist="bob marley">
+      <div class="song-card-title">Jamming</div>
+      <div class="song-card-artist">Bob Marley</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/jet-lag--simple-plan/"
        data-title="jet lag"
        data-artist="simple plan">
       <div class="song-card-title">Jet Lag</div>
       <div class="song-card-artist">Simple Plan</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/jopay--mayonnaise/"
+       data-title="jopay"
+       data-artist="mayonnaise">
+      <div class="song-card-title">Jopay</div>
+      <div class="song-card-artist">Mayonnaise</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/just-the-two-of-us--bill-withers/"
@@ -429,11 +571,39 @@
       <div class="song-card-artist">Bruno Mars</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/kapayapaan--tropical-depression/"
+       data-title="kapayapaan"
+       data-artist="tropical depression">
+      <div class="song-card-title">Kapayapaan</div>
+      <div class="song-card-artist">Tropical Depression</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/killing-me-softly/"
        data-title="killing me softly"
        data-artist="">
       <div class="song-card-title">Killing Me Softly</div>
       
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/kung-di-rin-lang-ikaw--december-avenue/"
+       data-title="kung di rin lang ikaw"
+       data-artist="december avenue">
+      <div class="song-card-title">Kung Di Rin Lang Ikaw</div>
+      <div class="song-card-artist">December Avenue</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/leave-the-door-open--silk-sonic/"
+       data-title="leave the door open"
+       data-artist="silk sonic">
+      <div class="song-card-title">Leave The Door Open</div>
+      <div class="song-card-artist">Silk Sonic</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/let-me-love-you--mario/"
+       data-title="let me love you"
+       data-artist="mario">
+      <div class="song-card-title">Let Me Love You</div>
+      <div class="song-card-artist">Mario</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/lets-get-it-started/"
@@ -443,11 +613,25 @@
       
     </a>
     
+    <a class="song-card" href="/songhits/songs/lose-control--teddy-swims/"
+       data-title="lose control"
+       data-artist="teddy swims">
+      <div class="song-card-title">Lose Control</div>
+      <div class="song-card-artist">Teddy Swims</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/Love/"
        data-title="love"
        data-artist="">
       <div class="song-card-title">Love</div>
       
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/lovesong--adele/"
+       data-title="lovesong"
+       data-artist="adele">
+      <div class="song-card-title">Lovesong</div>
+      <div class="song-card-artist">Adele</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/lush-life--zara-larsson/"
@@ -513,6 +697,13 @@
       <div class="song-card-artist">Maroon 5</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/mga-matang-mapanghusga--vinch/"
+       data-title="mga matang mapanghusga"
+       data-artist="vinch">
+      <div class="song-card-title">Mga Matang Mapanghusga</div>
+      <div class="song-card-artist">VincH</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/moves-like-jagger/"
        data-title="moves like jagger"
        data-artist="">
@@ -532,6 +723,13 @@
        data-artist="tlc">
       <div class="song-card-title">No Scrubs</div>
       <div class="song-card-artist">Tlc</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/ooo-ohh--daniel-wesley/"
+       data-title="ooo ohh"
+       data-artist="daniel wesley">
+      <div class="song-card-title">Ooo Ohh</div>
+      <div class="song-card-artist">Daniel Wesley</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/palayo-sa-mundo--jolianne/"
@@ -583,11 +781,39 @@
       <div class="song-card-artist">Bishop Briggs</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/rude--magic/"
+       data-title="rude"
+       data-artist="magic">
+      <div class="song-card-title">Rude</div>
+      <div class="song-card-artist">Magic</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/salidumay/"
+       data-title="salidumay"
+       data-artist="traditional">
+      <div class="song-card-title">Salidumay</div>
+      <div class="song-card-artist">Traditional</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/santeria--sublime/"
        data-title="santeria"
        data-artist="sublime">
       <div class="song-card-title">Santeria</div>
       <div class="song-card-artist">Sublime</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/save-your-tears--the-weeknd/"
+       data-title="save your tears"
+       data-artist="the weeknd">
+      <div class="song-card-title">Save Your Tears</div>
+      <div class="song-card-artist">The Weeknd</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/say-you-wont-let-go--james-arthur/"
+       data-title="say you wont let go"
+       data-artist="james arthur">
+      <div class="song-card-title">Say You Wont Let Go</div>
+      <div class="song-card-artist">James Arthur</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/sex-on-fire--kings-of-leon/"
@@ -618,6 +844,20 @@
       <div class="song-card-artist">Avril Lavigne</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/stickwitu--the-pussycat-dolls/"
+       data-title="stickwitu"
+       data-artist="the pussycat dolls">
+      <div class="song-card-title">Stickwitu</div>
+      <div class="song-card-artist">The Pussycat Dolls</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/style--taylor-swift/"
+       data-title="style"
+       data-artist="taylor swift">
+      <div class="song-card-title">Style</div>
+      <div class="song-card-artist">Taylor Swift</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/sugar--maroon-5/"
        data-title="sugar"
        data-artist="maroon 5">
@@ -639,6 +879,13 @@
       <div class="song-card-artist">Stevie Wonder</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/take-a-bow--rihanna/"
+       data-title="take a bow"
+       data-artist="rihanna">
+      <div class="song-card-title">Take A Bow</div>
+      <div class="song-card-artist">Rihanna</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/teenage-dirtbag--wheatus/"
        data-title="teenage dirtbag"
        data-artist="wheatus">
@@ -646,11 +893,39 @@
       <div class="song-card-artist">Wheatus</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/tell-me-where-it-hurts--mymp/"
+       data-title="tell me where it hurts"
+       data-artist="mymp">
+      <div class="song-card-title">Tell Me Where It Hurts</div>
+      <div class="song-card-artist">Mymp</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/that-dont-impress-me-much--shania-twain/"
        data-title="that dont impress me much"
        data-artist="shania twain">
       <div class="song-card-title">That Dont Impress Me Much</div>
       <div class="song-card-artist">Shania Twain</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/thats-what-i-like--bruno-mars/"
+       data-title="thats what i like"
+       data-artist="bruno mars">
+      <div class="song-card-title">Thats What I Like</div>
+      <div class="song-card-artist">Bruno Mars</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/the-door--teddy-swims/"
+       data-title="the door"
+       data-artist="teddy swims">
+      <div class="song-card-title">The Door</div>
+      <div class="song-card-artist">Teddy Swims</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/the-man-who-cant-be-moved/"
+       data-title="the man who cant be moved"
+       data-artist="">
+      <div class="song-card-title">The Man Who Cant Be Moved</div>
+      
     </a>
     
     <a class="song-card" href="/songhits/songs/the-middle--jimmy-eat-world/"
@@ -667,11 +942,25 @@
       <div class="song-card-artist">Maroon 5</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/three-little-birds--bob-marley/"
+       data-title="three little birds"
+       data-artist="bob marley">
+      <div class="song-card-title">Three Little Birds</div>
+      <div class="song-card-artist">Bob Marley</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/titanium--david-guetta/"
        data-title="titanium"
        data-artist="david guetta">
       <div class="song-card-title">Titanium</div>
       <div class="song-card-artist">David Guetta</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/to-be-with-you--mr-big/"
+       data-title="to be with you"
+       data-artist="mr. big">
+      <div class="song-card-title">To Be With You</div>
+      <div class="song-card-artist">Mr. Big</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/torn--natalie-imbruglia/"
@@ -723,6 +1012,20 @@
       <div class="song-card-artist">Amy Winehouse</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/waiting-in-vain--bob-marley/"
+       data-title="waiting in vain"
+       data-artist="bob marley">
+      <div class="song-card-title">Waiting In Vain</div>
+      <div class="song-card-artist">Bob Marley</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/weak--swv/"
+       data-title="weak"
+       data-artist="swv">
+      <div class="song-card-title">Weak</div>
+      <div class="song-card-artist">Swv</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/what-a-girl-wants/"
        data-title="what a girl wants"
        data-artist="">
@@ -735,6 +1038,13 @@
        data-artist="4 non blondes">
       <div class="song-card-title">Whats Up</div>
       <div class="song-card-artist">4 Non Blondes</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/wherever-you-will-go--the-calling/"
+       data-title="wherever you will go"
+       data-artist="the calling">
+      <div class="song-card-title">Wherever You Will Go</div>
+      <div class="song-card-artist">The Calling</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/wonderful-tonight/"

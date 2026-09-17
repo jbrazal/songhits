@@ -15,9 +15,9 @@
       --surface: #111111;
       --border:  #222222;
       --text:    #cccccc;
-      --muted:   #555555;
+      --muted:   #929292;
       --chord:   #fbbf24;
-      --lyric:   #6b7f8e;
+      --lyric:   #a6bac9;
       --section: #4ade80;
       --red:     #f87171;
       --blue:    #60a5fa;
@@ -169,6 +169,15 @@
     #tempo-blinker.active {
       opacity: 1;
       animation-play-state: running;
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
     }
   </style>
 </head>

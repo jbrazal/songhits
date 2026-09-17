@@ -19,15 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('chordmark.exportPdf', () => {
       const editor = vscode.window.activeTextEditor;
-      if (!ChordMarkPreviewPanel.triggerExport()) {
-        // No preview open yet — open it first; user clicks PDF once it renders
-        if (editor) {
-          ChordMarkPreviewPanel.createOrShow(context, editor.document, vscode.ViewColumn.Beside);
-        }
-        vscode.window.showInformationMessage(
-          'ChordMark preview opened. Click the PDF button in the toolbar to export.'
-        );
-      }
+      if (editor) ChordMarkPreviewPanel.exportDocument(context, editor.document);
     }),
 
     vscode.workspace.onDidChangeTextDocument((e) => {

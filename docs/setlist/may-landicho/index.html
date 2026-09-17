@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>May Landicho | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #929292;
+      --chord:   #fbbf24;
+      --lyric:   #a6bac9;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/songhits/songs/">Songs</a>
+  <a href="/songhits/setlist/">Setlists</a>
+</nav>
+<style>
+  /* ── Layout ───────────────────────────────────────────────── */
+  :root { --toc-w: 210px; --ctrl-h: 48px; }
+
+  /* ── Controls bar – fixed below nav ──────────────────────── */
+  #controls {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    height: var(--ctrl-h);
+    background: #0a0a0a;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  /* ── TOC toggle button ───────────────────────────────────── */
+  #btn-toc {
+    background: none;
+    border: 1px solid #1e1e1e;
+    color: #555;
+    padding: 4px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s, border-color 0.1s, background 0.1s;
+  }
+  #btn-toc:hover { background: #181818; color: #aaa; border-color: #333; }
+  #btn-toc.active { color: var(--chord); border-color: #333; }
+
+  #btn-toggle {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-toggle.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── TOC sidebar ──────────────────────────────────────────── */
+  #toc-sidebar {
+    position: fixed;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    left: 0;
+    width: var(--toc-w);
+    bottom: 0;
+    overflow-y: auto;
+    background: #080808;
+    border-right: 1px solid #1a1a1a;
+    padding: 14px 0;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+    transition: transform 0.2s ease;
+  }
+  #toc-sidebar::-webkit-scrollbar { width: 4px; }
+  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .toc-part-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #333;
+    padding: 10px 14px 4px;
+  }
+  .toc-part-label:first-child { padding-top: 2px; }
+
+  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
+  #toc-sidebar li { counter-increment: toc-n; }
+  #toc-sidebar a,
+  #toc-sidebar .toc-tbd {
+    display: block;
+    padding: 3px 14px 3px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #444;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  #toc-sidebar a::before,
+  #toc-sidebar .toc-tbd::before {
+    content: counter(toc-n) ". ";
+    font-size: 10px;
+    color: #2a2a2a;
+    margin-right: 2px;
+  }
+  #toc-sidebar a:hover { color: #888; text-decoration: none; }
+  #toc-sidebar a.active { color: var(--chord); border-left-color: var(--chord); }
+  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
+
+  /* Desktop: collapse TOC */
+  body.toc-off #toc-sidebar { transform: translateX(-100%); pointer-events: none; }
+  body.toc-off #setlist-wrap { margin-left: 0; }
+
+  /* ── Mobile overlay backdrop ─────────────────────────────── */
+  #toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 150;
+    cursor: pointer;
+  }
+
+  /* ── Main content ─────────────────────────────────────────── */
+  #setlist-wrap {
+    margin-left: var(--toc-w);
+    padding: calc(var(--ctrl-h) + 20px) 40px 60px 32px;
+    font-size: 14px;
+    transition: margin-left 0.2s ease;
+  }
+
+  .setlist-title {
+    color: var(--red);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+
+  .song-block { margin-bottom: 48px; }
+  .song-block-header {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    z-index: 40;
+    background: var(--bg);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
+  .song-block-artist { color: var(--muted); font-size: 12px; }
+
+  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
+  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+
+  /* ── Narrow screens ───────────────────────────────────────── */
+  @media (max-width: 680px) {
+    :root { --ctrl-h: 84px; }
+
+    body { overflow-x: hidden; }
+
+    #controls {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 7px 10px;
+      gap: 5px;
+      align-content: center;
+    }
+    .ctrl-label { display: none; }
+    .toolbar-sep { display: none; }
+    #btn-toggle { min-width: 72px; font-size: 12px; padding: 5px 10px; }
+    #speed-slider { width: 70px; }
+    #speed-val { min-width: 2.2em; font-size: 12px; }
+    .zoom-val { min-width: 2.6em; font-size: 12px; }
+    .ctrl-btn { width: 32px; height: 32px; font-size: 13px; }
+
+    /* TOC as slide-in overlay drawer */
+    #toc-sidebar {
+      width: 75%;
+      max-width: 260px;
+      transform: translateX(-100%);
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+    }
+    body.toc-on #toc-sidebar { transform: translateX(0); pointer-events: auto; }
+    body.toc-on #toc-overlay { display: block; }
+
+    #setlist-wrap {
+      margin-left: 0;
+      padding: calc(var(--ctrl-h) + 12px) 14px 40px;
+    }
+    body.toc-off #setlist-wrap { margin-left: 0; }
+
+    .cm-song-content { overflow-x: auto; }
+  }
+
+  .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
+  #offline-status { font-size: 11px; }
+  .ctrl-btn-wide { width: auto; padding: 0 8px; }
+  #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
+  .song-block-header { flex-wrap: wrap; }
+  .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Print ────────────────────────────────────────────────── */
+  @media print {
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    #setlist-wrap { margin: 0; padding: 0; }
+    .song-block { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+
+<div id="toc-overlay"></div>
+
+
+<aside id="toc-sidebar">
+  
+  
+  <div class="toc-part-label">Set 1</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-1-1">Salidumay</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-2">Buwan</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-3">Kapayapaan</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-4">Ang Himig Natin</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-5">Mga Matang Mapanghusga</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-6">Jopay</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-7">Come Together</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-8">Crazy</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-9">To Be With You</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-10">I&#39;ll Be</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-11">Everytime I See You</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-12">Wherever You Will Go</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-13">Lovesong</a>
+      
+    </li>
+    
+  </ul>
+  
+  
+  <div class="toc-part-label">Set 2</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-2-1">Gravity</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-2">Don&#39;t Let Me Down</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-3">Rude</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-4">Ooo Ohh</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-5">Waiting In Vain</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-6">Jamming</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-7">Three Little Birds</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-8">Save Your Tears</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-9">Valerie</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-10">Lose Control</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-11">The Door</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-12">Bad Dreams</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-13">All Along the Watchtower</a>
+      
+    </li>
+    
+  </ul>
+  
+</aside>
+
+
+<div id="setlist-wrap" data-setlist="may-landicho">
+  <h1 class="setlist-title">May Landicho</h1>
+
+  
+  
+    
+    <div class="song-block" id="song-1-1" data-slug="salidumay" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Salidumay</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Salidumay"></select></label>
+        <span class="song-block-artist">— Traditional</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="salidumay"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-2" data-slug="buwan--juan-karlos" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Buwan</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Buwan"></select></label>
+        <span class="song-block-artist">— juan karlos</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="buwan--juan-karlos"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-3" data-slug="kapayapaan--tropical-depression" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Kapayapaan</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Kapayapaan"></select></label>
+        <span class="song-block-artist">— Tropical Depression</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="kapayapaan--tropical-depression"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-4" data-slug="ang-himig-natin--juan-de-la-cruz-band" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Ang Himig Natin</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Ang Himig Natin"></select></label>
+        <span class="song-block-artist">— Juan de la Cruz Band</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="ang-himig-natin--juan-de-la-cruz-band"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-5" data-slug="mga-matang-mapanghusga--vinch" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Mga Matang Mapanghusga</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Mga Matang Mapanghusga"></select></label>
+        <span class="song-block-artist">— VincH</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="mga-matang-mapanghusga--vinch"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-6" data-slug="jopay--mayonnaise" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Jopay</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Jopay"></select></label>
+        <span class="song-block-artist">— Mayonnaise</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="jopay--mayonnaise"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-7" data-slug="come-together--the-beatles" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Come Together</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Come Together"></select></label>
+        <span class="song-block-artist">— The Beatles</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="come-together--the-beatles"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-8" data-slug="crazy--gnarls-barkley" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Crazy</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Crazy"></select></label>
+        <span class="song-block-artist">— Gnarls Barkley</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="crazy--gnarls-barkley"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-9" data-slug="to-be-with-you--mr-big" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">To Be With You</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose To Be With You"></select></label>
+        <span class="song-block-artist">— Mr. Big</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="to-be-with-you--mr-big"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-10" data-slug="ill-be--edwin-mccain" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">I&#39;ll Be</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose I&#39;ll Be"></select></label>
+        <span class="song-block-artist">— Edwin McCain</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="ill-be--edwin-mccain"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-11" data-slug="everytime-i-see-you--fra-lippo-lippi" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Everytime I See You</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Everytime I See You"></select></label>
+        <span class="song-block-artist">— Fra Lippo Lippi</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="everytime-i-see-you--fra-lippo-lippi"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-12" data-slug="wherever-you-will-go--the-calling" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Wherever You Will Go</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Wherever You Will Go"></select></label>
+        <span class="song-block-artist">— The Calling</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="wherever-you-will-go--the-calling"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-13" data-slug="lovesong--adele" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Lovesong</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Lovesong"></select></label>
+        <span class="song-block-artist">— Adele</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="lovesong--adele"></div>
+      
+    </div>
+    
+  
+  
+    
+    <div class="song-block" id="song-2-1" data-slug="gravity--john-mayer" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Gravity</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Gravity"></select></label>
+        <span class="song-block-artist">— John Mayer</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="gravity--john-mayer"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-2" data-slug="dont-let-me-down--the-beatles" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Don&#39;t Let Me Down</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Don&#39;t Let Me Down"></select></label>
+        <span class="song-block-artist">— The Beatles</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="dont-let-me-down--the-beatles"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-3" data-slug="rude--magic" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Rude</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Rude"></select></label>
+        <span class="song-block-artist">— MAGIC!</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="rude--magic"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-4" data-slug="ooo-ohh--daniel-wesley" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Ooo Ohh</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Ooo Ohh"></select></label>
+        <span class="song-block-artist">— Daniel Wesley</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="ooo-ohh--daniel-wesley"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-5" data-slug="waiting-in-vain--bob-marley" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Waiting In Vain</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Waiting In Vain"></select></label>
+        <span class="song-block-artist">— Bob Marley</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="waiting-in-vain--bob-marley"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-6" data-slug="jamming--bob-marley" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Jamming</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Jamming"></select></label>
+        <span class="song-block-artist">— Bob Marley</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="jamming--bob-marley"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-7" data-slug="three-little-birds--bob-marley" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Three Little Birds</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Three Little Birds"></select></label>
+        <span class="song-block-artist">— Bob Marley</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="three-little-birds--bob-marley"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-8" data-slug="save-your-tears--the-weeknd" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Save Your Tears</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Save Your Tears"></select></label>
+        <span class="song-block-artist">— The Weeknd</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="save-your-tears--the-weeknd"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-9" data-slug="valerie--amy-winehouse" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Valerie</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Valerie"></select></label>
+        <span class="song-block-artist">— Amy Winehouse</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="valerie--amy-winehouse"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-10" data-slug="lose-control--teddy-swims" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Lose Control</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Lose Control"></select></label>
+        <span class="song-block-artist">— Teddy Swims</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="lose-control--teddy-swims"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-11" data-slug="the-door--teddy-swims" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">The Door</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose The Door"></select></label>
+        <span class="song-block-artist">— Teddy Swims</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="the-door--teddy-swims"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-12" data-slug="bad-dreams--teddy-swims" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Bad Dreams</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Bad Dreams"></select></label>
+        <span class="song-block-artist">— Teddy Swims</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="bad-dreams--teddy-swims"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-13" data-slug="all-along-the-watchtower--jimi-hendrix" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">All Along the Watchtower</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose All Along the Watchtower"></select></label>
+        <span class="song-block-artist">— Jimi Hendrix</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="all-along-the-watchtower--jimi-hendrix"></div>
+      
+    </div>
+    
+  
+</div>
+
+
+<div id="controls">
+  <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
+  <div class="toolbar-sep"></div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
+  <button id="btn-toggle">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Scroll slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Scroll faster">+</button>
+  <span id="speed-val">1.5</span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Size</span>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
+  <span class="zoom-val" id="zoom-val">14px</span>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <span id="offline-status" role="status"></span>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script id="setlist-sources" type="application/json">{"salidumay":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nTraditional Cordillera (Igorot/Itneg) folk song; commonly played G-C-D.\nkey G\n\n#i\nG C\nG D\n\n#v\nG C\nG D\nG C\nG D\n\n#c\nC G\nC D\nG C\nG D\n\n#o\nG C G\n","buwan--juan-karlos":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey G\n\n#i\nAm Em\nAm Em\n\n#v\nC D\nG\nC D7\nG G7\n\n#c\nC D7\nG\nC D\nG\n\n#b\nAm C\nD G\n\n#o\nC D\nG\n","kapayapaan--tropical-depression":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae. Intro is an ethnic percussion break before the band enters.\nkey A\n\n#i\nA D E\nA D E\n\n#v\nA D E\nA\nD E\nA\n\n#c\nA D E\nA D E\n\n#o\nA D E\nA\n","ang-himig-natin--juan-de-la-cruz-band":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted as played in the Tropical Depression medley with Kapayapaan.\nkey E\n\n#i\nEmaj7 Amaj7\nEmaj7 Amaj7\n\n#v\nEmaj7 Amaj7\nEmaj7 Amaj7\n\n#c\nB A\nB A\nEmaj7 Amaj7\n\n#o\nEmaj7 Amaj7\nEmaj7\n","mga-matang-mapanghusga--vinch":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae remix cover version.\nkey Am\n\n#i\nAm Dm\nG C\n\n#v\nAm Dm\nG C\nAm Dm\nG C\n\n#c\nAm Dm\nG C\nAm Dm\nG Am\n\n#o\nAm Dm G Am\n","jopay--mayonnaise":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nWritten and recorded by Mayonnaise; charted for the reggae cover arrangement.\nkey G\n\n#i\nD/F# C\nD/F# C\n\n#v\nD/F# C\nD/F# C\nD/F# C\nD/F# C\n\n#p\nAm Bm\nC D/F#\n\n#c\nG/B Am\nBm Am\nG/B Am\nBm Am\n\n#o\nD/F# C\nG\n","come-together--the-beatles":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the Aerosmith arrangement; D blues, riff-driven.\nkey Dm\n\n#i\nDm\nDm\n\n#v\nDm\nDm\nDm\nDm\n\n#c\nBm\nA\nG\nA\n\n#s\nBm\nA\nDm\n\n#o\nDm\n","crazy--gnarls-barkley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nTransposed to Am for the slower arrangement (original key is Cm).\nkey Am\n\n#i\nAm C\nF E\n\n#v\nAm C\nF E\nAm C\nF E\n\n#c\nAm C\nF E\nAm C\nF E\n\n#b\nF E\nAm\n\n#o\nAm C F E\nAm\n","to-be-with-you--mr-big":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey E\n\n#i\nE B\nC#m A\n\n#v\nE B\nC#m A\nE B\nC#m A\n\n#p\nA B\nE\n\n#c\nA B\nE C#m\nA B\nE\n\n#b\nC#m A\nB\n\n#o\nE B\nE\n","ill-be--edwin-mccain":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nOften played capo 2 with A-shapes.\nkey B\n\n#i\nB E\nB E\n\n#v\nB F#\nE B\nB F#\nE B\n\n#p\nG#m E\nF#\n\n#c\nE F#\nB G#m\nE F#\nB\n\n#b\nG#m E\nF# B\n\n#o\nB E\nB\n","everytime-i-see-you--fra-lippo-lippi":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey D\n\n#i\nD Bm\nA G\n\n#v\nD A\nBm G\nD A\nBm G\n\n#p\nG A\nD Bm\n\n#c\nG A\nD Bm\nG A\nD\n\n#b\nBm F#m\nG A\n\n#o\nD Bm A G\nD\n","wherever-you-will-go--the-calling":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey D\n\n#i\nD A/C#\nBm7 G\n\n#v\nD A/C#\nBm7 G\nD A/C#\nBm7 G\n\n#p\nG A\nBm7 G\n\n#c\nD A/C#\nBm7 G\nD A/C#\nBm7 G\n\n#b\nBm7 G\nD A\n\n#o\nD A/C# Bm7 G\nD\n","lovesong--adele":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nAdele's cover of The Cure. Capo 3 with Am-G-Fmaj7-E7 shapes is the common alternative.\nkey Cm\n\n#i\nCm\nCm Bb Ab G\n\n#v\nCm Bb\nAb G\nCm Bb\nAb G\n\n#c\nAb Fm\nCm Bb\nAb Fm\nCm Bb\n\n#b\nAb G\nCm\n\n#o\nCm Bb Ab G\nCm\n","gravity--john-mayer":"#i\nG Am7/C\n\n#s\nG Am7/C G Am7/C\n\n#v\nG Am7/C\n_Gravity is working a_gainst me\nG Am7/C\nAnd _gravity wants to bring me _down\n\n#c\nAm7\nOh I'll _never know what makes this man\nD7\nWith _all the love that his heart can stand\nGm/A# D#M7\n_Dream of ways to _throw it all away\n\n#v\nD7 G Am7/C\n_Oh, _gravity is working a_gainst me\nG Am7/C\nAnd _gravity wants to bring me _down\n\n#c\nAm7\nOh tw_ice as much ain't twice as good\nD7\nAnd _can't sustain like one half could\nGm/A#\nIt's _wanting more\nD#M7 D7\nThat's gonna _send me to my knees_\n\n#s\nG Am7/C G Am7/C\n\n#c\nAm7\nOh tw_ice as much ain't twice as good\nD7\nAnd _can't sustain like one half could\nGm/A#\nIt's _wanting more\nD#M7\nThat's gonna _send me to my knees\n\n#v\nD7 G Am7/C\n_Oh _gravity, stay the hell a_way from me\nG Am7/C\nOh _gravity has taken better men_ than me\nNow, how can that be?\nG\nJust keep me where the light_ is\n\n#o\nAm7/C\nJust keep me where the _light is\nG\nJust keep me where the _light is\nAm7/C\nC'mon keep me where the _light is\nG\nC'mon keep me where the _light is\n\n#o\nAm7/C G\nC'mon keep me where _keep me where the light is_\n","dont-let-me-down--the-beatles":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the John Mayer / Keith Urban live arrangement.\nkey E\n\n#c\nE F#m7\nE\nB E\nE\n\n#v\nE\nEmaj7\nA\nE\n\n#b\nF#m7 B\nE\n\n#o\nE F#m7\nE\n","rude--magic":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae-pop. Transposed to G (original key is Db).\nkey G\n\n#i\nC D\nG Em D\n\n#v\nC D\nG Em D\nC D\nG Em D\n\n#c\nC D\nG Em\nC D\nG Em D\n\n#b\nEm C\nG D\n\n#o\nC D\nG\n","ooo-ohh--daniel-wesley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the live arrangement.\nkey Am\n\n#i\nAm F\nDm C\n\n#v\nAm F\nDm C\nAm F\nDm C\n\n#c\nF Dm\nAm C\nF Dm\nAm\n\n#b\nDm C\nAm\n\n#o\nAm F Dm C\nAm\n","waiting-in-vain--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae; keep the maj7 voicings ringing on the offbeats.\nkey Ab\n\n#i\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\n\n#v\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\n\n#c\nDbmaj7 Abmaj7\nDbmaj7 Abmaj7\n\n#b\nFm Bbm\nDbmaj7 Eb\n\n#o\nAbmaj7 Dbmaj7\nAbmaj7\n","jamming--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCapo 2 with Am-D7-F-Em7 shapes is the common alternative.\nkey Bm\n\n#i\nBm E7\nG F#m7\n\n#v\nBm E7\nBm E7\nG F#m7\nG F#m7\n\n#c\nBm E7\nG F#m7\nBm E7\nG F#m7\n\n#b\nG F#m7\nBm E7\n\n#o\nBm E7\nG F#m7\nBm\n","three-little-birds--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nListed on the setlist as \"Don't Worry\".\nkey A\n\n#i\nA\nA\n\n#c\nA\nA\nD A\nE A\n\n#v\nA\nA\nD A\nE A\n\n#o\nA D\nA E\nA\n","save-your-tears--the-weeknd":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey C\n\n#i\nC Am\nEm G\n\n#v\nC Am\nEm G\nC Am\nEm G\n\n#p\nDm Am\nF G\n\n#c\nDm Am\nF G\nDm Am\nF G\n\n#b\nF G\nC\n\n#o\nC Am Em G\nC\n","valerie--amy-winehouse":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Eb\n\n#i\nEb Fm\nEb Fm\n\n#v\nEb Fm\nEb Fm\nEb Fm\nEb Fm\n\n#p\nAb Gm\nFm Bb\n\n#c\nEb Fm\nEb Fm\nAb Gm\nFm Bb\n\n#b\nAb Gm Fm Bb\nAb Gm Fm Bb\n\n#o\nEb Fm Eb\n","lose-control--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\n6/8 time, soul feel.\nkey F#m\n\n#i\nF#m A/E\nD/F# C#\n\n#v\nF#m A/E\nD/F# C#\nF#m A/E\nD/F# C#\n\n#p\nD C#\nF#m\n\n#c\nF#m A\nD C#7\nF#m A\nD C#7\n\n#b\nD C#7\nF#m\n\n#o\nF#m A D C#7\nF#m\n","the-door--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted capo 4 in Em shapes; sounding key is G#m.\nkey Em\n\n#i\nEm C\nD B7\n\n#v\nEm C\nD B7\nEm C\nD B7\n\n#p\nC D\nEm\n\n#c\nEm C\nD B7\nEm C\nD B7\nEm\n\n#b\nC D\nB7 Em\n\n#o\nEm C D B7\nEm\n","bad-dreams--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey Cm\n\n#i\nCm Bb\nAb Bb\n\n#v\nCm Bb\nAb Bb\nGm7\nCm\n\n#p\nAb Bb\nGm7 Cm\n\n#c\nCm Bb\nAb Bb\nAb Gm7\nCm\n\n#b\nAb Bb\nGm7 Cm\n\n#o\nCm Bb Ab Gm7\nCm\n","all-along-the-watchtower--jimi-hendrix":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the Hendrix arrangement.\nkey C#m\n\n#i\nC#m B\nA B\n\n#v\nC#m B\nA B\nC#m B\nA B\n\n#s\nC#m B\nA B\nC#m B\nA B\n\n#o\nC#m B\nA B\nC#m\n"}</script>
+<script id="setlist-tempos" type="application/json">{"salidumay":null,"buwan--juan-karlos":null,"kapayapaan--tropical-depression":null,"ang-himig-natin--juan-de-la-cruz-band":null,"mga-matang-mapanghusga--vinch":null,"jopay--mayonnaise":null,"come-together--the-beatles":null,"crazy--gnarls-barkley":null,"to-be-with-you--mr-big":null,"ill-be--edwin-mccain":null,"everytime-i-see-you--fra-lippo-lippi":null,"wherever-you-will-go--the-calling":null,"lovesong--adele":null,"gravity--john-mayer":null,"dont-let-me-down--the-beatles":null,"rude--magic":null,"ooo-ohh--daniel-wesley":null,"waiting-in-vain--bob-marley":null,"jamming--bob-marley":null,"three-little-birds--bob-marley":null,"save-your-tears--the-weeknd":null,"valerie--amy-winehouse":null,"lose-control--teddy-swims":null,"the-door--teddy-swims":null,"bad-dreams--teddy-swims":null,"all-along-the-watchtower--jimi-hendrix":null}</script>
+<script src="/songhits/assets/chord-mark.js"></script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/setlist.js"></script>
+
+</body>
+</html>

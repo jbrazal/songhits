@@ -15,9 +15,9 @@
       --surface: #111111;
       --border:  #222222;
       --text:    #cccccc;
-      --muted:   #555555;
+      --muted:   #929292;
       --chord:   #fbbf24;
-      --lyric:   #6b7f8e;
+      --lyric:   #a6bac9;
       --section: #4ade80;
       --red:     #f87171;
       --blue:    #60a5fa;
@@ -169,6 +169,15 @@
     #tempo-blinker.active {
       opacity: 1;
       animation-play-state: running;
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
     }
   </style>
 </head>
@@ -401,9 +410,15 @@
     .cm-song-content { overflow-x: auto; }
   }
 
+  .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
+  #offline-status { font-size: 11px; }
+  .ctrl-btn-wide { width: auto; padding: 0 8px; }
+  #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
+  .song-block-header { flex-wrap: wrap; }
+  .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
-    nav, #toc-sidebar, #controls { display: none; }
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
     #setlist-wrap { margin: 0; padding: 0; }
     .song-block { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -416,42 +431,43 @@
 
 <aside id="toc-sidebar">
   
+  
   <div class="toc-part-label">Set</div>
   <ul>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-1">Break My Heart</a>
       
     </li>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-2">Break My Heart</a>
       
     </li>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-3">Break My Heart</a>
       
     </li>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-4">Break My Heart</a>
       
     </li>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-5">Break My Heart</a>
       
     </li>
     
     <li>
       
-        <a href="#break-my-heart--dua-lipa">Break My Heart</a>
+        <a href="#song-1-6">Break My Heart</a>
       
     </li>
     
@@ -460,14 +476,16 @@
 </aside>
 
 
-<div id="setlist-wrap">
+<div id="setlist-wrap" data-setlist="midyear-od">
   <h1 class="setlist-title">Midyear Overdrive</h1>
 
   
+  
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-1" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -475,9 +493,10 @@
       
     </div>
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-2" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -485,9 +504,10 @@
       
     </div>
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-3" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -495,9 +515,10 @@
       
     </div>
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-4" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -505,9 +526,10 @@
       
     </div>
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-5" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -515,9 +537,10 @@
       
     </div>
     
-    <div class="song-block" id="break-my-heart--dua-lipa">
+    <div class="song-block" id="song-1-6" data-slug="break-my-heart--dua-lipa" data-transpose="0">
       <div class="song-block-header">
         <span class="song-block-title">Break My Heart</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Break My Heart"></select></label>
         <span class="song-block-artist">— Dua Lipa</span>
       </div>
       
@@ -530,22 +553,22 @@
 
 
 <div id="controls">
-  <button id="btn-toc" title="Toggle song list">☰</button>
+  <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
   <div class="toolbar-sep"></div>
   <span id="tempo-blinker" title=""></span>
   <div class="toolbar-sep"></div>
   <button id="btn-toggle">▶ Play</button>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Speed</span>
-  <button class="ctrl-btn" id="btn-slower">−</button>
-  <input type="range" id="speed-slider" min="0.2" max="8" step="0.1" value="1.5">
-  <button class="ctrl-btn" id="btn-faster">+</button>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Scroll slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Scroll faster">+</button>
   <span id="speed-val">1.5</span>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Size</span>
-  <button class="ctrl-btn" id="btn-zoom-out">−</button>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
   <span class="zoom-val" id="zoom-val">14px</span>
-  <button class="ctrl-btn" id="btn-zoom-in">+</button>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
   <div class="toolbar-sep"></div>
   <select id="sel-font" class="pref-select" title="Chart font"></select>
   <select id="sel-symbol" class="pref-select" title="Symbol type">
@@ -558,281 +581,17 @@
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <span id="offline-status" role="status"></span>
   <button id="btn-top">⬆ Top</button>
 </div>
 
+<script id="setlist-sources" type="application/json">{"break-my-heart--dua-lipa":"Song: Break My Heart\r\nArtist: Dua Lipa\r\nkey Em\r\n\r\n#i\r\nEm C Bm Em \r\n \r\n#v\r\nEm\r\n_ I've always been the one to say the first goodbye \r\nC Bm Em\r\n_ Had to love and lose a _hundred million times_\r\nC\r\nHad to get it wrong to know just what I like_\r\nBm\r\nNow I'm fal-_ling\r\nEm\r\nYou_ say my name like I have never heard before\r\nC Bm\r\nI'm_ indecisive, but, this time, _I know for sure\r\nEm\r\nI_ hope I'm not the only one that feels it all\r\nC\r\n_Are you fal-ling?\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nI won_\r\n \r\n \r\n#v\r\nEm\r\n_ der when you go if I stay on your mind\r\nC Bm\r\nTwo can_ play that game, but you win me _every time\r\nEm\r\nE_veryone before you was a waste of time\r\nC\r\nYeah, _you got me\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nBreak my\r\n \r\n \r\n#b\r\nC D\r\n_ _ heart\r\nBm Em D C\r\n_Break my_ _heart_\r\nD B7\r\nAm I_ falling _in love with the one that could break my heart?\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n \r\n \r\n#o\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\n"}</script>
+<script id="setlist-tempos" type="application/json">{"break-my-heart--dua-lipa":null}</script>
 <script src="/songhits/assets/chord-mark.js"></script>
-<script>
-(function () {
-  var chordMark = window['chord-mark'];
-
-  // Song sources embedded at build time
-  var SONGS = {"break-my-heart--dua-lipa":"Song: Break My Heart\r\nArtist: Dua Lipa\r\nkey Em\r\n\r\n#i\r\nEm C Bm Em \r\n \r\n#v\r\nEm\r\n_ I've always been the one to say the first goodbye \r\nC Bm Em\r\n_ Had to love and lose a _hundred million times_\r\nC\r\nHad to get it wrong to know just what I like_\r\nBm\r\nNow I'm fal-_ling\r\nEm\r\nYou_ say my name like I have never heard before\r\nC Bm\r\nI'm_ indecisive, but, this time, _I know for sure\r\nEm\r\nI_ hope I'm not the only one that feels it all\r\nC\r\n_Are you fal-ling?\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nI won_\r\n \r\n \r\n#v\r\nEm\r\n_ der when you go if I stay on your mind\r\nC Bm\r\nTwo can_ play that game, but you win me _every time\r\nEm\r\nE_veryone before you was a waste of time\r\nC\r\nYeah, _you got me\r\n \r\n \r\n#p\r\nBm C\r\n_Centre _of attention\r\nD Bm\r\nYou know you can _get whatever you want from _me\r\nEm D\r\nWhenever you want it, _baby It's you_\r\nC\r\nin _my reflection\r\nD B7\r\nI'm afraid of _all the things you could do to _me\r\nIf I would've known it, baby\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nBreak my\r\n \r\n \r\n#b\r\nC D\r\n_ _ heart\r\nBm Em D C\r\n_Break my_ _heart_\r\nD B7\r\nAm I_ falling _in love with the one that could break my heart?\r\nEm\r\nI would've stayed at _home\r\n \r\n \r\n#c\r\n'Cause I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\nEm\r\nOh no,_ I was doing better alone\r\nC\r\nBut when you said, \"Hel_lo\"\r\nBm Em\r\nI knew that _was the end of it all I should_\r\nEm\r\n've stayed at _home\r\n \r\n \r\n#o\r\n'Cause now there ain't no letting you go\r\nC B7\r\nAm I falling _in love with the one that _could break my heart?\r\n"};
-
-  // ── Preferences ──────────────────────────────────────────
-  var MONO_FONTS = [
-    { label: 'Courier',  value: "'Courier New', Courier, monospace" }
-  ];
-  var PROP_FONTS = [
-    { label: 'Verdana',        value: 'Verdana, Geneva, sans-serif' },
-    { label: 'Arial',          value: 'Arial, sans-serif' },
-    { label: 'Segoe UI',       value: "'Segoe UI', system-ui, sans-serif" },
-    { label: 'Roboto',         value: "'Roboto', sans-serif" },
-    { label: 'Montserrat',     value: "'Montserrat', sans-serif" },
-    { label: 'Nunito',         value: "'Nunito', sans-serif" },
-    { label: 'Inter',          value: "'Inter', sans-serif" },
-    { label: 'Open Sans',      value: "'Open Sans', sans-serif" },
-    { label: 'Helvetica Neue', value: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-    { label: 'Futura',         value: "'Futura', 'Century Gothic', sans-serif" }
-  ];
-
-  var fontMono  = localStorage.getItem('sh-fontMono') || "'Courier New', Courier, monospace";
-  var fontProp  = localStorage.getItem('sh-fontProp') || 'Verdana, Geneva, sans-serif';
-  var symbolType = localStorage.getItem('sh-symbolType') || 'chord';
-  var chartType  = localStorage.getItem('sh-chartType')  || 'all';
-
-  function applyFont(val) {
-    document.documentElement.style.setProperty('--chart-font', val);
-  }
-
-  function updateFontSelect() {
-    var lyricsOnly = chartType === 'lyrics';
-    var fonts   = lyricsOnly ? PROP_FONTS : MONO_FONTS;
-    var current = lyricsOnly ? fontProp   : fontMono;
-    var sel = document.getElementById('sel-font');
-    sel.innerHTML = '';
-    fonts.forEach(function (f) {
-      var opt = document.createElement('option');
-      opt.value = f.value; opt.textContent = f.label;
-      sel.appendChild(opt);
-    });
-    if (!fonts.some(function (f) { return f.value === current; })) {
-      current = fonts[0].value;
-      if (lyricsOnly) fontProp = current; else fontMono = current;
-    }
-    sel.value = current;
-    applyFont(current);
-  }
-  updateFontSelect();
-
-  function renderAll() {
-    document.querySelectorAll('.cm-song-content[data-slug]').forEach(function (el) {
-      var slug = el.dataset.slug;
-      var src  = SONGS[slug];
-      if (!src) { el.textContent = '(chart not found)'; return; }
-      el.innerHTML = '';
-      try {
-        el.innerHTML = chordMark.renderSong(chordMark.parseSong(src), {
-          alignBars: true, printBarSeparators: 'always', printChordsDuration: 'uneven',
-          symbolType: symbolType,
-          chartType:  chartType,
-        });
-      } catch (e) {
-        var d = document.createElement('div');
-        d.className = 'cm-raw-fallback';
-        d.textContent = src;
-        el.appendChild(d);
-      }
-    });
-  }
-
-  document.getElementById('sel-symbol').value = symbolType;
-  document.getElementById('sel-chart').value  = chartType;
-
-  document.getElementById('sel-font').onchange = function () {
-    var val = this.value;
-    if (chartType === 'lyrics') { fontProp = val; localStorage.setItem('sh-fontProp', val); }
-    else                        { fontMono = val; localStorage.setItem('sh-fontMono', val); }
-    applyFont(val);
-  };
-  document.getElementById('sel-symbol').onchange = function () {
-    symbolType = this.value;
-    localStorage.setItem('sh-symbolType', symbolType);
-    renderAll();
-  };
-  document.getElementById('sel-chart').onchange = function () {
-    chartType = this.value;
-    localStorage.setItem('sh-chartType', chartType);
-    updateFontSelect();
-    renderAll();
-  };
-
-  renderAll();
-
-  // ── Sync --ctrl-h to actual controls height ───────────────
-  function syncCtrlH() {
-    var h = document.getElementById('controls').offsetHeight;
-    document.documentElement.style.setProperty('--ctrl-h', h + 'px');
-  }
-  syncCtrlH();
-  window.addEventListener('resize', syncCtrlH);
-
-  // ── TOC toggle ────────────────────────────────────────────
-  var body    = document.body;
-  var btnToc  = document.getElementById('btn-toc');
-  var overlay = document.getElementById('toc-overlay');
-
-  function isMobile() { return window.innerWidth <= 680; }
-
-  function tocIsOpen() {
-    return isMobile() ? body.classList.contains('toc-on')
-                      : !body.classList.contains('toc-off');
-  }
-
-  function openToc() {
-    if (isMobile()) body.classList.add('toc-on');
-    else            body.classList.remove('toc-off');
-    btnToc.classList.add('active');
-  }
-
-  function closeToc() {
-    if (isMobile()) body.classList.remove('toc-on');
-    else            body.classList.add('toc-off');
-    btnToc.classList.remove('active');
-  }
-
-  btnToc.onclick  = function () { tocIsOpen() ? closeToc() : openToc(); };
-  overlay.onclick = closeToc;
-
-  // Close drawer when jumping to a song on mobile
-  document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
-    var id = a.getAttribute('href').slice(1);
-    a.addEventListener('click', function () {
-      if (isMobile()) closeToc();
-    });
-    // also used by IntersectionObserver below
-    a._tocId = id;
-  });
-
-  // Reset state on breakpoint cross
-  window.addEventListener('resize', function () {
-    body.classList.remove('toc-on', 'toc-off');
-    btnToc.classList.toggle('active', !isMobile());
-  });
-
-  // Desktop starts with TOC open
-  if (!isMobile()) btnToc.classList.add('active');
-
-  // ── Tempo blinker ─────────────────────────────────────────
-  var bpmMap = {};
-  Object.keys(SONGS).forEach(function (slug) {
-    var m = SONGS[slug].match(/^tempo:\s*(\d+)/m);
-    if (m) bpmMap[slug] = parseInt(m[1], 10);
-  });
-
-  function updateBlinker(slug) {
-    var blinker = document.getElementById('tempo-blinker');
-    var bpm = bpmMap[slug];
-    if (bpm) {
-      blinker.style.animationDuration = (60 / bpm) + 's';
-      blinker.title = bpm + ' BPM';
-      blinker.classList.add('active');
-    } else {
-      blinker.classList.remove('active');
-      blinker.title = '';
-    }
-  }
-
-  // ── Active TOC link via IntersectionObserver ──────────────
-  var tocLinks = {};
-  document.querySelectorAll('#toc-sidebar a').forEach(function (a) {
-    tocLinks[a._tocId] = a;
-  });
-
-  var observer = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (entry.isIntersecting) {
-        var id = entry.target.id;
-        Object.values(tocLinks).forEach(function (a) { a.classList.remove('active'); });
-        var active = tocLinks[id];
-        if (active) {
-          active.classList.add('active');
-          active.scrollIntoView({ block: 'nearest' });
-        }
-        updateBlinker(id);
-      }
-    });
-  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
-
-  document.querySelectorAll('.song-block[id]').forEach(function (el) {
-    observer.observe(el);
-  });
-
-  // Initialise blinker to the first song on load
-  var firstBlock = document.querySelector('.song-block[id]');
-  if (firstBlock) updateBlinker(firstBlock.id);
-
-  // ── Autoscroll ────────────────────────────────────────────
-  var playing = false, speed = 1.5, raf = null, lastTime = null, carry = 0;
-
-  function tick(ts) {
-    if (!playing) return;
-    if (lastTime !== null) {
-      var dt = ts - lastTime;
-      carry += speed * dt * 0.045;
-      var px = Math.floor(carry);
-      if (px > 0) { window.scrollBy(0, px); carry -= px; }
-    }
-    lastTime = ts;
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) { stop(); return; }
-    raf = requestAnimationFrame(tick);
-  }
-
-  function play() {
-    playing = true; lastTime = null; carry = 0;
-    var btn = document.getElementById('btn-toggle');
-    btn.textContent = '⏸ Pause';
-    btn.classList.add('playing');
-    raf = requestAnimationFrame(tick);
-  }
-
-  function stop() {
-    playing = false;
-    cancelAnimationFrame(raf); lastTime = null;
-    var btn = document.getElementById('btn-toggle');
-    btn.textContent = '▶ Play';
-    btn.classList.remove('playing');
-  }
-
-  function setSpeed(val) {
-    speed = Math.round(Math.max(0.2, Math.min(8, +val)) * 10) / 10;
-    document.getElementById('speed-slider').value = speed;
-    document.getElementById('speed-val').textContent = speed.toFixed(1);
-  }
-
-  document.getElementById('btn-toggle').onclick   = function () { playing ? stop() : play(); };
-  document.getElementById('btn-slower').onclick   = function () { setSpeed(speed - 0.5); };
-  document.getElementById('btn-faster').onclick   = function () { setSpeed(speed + 0.5); };
-  document.getElementById('speed-slider').oninput = function () { setSpeed(parseFloat(this.value)); };
-  document.getElementById('btn-top').onclick      = function () { stop(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-
-  // ── Font size ─────────────────────────────────────────────
-  var SIZES = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28], zi = 4;
-  function applyZoom() {
-    var px = SIZES[zi];
-    document.getElementById('setlist-wrap').style.fontSize = px + 'px';
-    document.getElementById('zoom-val').textContent = px + 'px';
-  }
-  document.getElementById('btn-zoom-out').onclick = function () { zi = Math.max(0, zi - 1); applyZoom(); };
-  document.getElementById('btn-zoom-in').onclick  = function () { zi = Math.min(SIZES.length - 1, zi + 1); applyZoom(); };
-
-  // ── Keyboard ──────────────────────────────────────────────
-  document.addEventListener('keydown', function (e) {
-    if (e.target.tagName === 'INPUT') return;
-    switch (e.key) {
-      case ' ':           e.preventDefault(); playing ? stop() : play();       break;
-      case 'ArrowUp':     e.preventDefault(); setSpeed(speed + 0.5);           break;
-      case 'ArrowDown':   e.preventDefault(); setSpeed(speed - 0.5);           break;
-      case 'Home':        e.preventDefault(); stop(); window.scrollTo({top:0, behavior:'smooth'}); break;
-      case '+': case '=': e.preventDefault(); zi = Math.min(SIZES.length-1, zi+1); applyZoom(); break;
-      case '-':           e.preventDefault(); zi = Math.max(0, zi-1); applyZoom(); break;
-    }
-  });
-
-  setSpeed(speed);
-  applyZoom();
-})();
-</script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/setlist.js"></script>
 
 </body>
 </html>

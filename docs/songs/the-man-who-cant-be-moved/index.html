@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>The Man Who Cant Be Moved | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #929292;
+      --chord:   #fbbf24;
+      --lyric:   #a6bac9;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/songhits/songs/">Songs</a>
+  <a href="/songhits/setlist/">Setlists</a>
+</nav>
+<style>
+  #song-toolbar {
+    position: sticky;
+    top: 44px;
+    z-index: 400;
+    background: #0e0e0e;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 7px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  #song-toolbar .song-heading {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  #song-toolbar .song-heading strong { color: #e8e8e8; font-size: 14px; }
+  #song-toolbar .song-heading span   { color: var(--muted); font-size: 12px; margin-left: 6px; }
+  #transpose-val {
+    display: inline-block;
+    width: 28px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--chord);
+    font-size: 13px;
+  }
+  .ctrl-btn-wide {
+    width: auto;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+  #song-body {
+    padding: 28px 32px calc(var(--scroll-h, 50px) + 24px);
+    max-width: 960px;
+  }
+  #cm-error {
+    background: #3a1010;
+    border: 1px solid #7a3030;
+    color: #f48771;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    white-space: pre-wrap;
+  }
+  #cm-raw {
+    white-space: pre-wrap;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* ── Docked controls ──────────────────────────────────────── */
+  #scroll-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: #0a0a0a;
+    border-top: 1px solid #1e1e1e;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  #btn-play {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-play.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 760px) {
+    #song-toolbar, #scroll-controls { flex-wrap: wrap; height: auto; padding: 7px 10px; gap: 6px; }
+    #song-toolbar .song-heading { flex: 1 0 100%; }
+    .ctrl-label, .toolbar-sep { display: none; }
+    #song-body { padding-left: 12px; padding-right: 12px; overflow-x: auto; }
+    .ctrl-btn { width: 32px; height: 32px; }
+  }
+  @media print {
+    nav, #song-toolbar, #scroll-controls { display: none; }
+    #song-body { padding: 0; }
+    .cmSection { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+<div id="song-toolbar">
+  <div class="song-heading">
+    <strong>The Man Who Cant Be Moved</strong>
+  </div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Transpose</span>
+  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
+  <span id="transpose-val">0</span>
+  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
+  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <div class="toolbar-sep"></div>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+</div>
+
+<div id="song-body" data-slug="the-man-who-cant-be-moved" data-tempo="">
+  <div id="cm-error" style="display:none"></div>
+  <div id="cm-content" class="cmSong"></div>
+  <div id="cm-raw"    style="display:none"></div>
+</div>
+
+<div id="scroll-controls">
+  <button id="btn-play">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Scroll slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Scroll faster">+</button>
+  <span id="speed-val">1.5</span>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Size</span>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
+  <span class="zoom-val" id="size-val">14px</span>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script id="song-source" type="application/json">"#i\nBb F\n\n#v\nCm Eb Bb F\n__ Go_ing back to the corner where _I first saw you,\nCm Eb\nGon_na camp in my sleeping bag I'm _not gonna move,\nBb F\nGot _some words on cardboard got _your picture in my hand,\nCm Eb\nSay_ing if you see this girl can _you tell her where I am,\nBb F\nSome try _to hand me money they don't_ understand,\nCm Eb\nI'm not_ broke I'm just a _broken hearted man,\nBb F\nI know _it makes no sense, but what else_ can I do,\nCm Eb\nAnd _how can I move on when I'm_ still in love with you.\n\n#c\nBb F\n`Cause if _one day you wake up and find that _your missing me,\nCm Eb\nAnd your _heart starts to wonder where on this _Earth I can be,\nBb F\nThinking _maybe you'd come back here to the _place that we'd meet,\nCm Eb\nAnd you'd _see me waiting for you on the _corner of the street.\nBb\nSo I'm not_ moving\nF Cm Eb\n_I'm not mo_ving_\n\n#PreVerse\nBb F Cm Eb\n\n#v\nBb F\n_Policeman says son you_ can't stay here\nCm Eb\nI said_ there's someone I'm waiting for if it's a _day, a month, a year,\nBb F\nGotta_ stand my ground even if it_ rains or snows,\nCm Eb\nIf _she changes her mind this is the first_ place she will go.\n\n#c\nBb F\n`Cause if _one day you wake up and find that _your missing me,\nCm Eb\nAnd your _heart starts to wonder where on this _Earth I can be,\nBb F\nThinking _maybe you'd come back here to the _place that we'd meet,\nCm Eb\nAnd you'd _see me waiting for you on the _corner of the street.\nBb F\nSo I'm not_ moving_\nCm Eb\nI'm not mo_ving_\nBb F\nI'm not mo_ving_\nCm Eb\nBb F Cm Eb\nI'm not mo_ving_ __\n\n#Interlude\nGm Eb\n_People talk about the guy_\nF\nWho`s waiting on a _girl\nCm\nOoh_woo\nGm Eb\n_There on no holes in his shoes_\nF\nBut a big hole in his _world\nCm\nHmm_\nEb F\nMay_be I'll get famous as the man_ who can't be moved,\nEb F\nAnd may_be you won't mean to but you'll see_ me on the news,\nEb\nAnd you'll come _running to the corner\nF Eb\n_`Cause you'll know it's just for_ you\nF Cm\nI'm the man_ who can't be moved_\nI'm the man who can't be moved...\n\n#c\nBb F\n`Cause if _one day you wake up and find that _your missing me,\nCm Eb\nAnd your _heart starts to wonder where on this _Earth I can be,\nBb F\nThinking _maybe you'd come back here to the _place that we'd meet,\nCm Eb\nAnd you'd _see me waiting for you on the _corner of the street.\nBb F\n`Cause if _one day you wake up and find that _your missing me,\nCm Eb\nAnd your _heart starts to wonder where on this _Earth I can be,\nBb F\nThinking _maybe you'd come back here to the _place that we'd meet,\nCm Eb\nBb F Cm Eb\nAnd you'd _see me waiting for you on the _corner of the street. __\n\n#o\nBb F\nGoing_ back to the corner where I_ first saw you,\nCm Eb\nGonna_ camp in my sleeping bag I'm _not gonna move.\n"</script>
+<script src="/songhits/assets/chord-mark.js"></script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/song.js"></script>
+
+</body>
+</html>

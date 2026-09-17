@@ -305,3 +305,19 @@ body.vscode-high-contrast .cmLyricLine {
   background: var(--vscode-panel-border, #3c3c3c);
   margin: 0 4px;
 }
+
+/* Explicit settings override the inherited editor theme. */
+body.cm-theme-dark { background: #1e1e1e; color: #ddd; }
+body.cm-theme-print { background: #fff; color: #111; }
+body.cm-theme-dark .cm-toolbar { background: #252526; }
+body.cm-theme-print .cm-toolbar { background: #f3f3f3; }
+body.cm-theme-dark .cmLyricLine { color: #ddd; }
+body.cm-theme-print .cmLyricLine { color: #111; }
+body.cm-theme-dark .cmChordLine, body.cm-theme-dark .cmChordSymbol { color: #fbbf24; }
+body.cm-theme-print .cmChordLine, body.cm-theme-print .cmChordSymbol { color: #111; }
+body.cm-theme-dark .cmSectionLabel { color: #4ade80; border-color: #555; }
+body.cm-theme-print .cmSectionLabel { color: #222; border-color: #999; }
+body.cm-theme-dark .cmBarSeparator, body.cm-theme-dark .cmChordDuration { color: #aaa; }
+body.cm-theme-print .cmBarSeparator, body.cm-theme-print .cmChordDuration { color: #555; }
+.cm-btn:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.cm-btn:disabled { opacity: .45; cursor: default; }
