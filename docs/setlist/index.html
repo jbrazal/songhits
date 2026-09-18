@@ -170,6 +170,13 @@
       opacity: 1;
       animation-play-state: running;
     }
+
+    /* ── Autoscroll playhead ───────────────────────────────── */
+    .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
+    .cmLine.cm-playhead::before {
+      content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
+      width: 3px; border-radius: 2px; background: var(--section);
+    }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -239,6 +246,26 @@
     <li>
       <a href="/songhits/setlist/may-landicho/">May Landicho</a>
       <span class="setlist-song-count">26 songs</span>
+    </li>
+    
+    <li>
+      <a href="/songhits/setlist/dera-chill/">D&#39;ERA Chill</a>
+      <span class="setlist-song-count">41 songs</span>
+    </li>
+    
+    <li>
+      <a href="/songhits/setlist/otr-2025/">OTR 2025</a>
+      <span class="setlist-song-count">13 songs</span>
+    </li>
+    
+    <li>
+      <a href="/songhits/setlist/lbs-otr-2026/">LBS OTR 2026</a>
+      <span class="setlist-song-count">36 songs</span>
+    </li>
+    
+    <li>
+      <a href="/songhits/setlist/september-storm/">September Storm</a>
+      <span class="setlist-song-count">7 songs</span>
     </li>
     
   </ul>

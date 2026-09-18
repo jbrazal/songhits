@@ -8,8 +8,11 @@
   const preferences = ui.preferences(renderAll);
   const setlistKey = ui.byId('setlist-wrap').dataset.setlist;
   const offline = document.documentElement.dataset.offline === 'true';
+  const controls = ui.performanceControls({ playId: 'btn-toggle', bodyId: 'setlist-wrap', sizeId: 'zoom-val', headerId: 'controls' });
   for (const block of blocks) {
     if (!block.dataset.slug) continue;
+    const content = block.querySelector('.cm-song-content');
+    if (content) content.dataset.bpm = ui.tempo(songs[block.dataset.slug] || '', tempos[block.dataset.slug]) || '';
     const select = block.querySelector('.song-transpose');
     const key = 'sh-setlist-transpose:' + setlistKey + ':' + block.id + ':' + block.dataset.slug;
     const saved = offline ? block.dataset.transpose : ui.storage.get(key, block.dataset.transpose);
@@ -32,10 +35,10 @@
       const fallback = document.createElement('pre'); fallback.className = 'cm-raw-fallback';
       fallback.textContent = 'Unable to render chart: ' + error.message + '\n\n' + (source || ''); element.append(fallback);
     }
+    controls.refresh();
   }
   function renderAll() { blocks.forEach(renderBlock); }
   renderAll();
-  const controls = ui.performanceControls({ playId: 'btn-toggle', bodyId: 'setlist-wrap', sizeId: 'zoom-val' });
   ui.syncHeight('controls', '--ctrl-h');
   const button = ui.byId('btn-toc');
   const mobile = window.matchMedia('(max-width: 680px)');
@@ -61,7 +64,7 @@
       link.classList.toggle('active', id === block.id);
       if (id === block.id) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
     });
-    ui.blink(ui.tempo(songs[block.dataset.slug] || '', tempos[block.dataset.slug]));
+    controls.setTempoContext(block.querySelector('.cm-song-content'));
   }
   if (window.IntersectionObserver) {
     const observer = new IntersectionObserver(entries => {

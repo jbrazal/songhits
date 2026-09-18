@@ -4,6 +4,7 @@ module.exports = function (config) {
   // New notes/tools stay private by default, including when output is overridden.
   const publicRoots = new Set(['index.njk', 'songs', 'setlist', 'chordmark', '_includes']);
   for (const entry of fs.readdirSync(__dirname)) if (!publicRoots.has(entry)) config.ignores.add(entry);
+  config.ignores.add('setlist/temp/**');
   config.setTemplateFormats(['njk', 'md', 'chordmark']);
   for (const file of ['chord-mark.js', 'site-controls.js', 'song.js', 'setlist.js']) config.addPassthroughCopy({ ['media/' + file]: 'assets/' + file });
   config.addWatchTarget('./chordmark/metadata.json');

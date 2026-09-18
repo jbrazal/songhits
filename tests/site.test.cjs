@@ -103,6 +103,94 @@ test('syntax highlighting distinguishes ordinary A-G lyrics from chord lines', (
   for (const chords of ['Am.. F..', 'Cmaj7 F G Am', '%', '[C G] Am F', 'NC']) assert.equal(chordLine.test(chords), true, chords);
 });
 
+function controlsDom(html = '') {
+  const dom = new JSDOM(html, { url: 'https://example.test/songhits/', runScripts: 'outside-only', pretendToBeVisual: true });
+  for (const file of ['chord-mark.js', 'site-controls.js']) dom.window.eval(fs.readFileSync('media/' + file, 'utf8'));
+  return dom;
+}
+// JSDOM has no layout: give every chart line a 20px slot and containers a matching box.
+function stubLayout(dom) {
+  dom.window.Element.prototype.getBoundingClientRect = function () {
+    const lines = [...this.ownerDocument.querySelectorAll('.cmLine')], total = lines.length * 20;
+    if (this.matches('.cmLine')) { const top = lines.indexOf(this) * 20; return { top, bottom: top + 20, height: 20, left: 0, right: 0, width: 0 }; }
+    if (this.matches('[data-bpm]')) return { top: 0, bottom: total, height: total, left: 0, right: 0, width: 0 };
+    return { top: 0, bottom: 0, height: 0, left: 0, right: 0, width: 0 };
+  };
+}
+
+test('beat counting follows chord-mark bar rules and inline time signatures stay line-local', () => {
+  const dom = controlsDom(), ui = dom.window.SongHits, cm = dom.window['chord-mark'];
+  const root = dom.window.document.createElement('div');
+  root.innerHTML = cm.renderSong(cm.parseSong('#v\n4/4\nC G\nx\nC 3/4 D\nE F\n6/8\nG A\n'), { printBarSeparators: 'always' });
+  let ts = '4/4';
+  const beats = [];
+  for (const el of root.querySelectorAll('.cmChordLine, .cmLine > .cmTimeSignature')) {
+    if (el.classList.contains('cmTimeSignature')) ts = el.textContent.trim(); else beats.push(ui.lineBeats(el, ts));
+  }
+  assert.deepEqual(beats, [8, 7, 8, 4]);
+  assert.deepEqual(['3/4', '6/8', '12/8', '2/2', 'junk'].map(ui.beatsPerBar), [3, 2, 4, 4, 4]);
+  dom.window.close();
+});
+
+test('measure builds tempo anchors in document order and skips charts without tempo or chord lines', () => {
+  const dom = controlsDom('<div id="a" data-bpm="120" data-slug="a"></div><div id="b" data-bpm="" data-slug="b"></div><div id="c" data-bpm="90"></div>');
+  const ui = dom.window.SongHits, cm = dom.window['chord-mark'], document = dom.window.document, render = ui.renderer();
+  stubLayout(dom);
+  const source = '#v\n4/4\nC G\nx\n3/4\nD E F\ny\n';
+  document.getElementById('a').innerHTML = render(source, {});
+  document.getElementById('b').innerHTML = render(source, {});
+  document.getElementById('c').innerHTML = render(source, { chartType: 'lyrics' });
+  const bpmOf = container => Number(container.dataset.bpm) || null;
+  const anchors = ui.measure(document.body, bpmOf);
+  assert.deepEqual([...anchors].map(a => a.seconds), [4, 4.5, null]);
+  assert.ok(anchors[0].y < anchors[1].y && anchors[1].y < anchors[2].y);
+  assert.ok(anchors[0].line.classList.contains('cmLine') && anchors[2].line === null);
+  assert.ok(cm.parseSong(source).allLines.some(line => line.type === 'timeSignature'));
+  dom.window.close();
+});
+
+test('schedule maps time to pixels and back, with constant-rate spans between tempo anchors', () => {
+  const { schedule } = controlsDom().window.SongHits;
+  const plan = schedule([{ y: 100, seconds: 2, line: null }, { y: 200, seconds: null, line: null }], 335, 67.5);
+  const lead = 100 / 67.5;
+  assert.ok(Math.abs(plan.points[1].t - lead) < 1e-9);
+  assert.equal(plan.yAt(lead + 1), 150);
+  assert.ok(Math.abs(plan.tAt(150) - (lead + 1)) < 1e-9);
+  assert.ok(Math.abs(plan.tempoEnd - (lead + 2)) < 1e-9);
+  assert.ok(Math.abs(plan.duration - (lead + 4)) < 1e-9);
+  for (const t of [0, 0.7, lead, lead + 1.3, lead + 3, 99]) assert.ok(Math.abs(plan.tAt(plan.yAt(t)) - Math.min(t, plan.duration)) < 1e-9, String(t));
+  assert.equal(schedule([], 1000, 67.5).yAt(1), 67.5);
+  assert.equal(schedule([], 1000, 67.5).tempoEnd, null);
+  const flat = schedule([{ y: 0, seconds: 1, line: null }, { y: 0, seconds: null, line: null }], 0, 67.5);
+  assert.ok(Number.isFinite(flat.yAt(0.5)) && Number.isFinite(flat.tAt(0)));
+});
+
+test('songs with a tempo expose a BPM control, remember adjustments, and highlight the playing line', async () => {
+  const dom = pageDom(pages.find(p => p.inputPath.endsWith('/manchild.chordmark')).content);
+  const doc = dom.window.document, key = e => new dom.window.KeyboardEvent('keydown', { key: e, bubbles: true, cancelable: true });
+  assert.ok(doc.querySelector('#cm-content .cmLine > .cmTimeSignature'), 'CRLF chart keeps its time signature line');
+  assert.equal(doc.getElementById('speed-label').textContent, 'Tempo');
+  assert.equal(doc.getElementById('speed-val').textContent, '123 BPM');
+  assert.equal(doc.getElementById('tempo-blinker').style.animationDuration, 60 / 123 + 's');
+  doc.body.dispatchEvent(key('ArrowUp'));
+  assert.equal(doc.getElementById('speed-val').textContent, '124 BPM');
+  assert.equal(doc.getElementById('tempo-blinker').style.animationDuration, 60 / 124 + 's');
+  assert.equal(dom.window.localStorage.getItem('sh-bpm:manchild'), '124');
+  doc.getElementById('btn-speed-reset').click();
+  assert.equal(doc.getElementById('speed-val').textContent, '123 BPM');
+  assert.equal(dom.window.localStorage.getItem('sh-bpm:manchild'), null);
+  stubLayout(dom); dom.window.scrollTo = () => {};
+  const frame = () => new Promise(resolve => dom.window.requestAnimationFrame(resolve));
+  doc.body.dispatchEvent(key(' '));
+  await frame(); await frame();
+  assert.equal(doc.getElementById('btn-play').textContent, '⏸ Pause');
+  assert.ok(doc.querySelector('#cm-content .cmLine.cm-playhead .cmChordLine'));
+  doc.body.dispatchEvent(key(' '));
+  assert.equal(doc.querySelector('.cm-playhead'), null);
+  assert.equal(doc.getElementById('btn-play').textContent, '▶ Play');
+  dom.window.close();
+});
+
 test('offline download embeds scripts and preserves occurrence transpositions', async () => {
   const dom = pageDom(pages.find(p => p.inputPath.includes('midyear-od/index.md')).content);
   const document = dom.window.document;

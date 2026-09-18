@@ -170,6 +170,13 @@
       opacity: 1;
       animation-play-state: running;
     }
+
+    /* ── Autoscroll playhead ───────────────────────────────── */
+    .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
+    .cmLine.cm-playhead::before {
+      content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
+      width: 3px; border-radius: 2px; background: var(--section);
+    }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -375,6 +382,13 @@
       <div class="song-card-artist">Sienna Spiro</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/digital-bath--deftones/"
+       data-title="digital bath"
+       data-artist="deftones">
+      <div class="song-card-title">Digital Bath</div>
+      <div class="song-card-artist">Deftones</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/dive--live-cover/"
        data-title="dive"
        data-artist="live cover">
@@ -438,6 +452,13 @@
       <div class="song-card-artist">Elle King</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/faith--limp-bizkit/"
+       data-title="faith"
+       data-artist="limp bizkit">
+      <div class="song-card-title">Faith</div>
+      <div class="song-card-artist">Limp Bizkit</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/fall-in-love-alone--stacey-ryan/"
        data-title="fall in love alone"
        data-artist="stacey ryan">
@@ -459,11 +480,25 @@
       
     </a>
     
+    <a class="song-card" href="/songhits/songs/freak-on-a-leash--korn/"
+       data-title="freak on a leash"
+       data-artist="korn">
+      <div class="song-card-title">Freak On A Leash</div>
+      <div class="song-card-artist">Korn</div>
+    </a>
+    
     <a class="song-card" href="/songhits/songs/get-in-girl--meghan-trainor/"
        data-title="get in girl"
        data-artist="meghan trainor">
       <div class="song-card-title">Get In Girl</div>
       <div class="song-card-artist">Meghan Trainor</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/got-the-life--korn/"
+       data-title="got the life"
+       data-artist="korn">
+      <div class="song-card-title">Got The Life</div>
+      <div class="song-card-artist">Korn</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/gravity--john-mayer/"
@@ -704,6 +739,13 @@
       <div class="song-card-artist">VincH</div>
     </a>
     
+    <a class="song-card" href="/songhits/songs/mottaka-cheese/"
+       data-title="mottaka cheese"
+       data-artist="">
+      <div class="song-card-title">Mottaka Cheese</div>
+      
+    </a>
+    
     <a class="song-card" href="/songhits/songs/moves-like-jagger/"
        data-title="moves like jagger"
        data-artist="">
@@ -744,6 +786,13 @@
        data-artist="">
       <div class="song-card-title">Pda John Legend</div>
       
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/pigface--greyhoundz/"
+       data-title="pigface"
+       data-artist="greyhoundz">
+      <div class="song-card-title">Pigface</div>
+      <div class="song-card-artist">Greyhoundz</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/pink-pony-club--chappell-roan/"
@@ -1010,6 +1059,13 @@
        data-artist="amy winehouse">
       <div class="song-card-title">Valerie</div>
       <div class="song-card-artist">Amy Winehouse</div>
+    </a>
+    
+    <a class="song-card" href="/songhits/songs/wait-and-bleed--slipknot/"
+       data-title="wait and bleed"
+       data-artist="slipknot">
+      <div class="song-card-title">Wait And Bleed</div>
+      <div class="song-card-artist">Slipknot</div>
     </a>
     
     <a class="song-card" href="/songhits/songs/waiting-in-vain--bob-marley/"

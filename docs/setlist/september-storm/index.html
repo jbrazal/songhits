@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>September Storm | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #929292;
+      --chord:   #fbbf24;
+      --lyric:   #a6bac9;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
+
+    /* ── Autoscroll playhead ───────────────────────────────── */
+    .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
+    .cmLine.cm-playhead::before {
+      content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
+      width: 3px; border-radius: 2px; background: var(--section);
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/songhits/songs/">Songs</a>
+  <a href="/songhits/setlist/">Setlists</a>
+</nav>
+<style>
+  /* ── Layout ───────────────────────────────────────────────── */
+  :root { --toc-w: 210px; --ctrl-h: 48px; }
+
+  /* ── Controls bar – fixed below nav ──────────────────────── */
+  #controls {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    height: var(--ctrl-h);
+    background: #0a0a0a;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  /* ── TOC toggle button ───────────────────────────────────── */
+  #btn-toc {
+    background: none;
+    border: 1px solid #1e1e1e;
+    color: #555;
+    padding: 4px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s, border-color 0.1s, background 0.1s;
+  }
+  #btn-toc:hover { background: #181818; color: #aaa; border-color: #333; }
+  #btn-toc.active { color: var(--chord); border-color: #333; }
+
+  #btn-toggle {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-toggle.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; white-space: nowrap; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── TOC sidebar ──────────────────────────────────────────── */
+  #toc-sidebar {
+    position: fixed;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    left: 0;
+    width: var(--toc-w);
+    bottom: 0;
+    overflow-y: auto;
+    background: #080808;
+    border-right: 1px solid #1a1a1a;
+    padding: 14px 0;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+    transition: transform 0.2s ease;
+  }
+  #toc-sidebar::-webkit-scrollbar { width: 4px; }
+  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .toc-part-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #333;
+    padding: 10px 14px 4px;
+  }
+  .toc-part-label:first-child { padding-top: 2px; }
+
+  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
+  #toc-sidebar li { counter-increment: toc-n; }
+  #toc-sidebar a,
+  #toc-sidebar .toc-tbd {
+    display: block;
+    padding: 3px 14px 3px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #444;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  #toc-sidebar a::before,
+  #toc-sidebar .toc-tbd::before {
+    content: counter(toc-n) ". ";
+    font-size: 10px;
+    color: #2a2a2a;
+    margin-right: 2px;
+  }
+  #toc-sidebar a:hover { color: #888; text-decoration: none; }
+  #toc-sidebar a.active { color: var(--chord); border-left-color: var(--chord); }
+  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
+
+  /* Desktop: collapse TOC */
+  body.toc-off #toc-sidebar { transform: translateX(-100%); pointer-events: none; }
+  body.toc-off #setlist-wrap { margin-left: 0; }
+
+  /* ── Mobile overlay backdrop ─────────────────────────────── */
+  #toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 150;
+    cursor: pointer;
+  }
+
+  /* ── Main content ─────────────────────────────────────────── */
+  #setlist-wrap {
+    margin-left: var(--toc-w);
+    padding: calc(var(--ctrl-h) + 20px) 40px 60px 32px;
+    font-size: 14px;
+    transition: margin-left 0.2s ease;
+  }
+
+  .setlist-title {
+    color: var(--red);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+
+  .song-block { margin-bottom: 48px; }
+  .song-block-header {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    z-index: 40;
+    background: var(--bg);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
+  .song-block-artist { color: var(--muted); font-size: 12px; }
+
+  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
+  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+
+  /* ── Narrow screens ───────────────────────────────────────── */
+  @media (max-width: 680px) {
+    :root { --ctrl-h: 84px; }
+
+    body { overflow-x: hidden; }
+
+    #controls {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 7px 10px;
+      gap: 5px;
+      align-content: center;
+    }
+    .ctrl-label { display: none; }
+    .toolbar-sep { display: none; }
+    #btn-toggle { min-width: 72px; font-size: 12px; padding: 5px 10px; }
+    #speed-slider { width: 70px; }
+    #speed-val { min-width: 2.2em; font-size: 12px; }
+    .zoom-val { min-width: 2.6em; font-size: 12px; }
+    .ctrl-btn { width: 32px; height: 32px; font-size: 13px; }
+
+    /* TOC as slide-in overlay drawer */
+    #toc-sidebar {
+      width: 75%;
+      max-width: 260px;
+      transform: translateX(-100%);
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+    }
+    body.toc-on #toc-sidebar { transform: translateX(0); pointer-events: auto; }
+    body.toc-on #toc-overlay { display: block; }
+
+    #setlist-wrap {
+      margin-left: 0;
+      padding: calc(var(--ctrl-h) + 12px) 14px 40px;
+    }
+    body.toc-off #setlist-wrap { margin-left: 0; }
+
+    .cm-song-content { overflow-x: auto; }
+  }
+
+  .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
+  #offline-status { font-size: 11px; }
+  .ctrl-btn-wide { width: auto; padding: 0 8px; }
+  #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
+  .song-block-header { flex-wrap: wrap; }
+  .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Print ────────────────────────────────────────────────── */
+  @media print {
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    #setlist-wrap { margin: 0; padding: 0; }
+    .song-block { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+
+<div id="toc-overlay"></div>
+
+
+<aside id="toc-sidebar">
+  
+  
+  <div class="toc-part-label">Papa&#39;s Tribe</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-1-1">Mottaka</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-2">Digital Bath</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-3">Freak on a Leash</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-4">Got the Life</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-5">Wait and Bleed</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-6">Faith</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-7">Pigface</a>
+      
+    </li>
+    
+  </ul>
+  
+</aside>
+
+
+<div id="setlist-wrap" data-setlist="september-storm">
+  <h1 class="setlist-title">September Storm</h1>
+
+  
+  
+    
+    <div class="song-block" id="song-1-1" data-slug="mottaka-cheese" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Mottaka</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Mottaka"></select></label>
+        <span class="song-block-artist">— Cheese</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="mottaka-cheese"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-2" data-slug="digital-bath--deftones" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Digital Bath</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Digital Bath"></select></label>
+        <span class="song-block-artist">— Deftones</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="digital-bath--deftones"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-3" data-slug="freak-on-a-leash--korn" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Freak on a Leash</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Freak on a Leash"></select></label>
+        <span class="song-block-artist">— Korn</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="freak-on-a-leash--korn"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-4" data-slug="got-the-life--korn" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Got the Life</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Got the Life"></select></label>
+        <span class="song-block-artist">— Korn</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="got-the-life--korn"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-5" data-slug="wait-and-bleed--slipknot" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Wait and Bleed</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Wait and Bleed"></select></label>
+        <span class="song-block-artist">— Slipknot</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="wait-and-bleed--slipknot"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-6" data-slug="faith--limp-bizkit" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Faith</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Faith"></select></label>
+        <span class="song-block-artist">— Limp Bizkit</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="faith--limp-bizkit"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-7" data-slug="pigface--greyhoundz" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Pigface</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Pigface"></select></label>
+        <span class="song-block-artist">— Greyhoundz</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="pigface--greyhoundz"></div>
+      
+    </div>
+    
+  
+</div>
+
+
+<div id="controls">
+  <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
+  <div class="toolbar-sep"></div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
+  <button id="btn-toggle">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label" id="speed-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Faster">+</button>
+  <span id="speed-val">1.5</span>
+  <button class="ctrl-btn" id="btn-speed-reset" title="Reset speed or tempo" aria-label="Reset speed or tempo" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Size</span>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
+  <span class="zoom-val" id="zoom-val">14px</span>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <span id="offline-status" role="status"></span>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script id="setlist-sources" type="application/json">{"mottaka-cheese":"#i\nA2 G2 D2 G2\nA2 G2 D2 G2\nA2 G2 D2 G2\nA2 G2 D2 G2\n\n#v\nA2\nWhen the _moon shines,\nG2\nfrom the _heavens above,\nG2\n_Life will be sweet,\nG2\nso _green, and so young.\nA2\n_Hemp will be ruling\nG2\nmy _brothers again.\nA2\nIf _you got the ganja,\nG2\nthen _pass it my friend\n\n#v\nA2\nWhen the _moon shines,\nG2\nfrom the _heavens above,\nG2\n_Life will be sweet,\nG2\nso _green, and so young.\nA2\nI _open my mind\nG2\nas I _lie on the floor.\nG2\n_Join me as we both live\nA2 G2 D2\nin ecsta_sy. __\n\n#c\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2\nand you'll _see. _\nD2 G G#\nOOH _YEAH! __\n\n#Interlude\nA2 G2\nA2 G2\n..._See man, _Oh...\n\n#v\nA2\nWhen the _moon shines,\nG2\nfrom the _heavens above,\nG2\n_Life will be sweet,\nG2\nso _green, and so young.\nA2\n_Hemp will be ruling\nG2\nmy _brothers again.\nA2\nIf _you got the ganja,\nG2\nthen _pass it my friend\n\n#v\nA2\nWhen the _moon shines,\nG2\nfrom the _heavens above,\nG2\n_Life will be sweet,\nG2\nso _green, and so young.\nA2\nI _open my mind\nG2\nas I _lie on the floor.\nG2\n_Join me as we both live\nA2 G2 D2\nin ecsta_sy. __\n\n#c\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2\nand you'll _see. _\nD2 G G#\n(_Yeah) __\n\n#b\nC2 A#2 C\n_Send, _send me a_way...\nA#2 C\n_Send me a_way\nA#2 C D# C# C\n_Send me a_way..._ __\n\n#s\n\n#v\nA2\nWhile the _song winds,\nG2\nI'd be _bouncing around\nG2\n_I'd just be chilling\nG2\nand _standing we ground\nA2\n_Opening the hearts\nG2\nof the _people as we\nA2\n_Sing on melodies\nG2\nthat _makes us so free\n\n#v\nA2\nWhile your _mind flies,\nG2\nwe'll be _playing our song\nG2\n_Killing the buzz\nG2\nthat we _have all along.\nA2\n_Toke up and dope up\nG2\nis _all that we do\nG2\n(_F*** IT FOOL!) WE NEVER SAID\nG2 A2 G2 D2\nTHAT _YOU SHOULD _TOO! __\n\n#c\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2 D2\nand you'll _see. __\nC C#m\n_Dive in our _heads\nA2 G2\nand you'll _see. _\nD2 G G#\n(_Yeah) __\n\n#o\nA2\n","digital-bath--deftones":"#i\nE5\n_You move\n\n#v\nEm C5 Em C5 Em C5\n__ _like I want_ to_ _\nEm C5 Em C5 Em C5 Em C5\n__To see_ __ like your eyes_ _do_\nEm C5\n__We are downstairs\nEm C5 Em C5\nWhere no one_ _can see_ _\nEm C5 Em C5\n__New life_ break a_way\nC5 Em C5 Em C5\nTonight, I feel like_ _more_ __\n\n#c\nEm C5 Em C5\n__Tonight,_ I _\nYou make\n\n#v\nEm C5 Em C5 Em C5\n__ _the water_ warm_ _\nEm C5 Em C5 Em C5\n__You taste_ __ fo_reign\nEm C5 Em C5\nAnd I know_ you _can see_ _\nEm C5 Em D5\n__The cord_ break a_way\nC5 Em C5 Em C5\n'Cause tonight I feel like_ _more_ __\n\n#c\nEm C5 Em D5 C5 D5 C5\n__Tonight_ I _feel_ _like more Feel like_\nEm C5 Em C5 Em C5\n_more_ __ __\nEm C5\n_Tonight_\nYou breathed,\n\n#v\nEm C5 Em C5 Em C5\n__ _then you_ _stopped_\nEm C5 Em C5 Em C5 Em C5\n__I breathed,_ __ then dried you_ _off_\nEm D5 C5\n__ And tonight I feel Feel like_\n\n#c\nEm C5 Em C5 Em C5\n_more_ __ __\nEm C5\n_Tonight_ I feel like\nEm C5 Em C5\nFeel like_ more_ __\nEm C5 Em D5 C5 D5 C5\n__Tonight_ I _feel_ like_ more Feel like_\nEm C5 Em C5 Em C5\n_more_ __ __\nEm C5\n_To_night\n","freak-on-a-leash--korn":"#i\nD5 D#5 D5 D#5\nD5 D#5 D5\nD#5\n\n#v\nD5 D#5\n_Something takes a part of_ me.\nD5 D#5\n_Something lost and never _seen.\nD5 D#5\n_Everytime I start to bel_ieve,\nD5 D#5\n_Something's raped and taken from m_e, from me.\nD5 D#5\n_Life's got to always be messing with_ me.\nD5 D#5\n_Can't they chill and let me be _free?\nD5 D#5\n_Can't I take away all this _pain?\nD5 D#5\n_I try to every night, all in vai_n, in vain.\n\n#p\nD5 C5 D5\n_Sometimes I ca_nnot take this pla_ce.\nC5\nSometimes it's m_y life I can't taste.\nD5 C5 D5\n_Sometimes I ca_nnot feel my fa_ce.\nC5\nYou'll never se_e me fall from grace.\n\n#c\nA5 E5 F5 A5\n_So_mething takes_ a pa_rt of me.\nE5 F5 A5\nYo_u and I_ were mea_nt to be.\nE5 F5 A5\nA_ cheap fuck_ for m_e to lay.\nE5 F5\nSome_thing takes_ a part of me.\n\n#v\nD5 D#5\n_Feeling like a freak on a l_eash.\nD5 D#5\n_Feeling like I have no rel_ease.\nD5 D#5\n_How many times have I felt dise_ased?\nD5 D#5\n_Nothing in my life i_s free, is free.\n\n#p\nD5 C5 D5\n_Sometimes I ca_nnot take this pla_ce.\nC5\nSometimes it's m_y life I can't taste.\nD5 C5 D5\n_Sometimes I ca_nnot feel my fa_ce.\nC5\nYou'll never se_e me fall from grace.\n\n#c\nA5 E5 F5 A5\n_So_mething takes_ a pa_rt of me.\nE5 F5 A5\nYo_u and I_ were mea_nt to be.\nE5 F5 A5\nA_ cheap fuck_ for m_e to lay.\nE5 F5\nSome_thing takes_ a part of me.\n\n#b\nBoom na da mmm dum na ema\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema,\nDa boom na da mmm dum na ema, go!\nB5 C5 C#5 D5 B5 C5 C#5 D5 B5 C5 C#5 D5\nB5 C5 B5 A#5 B5 C5 C#5 D5 B5 C5 C#5\n__ __So _fight! _Something on _the... ema, _huh._ Fight, _some things _they\nD5\nfight._\nB5 C5 C#5 D5 B5 C5 B5 A#5\n_Fight! _Something on_ the... ema, _huh._ Fight, _some things _they fight._\nB5 C5 C#5 D5 B5 C5 C#5 D5\n_So! _Something on_ the... ema, _huh._ Fight, _some things _they fight._\nB5 C5 C#5 D5 B5 C5 C#5\n_Fight! _Something on_ the... ema, _huh._ Fight, _some things _they fight.\n\n#c\nA5 E5 F5 A5\n_So_mething takes_ a pa_rt of me.\nE5 F5 A5\nYo_u and I_ were mea_nt to be.\nE5 F5 A5\nA_ cheap fuck_ for m_e to lay.\nE5 F5 A5 E5 F5\nSome_thing takes_ a pa_rt of me._ _\n\n#o\nA5 E5 F5\nPa_rt of me,_ _\nA5 E5 F5\nPa_rt of me,_ _\nA5 E5 F5 D#\nPa_rt of me._ __\n","got-the-life--korn":"#i\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n\n#PreVerse\nC#5\n\n#v\nE5\n_Hate, something, sometime, someway, something kick on the front floor.\nMine? Something, inside. I'll never ever follow.\nSo give me something that is for real. I'll never ever follow.\n\n#Break\nF#5\n_Get your boogie on.\nGet your boogie on.\n\n#v\nE5\n_Hate, something, someway, each day, feeling ripped off again now.\nWhy? This shit inside. Now everyone will follow.\nSo give me nothing just feel, and now this shit will follow.\n\n#c\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God thinks we_ _will never_ see_ the light, who _wants _to see?_\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God told me,_ _I've already_ got_ the life, oh _I _see. _\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God thinks we_ _will never_ see_ the light, who _wants _to see?_\nA5 G5 D#5 C#5 A5 G5 D#5 C#5 %\n_God told me,_ _I've already_ got_ the life, oh _I _say. __\n\n#Interlude\nA5 G5 D#5 C#5\n_Each day I can feel it swallow, _inside some_thing took from me._\nA5 G5 D#5 C#5 A5 G5 D#5\n_I don't feel your death_ly ways._ __Each day I feel so hollow, _inside I _was\nC#5\nbeating me._\nA5 G5 D#5 C#5\n_You will never see,_ so come _dance with _me.\n\n#b\nA5\n_Dance with me. Dance with me. Dance with me. Dance with me. Dance with me. Dance\nwith me. Me!\n\n#c\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God thinks we_ _will never_ see_ the light, who _wants _to see?_\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God told me,_ _I've already_ got_ the life, oh _I _see. _\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God thinks we_ _will never_ see_ the light, who _wants _to see?_\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\n_God told me,_ _I've already_ got_ the life, oh_ I say._ _\n\n#o\nA5 G5 D#5 C#5 A5 G5 D#5 C#5\nGot_ the life. Got_ the life._ _Got_ the life. Got_ the life._ _\nA5 G5 D#5 C#5 A5 G5 D#5 C#5 A5\nGot_ the life. Got_ the life._ _Got_ the life. _Got the _life._ _\n","wait-and-bleed--slipknot":"#i\nB5 F#5 C5 B5 F#5\n_I've_ felt the _hate rise up in me..._ Kneel_\nC5 B5 F#5\ndown and _clear the stone of leaves_ I _\nC5 B5 F#5\nwander _out where you can't see_ In_\nC5 B5 F#5\nside my _shell I wait and bleed_ I've_\nC5 B5 F#5\nfelt the _hate rise up in me..._ Kneel_\nC5 B5 F#5\ndown and _clear the stone of leaves_ I _\nC5 B5 F#5\nwander _out where you can't see_ In_\nC5 B5\nside my _shell I wait and bleed_\n\n#Interlude\nGood bye!\n\n#v\nB5\n_I wipe it off on tile the light is brighter this time\nEverything is 3 D blasphemy\nMy eyes are red and gold the hair is standing straight up\nThis is not the way I pictured me\nI can't control my shakes!\nHow the hell did I get here?\nSomething about this so very wrong\nI have to laugh out loud I wish I didn't like this\nIs it a dream or a memory?\n\n#c\nB5 F#5 C5 B5 F#5\n_I've_ felt the _hate rise up in me_ Kneel_\nC5\ndown and _clear the stone of leaves...\nB5 F#5 C5 B5 F#5\n_I _wander _out where you can't see_ In_\nC5 B5\nside my _shell I wait and bleed_\n\n#v\nB5\n_Get outta my head 'cause I don't need this!\nWhy I didn't I see this?\nI am a victim, Manchurian Candidate\nI have sinned by just\n\n#c\nB5 F#5 C5 B5 F#5\nMakin' my mind up and takin' your_ bre_ath a_way I've felt the hate rise _up _in me\nC5\nB5 F#5 C5\nB5 F#5 C5 B5 F#5\nKneel down and clear the _stone_ of leaves..._ __\nB5 F#5 C5\nI wander out where _you _can't see_\nB5 F#5 C5\nInside my shell I _wait_ and bleed_\nB5 F#5 C5\nI've felt the hate rise _up _in me_\nB5 F#5 C5\nKneel down and clear the _stone_ of leaves..._\nB5 F#5 C5\nI wander out where _you _can't see_\n\n#Break\nB5 C5 D5 D#5 B5 C5 B5 % C5\nInside my shell I wait _and __bleed_ __ __ _\nB5\n_Goodbye!\nYou haven't learned a thing\nI haven't changed a thing\nMy flesh was in my bones\nThe pain was always free\nYou haven't learned a thing\nI haven't changed a thing\nMy flesh was in my bones\n\n#c\nB5 F#5 C5\nThe pain_ was_ always _free\nB5 F#5 C5\nI've felt the hate rise _up _in me_\nB5 F#5 C5\nKneel down and clear the _stone_ of leaves..._\nB5 F#5 C5\nI wander out where _you _can't see_\nB5 F#5 C5\nInside my shell I _wait_ and bleed_\nB5 F#5 C5\nI've felt the hate rise _up _in me_\nB5 F#5 C5\nKneel down and clear the _stone_ of leaves..._\nB5 F#5 C5\nI wander out where _you _can't see_\nB5\nInside my shell I _wait and bleed\n\n#o\nAnd it\n","faith--limp-bizkit":"#i\nB\n\n#v\nWell I guess it would be nice if I could touch your body\nA B\nI know not _everybody has got a body like _me\nBut I got to think twice before I give my heart away\nA B\nAnd I know _all the games you play 'cause I play them _too\n\n#p\nA B\nOh, but I _need some time off from _that emotion\nA\n_Time to pick my heart up off the floor\nB A B\n_When that _love comes down with_out devotion\nF#\nWell it _takes a strong man baby, but I'm showing you the door\nB\nWell, I gotta have _faith\n\n#c\nGotta have faith\nGotta have faith\nGotta have faith\n\n#v\nBaby I know you're asking me to stay\nA\nSay please, please, _please, don't go away\nB\nA B\n'Cause you're giving me the _blues _\nBaby, your mind made all the word you say\nA\nCan't help but _think of yesterday\nB A B\nAnd another who _tied me down to loverboy blues Be_fore this river be_comes an ocean\n\n#p\nA\n_Time to pick my heart up off the floor\nB A B F#\n_When that _love comes down with_out devotion Well it _takes a strong man baby, but\nB A B\nI_'m show_ing you_ the door\nB\nWell, I gotta have _faith\n\n#c\nGotta have faith\nGotta have faith\nGotta have faith\nGet the fuck up\n\n#o\nI gotta have faith\nGotta have faith\nGotta have faith\nGotta have faith\nFaith!\n","pigface--greyhoundz":"#i\nHupaw!!! Huhupaw!!! Huhupaw!!!\nBaw!!! Huhupaw!!! Huhupaw!!!\n\n#v\nLook at me and what do you see\nLook at me so what can you see\nLook at me and what do you feel\nLook at me am I your fear\n\n#c\nYou don't know what's commin' at ya, Hey...\n\n#Break\nBaw!!! Huhupaw!!! Huhupaw!!!\n[Pigface!] Baw!!! Huhupaw!!! Huhupaw!!!\n\n#v\nLook at me and what do you see\nLook at me so what can you see\nLook at me and what do you feel\nLook at me am I your fear\n\n#c\nYou don't know what's commin' at ya, Hey...\n\n#Break\nBaw!!! Huhupaw!!! Huhupaw!!!\n\n#b\nPut it away, put it away (Pigface)\nMy life!!!\n\n#Interlude\nPlease don't hurt me...\n\n#c\nYou don't know what's commin' at ya, Hey...\nYou don't know what's commin' at ya, Rahhhh!!!\n\n#Break\nBaw!!! Huhupaw!!! Huhupaw!!!\n\n#b\nPut it away, put it away (Pigface)\nMy life!!!\n\n#o\nPut it away (Pigface)\nPut it away (Pigface)\nPut it away (Pigface)\nMy fuckin' life\nBaw!!! Huhupaw!!! Huhupaw!!!\n"}</script>
+<script id="setlist-tempos" type="application/json">{"mottaka-cheese":null,"digital-bath--deftones":null,"freak-on-a-leash--korn":null,"got-the-life--korn":null,"wait-and-bleed--slipknot":null,"faith--limp-bizkit":null,"pigface--greyhoundz":null}</script>
+<script src="/songhits/assets/chord-mark.js"></script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/setlist.js"></script>
+
+</body>
+</html>

@@ -24,7 +24,7 @@ Setlists use YAML frontmatter with `layout: setlist.njk`, `title`, and `parts`. 
 
 ## Performing and offline use
 
-Song pages and setlists support fonts, chord/lyric views, zoom, tempo blinking, and autoscroll. Space toggles scrolling, arrows adjust speed, +/- change size, and Home returns to the top. On song pages, comma/period transpose and 0 resets. Shortcuts leave focused form controls alone.
+Song pages and setlists support fonts, chord/lyric views, zoom, tempo blinking, and autoscroll. When a chart has a tempo (a `tempo: NNN` line or `tempo` in `metadata.json`), autoscroll follows the music: each chord line holds the reading line for as long as its bars last, using standalone and inline time signatures (4/4 by default, beats per bar as chord-mark counts them, so 6/8 is two beats). The current chord line is highlighted, and the control becomes a tempo adjuster in BPM, remembered per song, with ↺ returning to the written tempo; the blinker follows it. Charts without a tempo scroll at a constant rate set by the Speed control. Scrolling by hand while playing moves the playhead. Space toggles scrolling, arrows adjust speed or tempo, +/- change size, and Home returns to the top. On song pages, comma/period transpose and 0 resets. Shortcuts leave focused form controls alone.
 
 Transposition and display preferences are saved locally when browser storage is available. In setlists, **Save offline** downloads one HTML file containing the charts and scripts, including the selected transpositions. Open that file to use it without a connection. Offline copies use installed fallback fonts; web fonts require a connection on the normal site. Download again after editing a chart to refresh the copy. **PDF** opens the browser's print dialog.
 

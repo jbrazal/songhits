@@ -13,7 +13,7 @@ HEADERS = [
     (r'instrumental', '#Instrumental'), (r'break', '#Break'), (r'hook', '#Hook'),
 ]
 HEADER_RE = re.compile(r'^#?\s*\[?(' + '|'.join(h for h, _ in HEADERS) + r')\b', re.I)
-CHORD_TOKEN = re.compile(r"^[A-G][#b]?[A-Za-z0-9#b+°ø()\-]*(/[A-G][#b]?)?$|^N\.?C\.?$")
+CHORD_TOKEN = re.compile(r"^[A-G][#b]?[A-Za-z0-9#b+°ø()\-]*(/[A-G][#b]?)?$|^N\.?C\.?$|^%$")
 
 
 def read(path):

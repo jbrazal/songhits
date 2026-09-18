@@ -157,7 +157,8 @@
     "chordmark:validate": "node scripts/validate-chordmark.cjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.cjs",
-    "check": "npm run typecheck && npm test && npm run build && npm run site:build -- --output=_site/check"
+    "check": "npm run typecheck && npm test && npm run build && npm run site:build -- --output=_site/check",
+    "lyrics:status": "node scripts/lyrics-status.cjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.5",

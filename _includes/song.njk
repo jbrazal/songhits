@@ -90,7 +90,7 @@ layout: base.njk
   #btn-play.playing { background: var(--red); }
 
   #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
-  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; white-space: nowrap; }
 
   #btn-top {
     margin-left: auto;
@@ -166,11 +166,12 @@ layout: base.njk
 <div id="scroll-controls">
   <button id="btn-play">▶ Play</button>
   <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Speed</span>
-  <button class="ctrl-btn" id="btn-slower" aria-label="Scroll slower">−</button>
+  <span class="ctrl-label" id="speed-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Slower">−</button>
   <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
-  <button class="ctrl-btn" id="btn-faster" aria-label="Scroll faster">+</button>
+  <button class="ctrl-btn" id="btn-faster" aria-label="Faster">+</button>
   <span id="speed-val">1.5</span>
+  <button class="ctrl-btn" id="btn-speed-reset" title="Reset speed or tempo" aria-label="Reset speed or tempo" style="font-size:13px">↺</button>
   <div class="toolbar-sep"></div>
   <span class="ctrl-label">Size</span>
   <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>

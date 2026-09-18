@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <title>LBS OTR 2026 | SongHits</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0c0c0c;
+      --surface: #111111;
+      --border:  #222222;
+      --text:    #cccccc;
+      --muted:   #929292;
+      --chord:   #fbbf24;
+      --lyric:   #a6bac9;
+      --section: #4ade80;
+      --red:     #f87171;
+      --blue:    #60a5fa;
+      --nav-h:   44px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      height: var(--nav-h);
+      background: #080808;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 20px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .nav-brand { color: var(--red); font-weight: 700; letter-spacing: 0.06em; font-size: 14px; }
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── chord-mark renderer output ─────────────────────────── */
+    .cmSong {
+      max-width: 900px;
+      line-height: 1;
+      font-family: var(--chart-font, 'Courier New', Courier, monospace);
+    }
+    .cmSection { margin-bottom: 1.2em; }
+
+    .cmSectionLabel {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--section);
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid #282828;
+    }
+    .cmSectionMultiplier { color: #c678dd; font-weight: normal; }
+
+    .cmTimeSignature,
+    .cmKeyDeclaration { color: #56b6c2; font-weight: bold; margin-bottom: 4px; display: block; }
+
+    .cmChordLine {
+      display: block;
+      white-space: pre;
+      color: var(--chord);
+      font-weight: 600;
+      line-height: 1;
+    }
+    .cmChordSymbol { color: var(--chord); }
+    .cmChordDuration { color: #555; font-weight: normal; font-size: 0.85em; }
+    .cmBarSeparator { color: #333; opacity: 0.9; }
+    .cmSubBeatGroupOpener,
+    .cmSubBeatGroupCloser { color: #888; font-weight: bold; }
+
+    .cmLyricLine {
+      display: block;
+      white-space: pre;
+      color: var(--lyric);
+      line-height: 1;
+    }
+    .cmLyric { display: inline; }
+
+    .cmNoChord { color: var(--muted); font-style: italic; }
+    .cmEmptyLine { display: block; height: 0.55em; }
+
+    /* ── Shared button/control styles ───────────────────────── */
+    .ctrl-btn {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      width: 26px;
+      height: 26px;
+      font-size: 10px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .ctrl-btn:hover { background: #2a2a2a; color: #fff; }
+    .ctrl-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .pref-select {
+      background: #1e1e1e;
+      color: #bbb;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 11px;
+      height: 26px;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .pref-select:hover, .pref-select:focus { background: #2a2a2a; color: #fff; }
+
+    /* ── Tempo blinker ──────────────────────────────────────── */
+    @keyframes tempo-pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(0.38); }
+    }
+    #tempo-blinker {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--chord);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: tempo-pulse 0.5s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    #tempo-blinker.active {
+      opacity: 1;
+      animation-play-state: running;
+    }
+
+    /* ── Autoscroll playhead ───────────────────────────────── */
+    .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
+    .cmLine.cm-playhead::before {
+      content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
+      width: 3px; border-radius: 2px; background: var(--section);
+    }
+    button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    button:disabled { opacity: 0.45; cursor: default; }
+    @media print {
+      :root { --bg: #fff; --text: #111; --muted: #444; --chord: #111; --lyric: #111; --section: #222; --red: #111; }
+      body { background: #fff; color: #111; }
+      .cmBarSeparator { color: #555; opacity: 1; }
+      .cmChordDuration { color: #444; }
+      .cmLyricLine { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+ <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+  <a href="/songhits/songs/">Songs</a>
+  <a href="/songhits/setlist/">Setlists</a>
+</nav>
+<style>
+  /* ── Layout ───────────────────────────────────────────────── */
+  :root { --toc-w: 210px; --ctrl-h: 48px; }
+
+  /* ── Controls bar – fixed below nav ──────────────────────── */
+  #controls {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    height: var(--ctrl-h);
+    background: #0a0a0a;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 9999;
+    font-size: 13px;
+  }
+
+  /* ── TOC toggle button ───────────────────────────────────── */
+  #btn-toc {
+    background: none;
+    border: 1px solid #1e1e1e;
+    color: #555;
+    padding: 4px 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.1s, border-color 0.1s, background 0.1s;
+  }
+  #btn-toc:hover { background: #181818; color: #aaa; border-color: #333; }
+  #btn-toc.active { color: var(--chord); border-color: #333; }
+
+  #btn-toggle {
+    background: var(--section);
+    color: #000;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    min-width: 86px;
+    transition: background 0.12s;
+    flex-shrink: 0;
+  }
+  #btn-toggle.playing { background: var(--red); }
+
+  #speed-slider { width: 88px; accent-color: var(--chord); cursor: pointer; }
+  #speed-val    { color: var(--chord); font-weight: 700; font-family: monospace; min-width: 2.6em; flex-shrink: 0; white-space: nowrap; }
+
+  #btn-top {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #222;
+    color: #444;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  #btn-top:hover { background: #181818; color: #aaa; }
+
+  .zoom-val {
+    color: var(--chord);
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+    min-width: 3em;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── TOC sidebar ──────────────────────────────────────────── */
+  #toc-sidebar {
+    position: fixed;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    left: 0;
+    width: var(--toc-w);
+    bottom: 0;
+    overflow-y: auto;
+    background: #080808;
+    border-right: 1px solid #1a1a1a;
+    padding: 14px 0;
+    z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: #222 transparent;
+    transition: transform 0.2s ease;
+  }
+  #toc-sidebar::-webkit-scrollbar { width: 4px; }
+  #toc-sidebar::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  .toc-part-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #333;
+    padding: 10px 14px 4px;
+  }
+  .toc-part-label:first-child { padding-top: 2px; }
+
+  #toc-sidebar ul { list-style: none; counter-reset: toc-n; }
+  #toc-sidebar li { counter-increment: toc-n; }
+  #toc-sidebar a,
+  #toc-sidebar .toc-tbd {
+    display: block;
+    padding: 3px 14px 3px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #444;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: color 0.1s, border-color 0.1s;
+  }
+  #toc-sidebar a::before,
+  #toc-sidebar .toc-tbd::before {
+    content: counter(toc-n) ". ";
+    font-size: 10px;
+    color: #2a2a2a;
+    margin-right: 2px;
+  }
+  #toc-sidebar a:hover { color: #888; text-decoration: none; }
+  #toc-sidebar a.active { color: var(--chord); border-left-color: var(--chord); }
+  #toc-sidebar .toc-tbd { color: #2a2a2a; font-style: italic; }
+
+  /* Desktop: collapse TOC */
+  body.toc-off #toc-sidebar { transform: translateX(-100%); pointer-events: none; }
+  body.toc-off #setlist-wrap { margin-left: 0; }
+
+  /* ── Mobile overlay backdrop ─────────────────────────────── */
+  #toc-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 150;
+    cursor: pointer;
+  }
+
+  /* ── Main content ─────────────────────────────────────────── */
+  #setlist-wrap {
+    margin-left: var(--toc-w);
+    padding: calc(var(--ctrl-h) + 20px) 40px 60px 32px;
+    font-size: 14px;
+    transition: margin-left 0.2s ease;
+  }
+
+  .setlist-title {
+    color: var(--red);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--red);
+  }
+
+  .song-block { margin-bottom: 48px; }
+  .song-block-header {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--ctrl-h));
+    z-index: 40;
+    background: var(--bg);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .song-block-title  { color: var(--red); font-size: 1.05em; font-weight: 700; }
+  .song-block-artist { color: var(--muted); font-size: 12px; }
+
+  .chart-pending    { color: #333; font-style: italic; font-size: 13px; padding: 8px 0; }
+  .cm-raw-fallback  { white-space: pre-wrap; color: var(--muted); font-size: 13px; }
+
+  /* ── Narrow screens ───────────────────────────────────────── */
+  @media (max-width: 680px) {
+    :root { --ctrl-h: 84px; }
+
+    body { overflow-x: hidden; }
+
+    #controls {
+      flex-wrap: wrap;
+      height: auto;
+      padding: 7px 10px;
+      gap: 5px;
+      align-content: center;
+    }
+    .ctrl-label { display: none; }
+    .toolbar-sep { display: none; }
+    #btn-toggle { min-width: 72px; font-size: 12px; padding: 5px 10px; }
+    #speed-slider { width: 70px; }
+    #speed-val { min-width: 2.2em; font-size: 12px; }
+    .zoom-val { min-width: 2.6em; font-size: 12px; }
+    .ctrl-btn { width: 32px; height: 32px; font-size: 13px; }
+
+    /* TOC as slide-in overlay drawer */
+    #toc-sidebar {
+      width: 75%;
+      max-width: 260px;
+      transform: translateX(-100%);
+      z-index: 200;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+    }
+    body.toc-on #toc-sidebar { transform: translateX(0); pointer-events: auto; }
+    body.toc-on #toc-overlay { display: block; }
+
+    #setlist-wrap {
+      margin-left: 0;
+      padding: calc(var(--ctrl-h) + 12px) 14px 40px;
+    }
+    body.toc-off #setlist-wrap { margin-left: 0; }
+
+    .cm-song-content { overflow-x: auto; }
+  }
+
+  .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
+  #offline-status { font-size: 11px; }
+  .ctrl-btn-wide { width: auto; padding: 0 8px; }
+  #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
+  .song-block-header { flex-wrap: wrap; }
+  .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Print ────────────────────────────────────────────────── */
+  @media print {
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    #setlist-wrap { margin: 0; padding: 0; }
+    .song-block { page-break-inside: avoid; }
+    @page { margin: 1.5cm 2cm; size: A4 portrait; }
+  }
+</style>
+
+
+<div id="toc-overlay"></div>
+
+
+<aside id="toc-sidebar">
+  
+  
+  <div class="toc-part-label">Set 1</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-1-1">Man I Need</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-2">That Don&#39;t Impress Me Much</a>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Wannabe</span>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-4">No Scrubs</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-5">Sugar</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-6">Manchild</a>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Because of You</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Somebody to Love</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">DJ Got Us Fallin&#39; in Love</span>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-10">What&#39;s Up (Disco)</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-11">Play That Funky Music</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-1-12">Moves Like Jagger</a>
+      
+    </li>
+    
+  </ul>
+  
+  
+  <div class="toc-part-label">Set 2</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-2-1">Pink Pony Club</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-2">This Love</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-3">Valerie</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-4">Don&#39;t Start Now</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-5">Shut Up and Dance</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-6">Dance the Night</a>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Dancing Queen</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">I Will Survive</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Cake by the Ocean</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Happy</span>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-11">I Just Might</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-2-12">Treasure</a>
+      
+    </li>
+    
+  </ul>
+  
+  
+  <div class="toc-part-label">Set 3</div>
+  <ul>
+    
+    <li>
+      
+        <a href="#song-3-1">Don&#39;t Stop Believin&#39;</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-2">Man! I Feel Like a Woman</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-3">Material Girl</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-4">Exes and Ohs</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-5">Teenage Dirtbag</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-6">Use Somebody</a>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-7">Sex on Fire</a>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Sweet Child o&#39; Mine</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Sugar, We&#39;re Goin Down</span>
+      
+    </li>
+    
+    <li>
+      
+        <a href="#song-3-10">Mr. Brightside</a>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">That&#39;s What You Get</span>
+      
+    </li>
+    
+    <li>
+      
+        <span class="toc-tbd">Ain&#39;t It Fun</span>
+      
+    </li>
+    
+  </ul>
+  
+</aside>
+
+
+<div id="setlist-wrap" data-setlist="lbs-otr-2026">
+  <h1 class="setlist-title">LBS OTR 2026</h1>
+
+  
+  
+    
+    <div class="song-block" id="song-1-1" data-slug="man-i-need--olivia-dean" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Man I Need</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Man I Need"></select></label>
+        <span class="song-block-artist">— Olivia Dean</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="man-i-need--olivia-dean"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-2" data-slug="that-dont-impress-me-much--shania-twain" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">That Don&#39;t Impress Me Much</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose That Don&#39;t Impress Me Much"></select></label>
+        <span class="song-block-artist">— Shania Twain</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="that-dont-impress-me-much--shania-twain"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-3" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Wannabe</span>
+        
+        <span class="song-block-artist">— Spice Girls</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-4" data-slug="no-scrubs--tlc" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">No Scrubs</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose No Scrubs"></select></label>
+        <span class="song-block-artist">— TLC</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="no-scrubs--tlc"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-5" data-slug="sugar--maroon-5" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Sugar</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Sugar"></select></label>
+        <span class="song-block-artist">— Maroon 5</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="sugar--maroon-5"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-6" data-slug="manchild" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Manchild</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Manchild"></select></label>
+        <span class="song-block-artist">— Sabrina Carpenter</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="manchild"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-7" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Because of You</span>
+        
+        <span class="song-block-artist">— Ne-Yo</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-8" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Somebody to Love</span>
+        
+        <span class="song-block-artist">— Queen</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-9" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">DJ Got Us Fallin&#39; in Love</span>
+        
+        <span class="song-block-artist">— Usher</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-10" data-slug="whats-up--4-non-blondes" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">What&#39;s Up (Disco)</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose What&#39;s Up (Disco)"></select></label>
+        <span class="song-block-artist">— 4 Non Blondes</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="whats-up--4-non-blondes"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-11" data-slug="play-that-funky-music--wild-cherry" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Play That Funky Music</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Play That Funky Music"></select></label>
+        <span class="song-block-artist">— Wild Cherry</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="play-that-funky-music--wild-cherry"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-1-12" data-slug="moves-like-jagger" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Moves Like Jagger</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Moves Like Jagger"></select></label>
+        <span class="song-block-artist">— Maroon 5</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="moves-like-jagger"></div>
+      
+    </div>
+    
+  
+  
+    
+    <div class="song-block" id="song-2-1" data-slug="pink-pony-club--chappell-roan" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Pink Pony Club</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Pink Pony Club"></select></label>
+        <span class="song-block-artist">— Chappell Roan</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="pink-pony-club--chappell-roan"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-2" data-slug="this-love--maroon-5" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">This Love</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose This Love"></select></label>
+        <span class="song-block-artist">— Maroon 5</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="this-love--maroon-5"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-3" data-slug="valerie--amy-winehouse" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Valerie</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Valerie"></select></label>
+        <span class="song-block-artist">— Amy Winehouse</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="valerie--amy-winehouse"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-4" data-slug="dont-start-now-dua-lipa" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Don&#39;t Start Now</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Don&#39;t Start Now"></select></label>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="dont-start-now-dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-5" data-slug="shut-up-and-dance--walk-the-moon" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Shut Up and Dance</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Shut Up and Dance"></select></label>
+        <span class="song-block-artist">— WALK THE MOON</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="shut-up-and-dance--walk-the-moon"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-6" data-slug="dance-the-night--dua-lipa" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Dance the Night</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Dance the Night"></select></label>
+        <span class="song-block-artist">— Dua Lipa</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="dance-the-night--dua-lipa"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-7" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Dancing Queen</span>
+        
+        <span class="song-block-artist">— ABBA</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-8" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">I Will Survive</span>
+        
+        <span class="song-block-artist">— Gloria Gaynor</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-9" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Cake by the Ocean</span>
+        
+        <span class="song-block-artist">— DNCE</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-10" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Happy</span>
+        
+        <span class="song-block-artist">— Pharrell Williams</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-11" data-slug="i-just-might--bruno-mars" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">I Just Might</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose I Just Might"></select></label>
+        <span class="song-block-artist">— Bruno Mars</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="i-just-might--bruno-mars"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-2-12" data-slug="treasure-bruno-mars" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Treasure</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Treasure"></select></label>
+        <span class="song-block-artist">— Bruno Mars</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="treasure-bruno-mars"></div>
+      
+    </div>
+    
+  
+  
+    
+    <div class="song-block" id="song-3-1" data-slug="dont-stop-believin--journey" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Don&#39;t Stop Believin&#39;</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Don&#39;t Stop Believin&#39;"></select></label>
+        <span class="song-block-artist">— Journey</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="dont-stop-believin--journey"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-2" data-slug="man-i-feel-like-a-woman--shania-twain" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Man! I Feel Like a Woman</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Man! I Feel Like a Woman"></select></label>
+        <span class="song-block-artist">— Shania Twain</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="man-i-feel-like-a-woman--shania-twain"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-3" data-slug="material-girl--madonna" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Material Girl</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Material Girl"></select></label>
+        <span class="song-block-artist">— Madonna</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="material-girl--madonna"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-4" data-slug="exes-and-ohs--elle-king" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Exes and Ohs</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Exes and Ohs"></select></label>
+        <span class="song-block-artist">— Elle King</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="exes-and-ohs--elle-king"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-5" data-slug="teenage-dirtbag--wheatus" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Teenage Dirtbag</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Teenage Dirtbag"></select></label>
+        <span class="song-block-artist">— Wheatus</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="teenage-dirtbag--wheatus"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-6" data-slug="use-somebody--kings-of-leon" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Use Somebody</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Use Somebody"></select></label>
+        <span class="song-block-artist">— Kings of Leon</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="use-somebody--kings-of-leon"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-7" data-slug="sex-on-fire--kings-of-leon" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Sex on Fire</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Sex on Fire"></select></label>
+        <span class="song-block-artist">— Kings of Leon</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="sex-on-fire--kings-of-leon"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-8" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Sweet Child o&#39; Mine</span>
+        
+        <span class="song-block-artist">— Guns N&#39; Roses</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-9" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Sugar, We&#39;re Goin Down</span>
+        
+        <span class="song-block-artist">— Fall Out Boy</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-10" data-slug="mr-brightside--the-killers" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Mr. Brightside</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Mr. Brightside"></select></label>
+        <span class="song-block-artist">— The Killers</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="mr-brightside--the-killers"></div>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-11" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">That&#39;s What You Get</span>
+        
+        <span class="song-block-artist">— Paramore</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+    <div class="song-block" id="song-3-12" data-slug="" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Ain&#39;t It Fun</span>
+        
+        <span class="song-block-artist">— Paramore</span>
+      </div>
+      
+        <p class="chart-pending">Missing ChordMark file</p>
+      
+    </div>
+    
+  
+</div>
+
+
+<div id="controls">
+  <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
+  <div class="toolbar-sep"></div>
+  <span id="tempo-blinker" title=""></span>
+  <div class="toolbar-sep"></div>
+  <button id="btn-toggle">▶ Play</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label" id="speed-label">Speed</span>
+  <button class="ctrl-btn" id="btn-slower" aria-label="Slower">−</button>
+  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+  <button class="ctrl-btn" id="btn-faster" aria-label="Faster">+</button>
+  <span id="speed-val">1.5</span>
+  <button class="ctrl-btn" id="btn-speed-reset" title="Reset speed or tempo" aria-label="Reset speed or tempo" style="font-size:13px">↺</button>
+  <div class="toolbar-sep"></div>
+  <span class="ctrl-label">Size</span>
+  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
+  <span class="zoom-val" id="zoom-val">14px</span>
+  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
+  <div class="toolbar-sep"></div>
+  <select id="sel-font" class="pref-select" title="Chart font"></select>
+  <select id="sel-symbol" class="pref-select" title="Symbol type">
+    <option value="chord">Chord Symbols</option>
+    <option value="roman">Roman Numerals</option>
+  </select>
+  <select id="sel-chart" class="pref-select" title="Chart type">
+    <option value="all">Show Everything</option>
+    <option value="lyrics">Lyrics Only</option>
+    <option value="chords">Chords Only</option>
+    <option value="chordsFirstLyricLine">Chords + First Line</option>
+  </select>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <span id="offline-status" role="status"></span>
+  <button id="btn-top">⬆ Top</button>
+</div>
+
+<script id="setlist-sources" type="application/json">{"man-i-need--olivia-dean":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC6 Am7 Dm7 G7\n\n#v\nC6 Am7 Dm7 G7\nC6 Am7 Dm7 G7\n\n#p\nFmaj7 Em7 Dm7 G7\nFmaj7 Em7 Dm7 G7\n\n#c\nC6 Am7 Dm7 G7\nC6 Am7 Dm7 G7\n\n#b\nFmaj7 Em7 Am7 D7\nDm7 G7 C6 C6\n\n#o\nC6 Am7 Dm7 G7\nC6\n","that-dont-impress-me-much--shania-twain":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey B\n\n#i\nB F# C#m E\n\n#v\nB F# C#m E\nB F# C#m E\n\n#p\nE F# G#m G#m\nE F# B F#\n\n#c\nB F# C#m E\nB F# C#m E\n\n#b\nE F# G#m B\nE F# B F#\n\n#o\nB F# C#m E\nB\n","no-scrubs--tlc":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey F#m\n\n#i\nF#m C#m D A\n\n#v\nF#m C#m D A\nF#m C#m D A\n\n#p\nD C#m Bm C#7\nD C#m Bm C#7\n\n#c\nF#m C#m D A\nF#m C#m D A\n\n#b\nBm C#m D C#7\nBm C#m D C#7\n\n#o\nF#m C#m D A\nF#m\n","sugar--maroon-5":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nC#m A E B\n\n#v\nC#m A E B\nC#m A E B\n\n#p\nA B C#m C#m\nA B E B\n\n#c\nC#m A E B\nC#m A E B\n\n#b\nA B C#m E\nA B E B\n\n#o\nC#m A E B\nE\n","manchild":"tempo: 123\r\nkey G\r\n4/4\r\n\r\n#i\r\nG\r\n_ Oh boy\r\n\r\n \r\n\r\n \r\n\r\n#v\r\nAm7 C G\r\n_ _ You sai_d your phone was broken, just forgot to charge it\r\nAm7 C\r\nWhole_ outfit you're wearing, God, I _hope it's ironic\r\nG\r\nDid you_ just say you're finished? Didn't know we started\r\nAm7 C\r\nIt's all_ just so familiar, baby, _what do you call it?\r\n\r\n \r\n\r\n \r\n\r\n#p\r\nG\r\n_ Stupid\r\nAm7\r\nOr is it_ slow?\r\nC G\r\n_ Maybe it's_ useless?\r\nAm7 C\r\nBut there's a _cuter word for it, I _know\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\nG\r\nNever heard_ of selfcare\r\nAm7\r\nHalf your brain_ just ain't there\r\nC G\r\n_ Manchild_\r\nAm7 C G Am7 C\r\nWhy you al_ways come a running, _taking all my loving from m_e?_ _\r\n\r\n \r\n\r\n \r\n\r\n#v\r\nG\r\n_Why so sexy if so dumb?\r\nAm7 C\r\nAnd _how survive the _Earth so long?\r\nG\r\nIf _I'm not there, it won't get done\r\nAm7 C\r\nI _choose to blame your _mom\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\nG\r\nNever heard_ of selfcare\r\nAm7\r\nHalf your brain_ just ain't there\r\nC G\r\n_ Manchild_\r\nAm7 C\r\nWhy you al_ways come a running, _taking all my loving from me?\r\n\r\n \r\n\r\n \r\n\r\n#b\r\nG\r\nOh I lik_e my boys playing hard to get\r\nAm7 C\r\nAnd I like_ my men all _incompetent\r\nG\r\nAnd I swear_ they choose me, I'm not choosing them\r\nAm7 C\r\nAmen,_ hey, men_\r\nG\r\nOh I like_ my boys playing hard to get\r\nAm7 C\r\nAnd I like_ my men all _incompetent\r\nG\r\nAnd I swear_ they choose me, I'm not choosing them\r\nAm7 C\r\nAmen,_ hey, men_\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\n\r\n \r\n\r\n \r\n\r\n#Post-Chorus\r\nG Am7 C G Am7 C\r\n_ And I like _my men all in_competent_ _ _\r\n\r\n \r\n\r\n \r\n\r\n#Fade Out\r\nG Am7 C G\r\nAm7 C G Am7\r\nC\r\n","whats-up--4-non-blondes":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey A\n\n#i\nA Bm D A\n\n#v\nA Bm D A\nA Bm D A\n\n#p\nA Bm D A\nA Bm D A\n\n#c\nA Bm D A\nA Bm D A\n\n#b\nBm D A A\nBm D E E\n\n#o\nA Bm D A\nA\n","play-that-funky-music--wild-cherry":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE7 E7 E7 E7\n\n#v\nE7 E7 E7 E7\nA7 A7 E7 E7\n\n#p\nB7 A7 E7 B7\n\n#c\nE7 E7 A7 E7\nB7 A7 E7 B7\n\n#s\nE7 E7 A7 E7\nB7 A7 E7 B7\n\n#o\nE7 A7 E7\n","moves-like-jagger":"Song: Moves Like Jagger\r\n","pink-pony-club--chappell-roan":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey G\n\n#i\nG Em C D\n\n#v\nG Em C D\nG Em C D\n\n#p\nC D G Em\nC D G D\n\n#c\nG Em C D\nG Em C D\n\n#b\nC D Em Em\nC D G D\n\n#o\nG Em C D\nG\n","this-love--maroon-5":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Cm\n\n#i\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#v\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#p\nAb Bb Cm Cm\nAb Bb G7 G7\n\n#c\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#b\nAb Bb Cm Gm\nAb Fm G7 G7\n\n#o\nCm Fm Bb Eb\nCm\n","valerie--amy-winehouse":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Eb\n\n#i\nEb Fm\nEb Fm\n\n#v\nEb Fm\nEb Fm\nEb Fm\nEb Fm\n\n#p\nAb Gm\nFm Bb\n\n#c\nEb Fm\nEb Fm\nAb Gm\nFm Bb\n\n#b\nAb Gm Fm Bb\nAb Gm Fm Bb\n\n#o\nEb Fm Eb\n","dont-start-now-dua-lipa":"#i\r\nBm D\r\n_ If you don't wanna _see me\r\nE5 Em Bm\r\n_ Did a full one _eighty, _crazy\r\n \r\n \r\n#v\r\nG D\r\n_Thinking 'bout the way I _was\r\nA6 Em Bm\r\nDid the _heartbreak _change me?_ Maybe\r\nG D A6\r\n_But look at where I ended _up_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D\r\nDon't start _caring about me _now\r\n \r\n \r\n#v\r\nA6 Em Bm\r\nAren't _you the _guy who _tried to\r\nG D\r\n_Hurt me with the word \"good_bye\"?\r\nA6 Em Bm\r\nThough it _took some _time to_ survive you\r\nG D A6\r\nI'm _better on the other _side_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D A6\r\nDon't start _caring about me _now_\r\n \r\n \r\n#b\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nD A6\r\n_ Don't start _now\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\n \r\n \r\n#c\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up (Don't show up), don't co_me out (Don't come out)\r\nG D A6\r\nDon't start _caring about me _now ('Bout me _now)\r\nEm Bm\r\nWalk a_way (Walk away), you know _how (You know how)\r\nG D A6\r\nDon't start _caring about me _now_ (So)\r\n \r\n \r\n#o\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away (So)\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away, oh","shut-up-and-dance--walk-the-moon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey D\n\n#i\nD G Bm A\n\n#v\nD G Bm A\nD G Bm A\n\n#p\nG A Bm A\nG A D D\n\n#c\nD G Bm A\nD G Bm A\n\n#b\nG A Bm D\nG A D D\n\n#o\nD G Bm A\nD\n","dance-the-night--dua-lipa":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Bm\n\n#i\nBm Em A D\n\n#v\nBm Em A D\nBm Em A D\n\n#p\nG A Bm Bm\nG A D F#\n\n#c\nBm Em A D\nBm Em A D\n\n#b\nG A F#m Bm\nEm A D F#\n\n#o\nBm Em A D\nBm\n","i-just-might--bruno-mars":"#i\r\nOne, two, three, four\r\nF Gm F Gm\r\n \r\n \r\n#v\r\nF Gm F Gm\r\n_ You stepped inside with a_ vibe I ain't never _seen Yes, you_\r\ndid, ooh\r\nF Gm F Gm\r\n_ So girl, if you talk like you_ walk, come and talk to _me_\r\nBut look here\r\n \r\n \r\n#p\r\nF Gm\r\nIt would _break my heart, break my heart, break my_ heart\r\nF Gm\r\nIf I find out you can't _move_\r\nF Gm\r\nYou better _show me now, show me now, show me _now\r\nF Gm\r\n'Cause when I take you to the _floor, ooh, you gotta get down_\r\nYou know what to do\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby, hey\r\n \r\n \r\n#u\r\nF Gm\r\n_ _ I just might\r\nF Gm\r\n_ _ Oh, I just might\r\n \r\n \r\n#v\r\nF Gm F Gm\r\nBut first,_ may I just say that your_ face got me so in_trigued? I'm_\r\nso intrigued\r\nF Gm\r\n_ But what good is beauty if your_ booty can't find the beat?\r\nF Gm\r\n_ I don't wanna know, girl_\r\nSo please don't do that to me\r\n \r\n \r\n#p\r\nF Gm\r\n'Cause it would _break my heart, break my heart, break my_ heart\r\nF Gm\r\nIf I find out you can't _move_\r\nF Gm\r\nYou better _show me now, show me now, show me _now\r\nF Gm\r\n'Cause when I take you to the _floor, ooh, you gotta get down_\r\nYou know what to do\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby, hey\r\n \r\n \r\n#b\r\nAm7 Gm7 Am7 Gm7\r\nAm7 Gm7\r\n_This the part where you break it all the way down,_ down, down, down\r\nAm7 Gm7\r\n_This the part where I turn you all the way around,_ 'round, 'round, 'round\r\nAm7 Gm7 Am7 Bbmaj7\r\n_Put some spirit in it, put your heart_ into it That's _all I_\r\nC7sus4\r\nneed_\r\nAnd if I like what I see, you're comin' home with me\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby\r\nGm7 Abm7 Am7\r\n_Hey, _Mister _DJ\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby hey\r\n \r\n \r\n#o\r\nF Gm\r\n_ _ I just might\r\nF Gm\r\n_ _ Oh, I just might\r\n","treasure-bruno-mars":"\r\n","dont-stop-believin--journey":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE B C#m A\n\n#v\nE B C#m A\nE B G#m A\n\n#p\nC#m B E A\nC#m B A A\n\n#c\nE B C#m A\nE B G#m A\n\n#b\nA E A E\nA E B B\n\n#o\nE B C#m A\nE\n","man-i-feel-like-a-woman--shania-twain":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Bb\n\n#i\nBb Eb F Bb\n\n#v\nBb Eb F Bb\nBb Eb F Bb\n\n#p\nEb F Bb Bb\nEb F Bb F\n\n#c\nBb Eb F Bb\nBb Eb F Bb\n\n#b\nEb F Gm Gm\nEb F Bb F\n\n#o\nBb Eb F Bb\nBb\n","material-girl--madonna":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC G F G\n\n#v\nC G F G\nC G F G\n\n#p\nAm G F F\nAm G F G\n\n#c\nC G F G\nC G F G\n\n#b\nAm F C G\nAm F G G\n\n#o\nC G F G\nC\n","exes-and-ohs--elle-king":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Em\n\n#i\nEm G D A\n\n#v\nEm G D A\nEm G D A\n\n#p\nC G D D\nC G B7 B7\n\n#c\nEm G D A\nEm G D A\n\n#b\nC G D Em\nC G B7 B7\n\n#o\nEm G D A\nEm\n","teenage-dirtbag--wheatus":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE B A B\n\n#v\nE B A B\nE B A B\n\n#p\nC#m A E B\nC#m A B B\n\n#c\nE B A B\nE B A B\n\n#b\nC#m A E B\nC#m A B B\n\n#o\nE B A B\nE\n","use-somebody--kings-of-leon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC C/E F F\n\n#v\nC C/E F F\nC C/E F F\n\n#p\nAm G F F\nAm G F G\n\n#c\nC G Am F\nC G Am F\n\n#b\nAm C F F\nAm C F G\n\n#o\nC C/E F F\nC\n","sex-on-fire--kings-of-leon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE C#m A E\n\n#v\nE C#m A E\nE C#m A E\n\n#p\nA B C#m C#m\nA B E B\n\n#c\nE C#m A E\nE C#m A E\n\n#b\nA B C#m E\nA B E B\n\n#o\nE C#m A E\nE\n","mr-brightside--the-killers":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC F Am G\n\n#v\nC F Am G\nC F Am G\n\n#p\nF G Am Am\nF G C G\n\n#c\nC F Am G\nC F Am G\n\n#b\nF G Am C\nF G C G\n\n#o\nC F Am G\nC\n"}</script>
+<script id="setlist-tempos" type="application/json">{"man-i-need--olivia-dean":null,"that-dont-impress-me-much--shania-twain":null,"no-scrubs--tlc":null,"sugar--maroon-5":null,"manchild":null,"whats-up--4-non-blondes":null,"play-that-funky-music--wild-cherry":null,"moves-like-jagger":null,"pink-pony-club--chappell-roan":null,"this-love--maroon-5":null,"valerie--amy-winehouse":null,"dont-start-now-dua-lipa":null,"shut-up-and-dance--walk-the-moon":null,"dance-the-night--dua-lipa":null,"i-just-might--bruno-mars":null,"treasure-bruno-mars":null,"dont-stop-believin--journey":null,"man-i-feel-like-a-woman--shania-twain":null,"material-girl--madonna":null,"exes-and-ohs--elle-king":null,"teenage-dirtbag--wheatus":null,"use-somebody--kings-of-leon":null,"sex-on-fire--kings-of-leon":null,"mr-brightside--the-killers":null}</script>
+<script src="/songhits/assets/chord-mark.js"></script>
+<script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/setlist.js"></script>
+
+</body>
+</html>
