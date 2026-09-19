@@ -115,6 +115,10 @@ layout: base.njk
     flex-shrink: 0;
   }
 
+  @media (max-width: 1100px) {
+    #song-toolbar { flex-wrap: wrap; height: auto; }
+    #song-toolbar .song-heading { min-width: 12em; }
+  }
   @media (max-width: 760px) {
     #song-toolbar, #scroll-controls { flex-wrap: wrap; height: auto; padding: 7px 10px; gap: 6px; }
     #song-toolbar .song-heading { flex: 1 0 100%; }
@@ -122,8 +126,11 @@ layout: base.njk
     #song-body { padding-left: 12px; padding-right: 12px; overflow-x: auto; }
     .ctrl-btn { width: 32px; height: 32px; }
   }
+  /* ── Teleprompter mode ────────────────────────────────────── */
+  body.prompter #song-toolbar, body.prompter #scroll-controls { display: none; }
+  body.prompter #song-body { max-width: none; padding: 16px 20px 60vh; overflow-x: auto; }
   @media print {
-    nav, #song-toolbar, #scroll-controls { display: none; }
+    nav, #song-toolbar, #scroll-controls, #prompter-bar { display: none; }
     #song-body { padding: 0; }
     .cmSection { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -153,8 +160,11 @@ layout: base.njk
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <div class="toolbar-sep"></div>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
 </div>
 
 <div id="song-body" data-slug="{{ page.fileSlug | escape }}" data-tempo="{{ tempo }}">
@@ -179,8 +189,10 @@ layout: base.njk
   <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
   <button id="btn-top">⬆ Top</button>
 </div>
+{% include "prompter-bar.njk" %}
 
 <script id="song-source" type="application/json">{{ content | dump | escapeScriptJson | safe }}</script>
 <script src="{{ '/assets/chord-mark.js' | url }}"></script>
 <script src="{{ '/assets/site-controls.js' | url }}"></script>
+<script src="{{ '/assets/annotations.js' | url }}"></script>
 <script src="{{ '/assets/song.js' | url }}"></script>

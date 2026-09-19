@@ -6,7 +6,7 @@ module.exports = function (config) {
   for (const entry of fs.readdirSync(__dirname)) if (!publicRoots.has(entry)) config.ignores.add(entry);
   config.ignores.add('setlist/temp/**');
   config.setTemplateFormats(['njk', 'md', 'chordmark']);
-  for (const file of ['chord-mark.js', 'site-controls.js', 'song.js', 'setlist.js']) config.addPassthroughCopy({ ['media/' + file]: 'assets/' + file });
+  for (const file of ['chord-mark.js', 'site-controls.js', 'annotations.js', 'song.js', 'setlist.js']) config.addPassthroughCopy({ ['media/' + file]: 'assets/' + file });
   config.addWatchTarget('./chordmark/metadata.json');
   config.on('eleventy.before', validateMetadata);
   config.addExtension('chordmark', { outputFileExtension: 'html', compile: async input => async () => input });

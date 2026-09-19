@@ -101,7 +101,8 @@ function checkFile(file) {
       case 'emptyLine':
         if (inSection && prevType && prevType !== 'emptyLine' && prevType !== 'sectionLabel') {
           const next = lines[i + 1];
-          if (next && next.type !== 'sectionLabel' && next.type !== 'emptyLine')
+          // A blank line before an annotation (> cue, ! shout, // note) is the required placement.
+          if (next && next.type !== 'sectionLabel' && next.type !== 'emptyLine' && !/^\s*(>|!|\/\/)/.test(next.string || ''))
             warnings.push({ line: n, msg: 'blank line inside a section' });
         }
         break;

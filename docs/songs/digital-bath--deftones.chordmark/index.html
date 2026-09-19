@@ -171,6 +171,31 @@
       animation-play-state: running;
     }
 
+    /* ── Display modes (charts render in full; CSS filters) ─── */
+    [data-mode="lyrics"] .cmLine--chord { display: none; }
+    [data-mode="chords"] .cmLine--lyric { display: none; }
+    [data-mode="chordsFirstLyricLine"] .cmLine--lyric:not(.cmLine--firstLyric) { display: none; }
+
+    /* ── Annotations: > cue, >role cue, ! shout, // note ────── */
+    .cmAnno {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      margin-block: 0.35em;
+      padding-inline-start: 0.6em;
+      border-inline-start: 0.15em solid currentColor;
+      font-size: 0.85em;
+      line-height: 1.3;
+    }
+    .cmAnno--cue   { color: var(--muted); font-style: italic; }
+    .cmAnno--shout { color: var(--chord); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cmAnno--note  { color: #6b7280; font-size: 0.78em; display: none; }
+    [data-notes="on"] .cmAnno--note { display: flex; }
+    .cmAnnoRole { flex: none; font-variant: all-small-caps; font-weight: 600; letter-spacing: 0.06em; opacity: 0.85; }
+    .cmAnnoChip { flex: none; padding-inline: 0.35em; border: 1px solid currentColor; border-radius: 0.2em; font-size: 0.85em; font-variant-numeric: tabular-nums; }
+    .view-switcher { display: inline-flex; gap: 4px; }
+    .view-switcher button[aria-pressed="true"], #btn-notes.active { background: var(--section); color: #000; border-color: var(--section); }
+
     /* ── Autoscroll playhead ───────────────────────────────── */
     .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
     .cmLine.cm-playhead::before {
@@ -185,6 +210,10 @@
       .cmBarSeparator { color: #555; opacity: 1; }
       .cmChordDuration { color: #444; }
       .cmLyricLine { white-space: pre-wrap; }
+      .cmAnno--note { display: none !important; }
+      .cmAnno { break-inside: avoid; }
+      .cmAnno--cue { color: #555; }
+      .cmAnno--shout { color: #000; }
     }
   </style>
 </head>
@@ -346,6 +375,8 @@
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <div class="toolbar-sep"></div>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
 </div>
@@ -376,6 +407,7 @@
 <script id="song-source" type="application/json">"\u003cp>You move like I want to\nTo see like your eyes do\nWe are downstairs\nWhere no one can see\nNew life break away\nTonight\nI feel like more\nTonight I\nYou make the water warm\nYou taste foreign\nAnd I know you can see\nThe cord break away\n'Cause tonight\nI feel like more\nTonight\nI feel like more\nFeel like more\nTonight\nYou breathed\nThen you stopped\nI breathed\nthen dried you off\nAnd tonight\nI feel, feel like more\nTonight I feel like\nFeel like more\nTonight I feel like more\nFeel like more\nTonight\u003c/p>\n"</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/annotations.js"></script>
 <script src="/songhits/assets/song.js"></script>
 
 </body>

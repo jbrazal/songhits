@@ -171,12 +171,57 @@
       animation-play-state: running;
     }
 
+    /* ── Display modes (charts render in full; CSS filters) ─── */
+    [data-mode="lyrics"] .cmLine--chord { display: none; }
+    [data-mode="chords"] .cmLine--lyric { display: none; }
+    [data-mode="chordsFirstLyricLine"] .cmLine--lyric:not(.cmLine--firstLyric) { display: none; }
+
+    /* ── Annotations: > cue, >role cue, ! shout, // note ────── */
+    .cmAnno {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      margin-block: 0.35em;
+      padding-inline-start: 0.6em;
+      border-inline-start: 0.15em solid currentColor;
+      font-size: 0.85em;
+      line-height: 1.3;
+    }
+    .cmAnno--cue   { color: var(--muted); font-style: italic; }
+    .cmAnno--shout { color: var(--chord); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cmAnno--note  { color: #6b7280; font-size: 0.78em; display: none; }
+    [data-notes="on"] .cmAnno--note { display: flex; }
+    .cmAnnoRole { flex: none; font-variant: all-small-caps; font-weight: 600; letter-spacing: 0.06em; opacity: 0.85; }
+    .cmAnnoChip { flex: none; padding-inline: 0.35em; border: 1px solid currentColor; border-radius: 0.2em; font-size: 0.85em; font-variant-numeric: tabular-nums; }
+    .view-switcher { display: inline-flex; gap: 4px; }
+    .view-switcher button[aria-pressed="true"], #btn-notes.active { background: var(--section); color: #000; border-color: var(--section); }
+
     /* ── Autoscroll playhead ───────────────────────────────── */
     .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
     .cmLine.cm-playhead::before {
       content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
       width: 3px; border-radius: 2px; background: var(--section);
     }
+    /* ── Teleprompter mode (page bars are hidden in each layout's own styles) ── */
+    body.prompter { --nav-h: 0px; }
+    body.prompter nav { display: none; }
+    body.prompter .cmSong { max-width: none; line-height: 1.15; }
+    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.15; }
+    body.prompter .cmSectionLabel { font-size: 0.6em; margin-bottom: 0.3em; }
+    body.prompter .cmEmptyLine { height: 0.35em; }
+    #prompter-bar {
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 10px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(8, 8, 8, 0.82);
+      backdrop-filter: blur(6px); border-top: 1px solid #1e1e1e;
+    }
+    body.prompter #prompter-bar { display: flex; align-items: center; }
+    .prompter-btn {
+      min-height: 52px; min-width: 64px; padding: 0 16px; font-size: 18px; font-weight: 700; border-radius: 8px;
+      border: 1px solid #333; background: #1e1e1e; color: #ddd; cursor: pointer; touch-action: manipulation;
+    }
+    .prompter-play { background: var(--section); color: #000; border: none; flex: 1; }
+    .prompter-play.playing { background: var(--red); }
+    .prompter-exit { margin-left: auto; }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -185,6 +230,10 @@
       .cmBarSeparator { color: #555; opacity: 1; }
       .cmChordDuration { color: #444; }
       .cmLyricLine { white-space: pre-wrap; }
+      .cmAnno--note { display: none !important; }
+      .cmAnno { break-inside: avoid; }
+      .cmAnno--cue { color: #555; }
+      .cmAnno--shout { color: #000; }
     }
   </style>
 </head>
@@ -423,9 +472,18 @@
   #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
   .song-block-header { flex-wrap: wrap; }
   .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Teleprompter mode (after the toc-on rules so the overlay stays hidden) ── */
+  body.prompter #controls, body.prompter #toc-sidebar, body.prompter #toc-overlay, body.prompter .transpose-control { display: none; }
+  body.prompter #setlist-wrap { margin-left: 0; padding: 16px 20px 60vh; }
+  body.prompter .song-block-header { position: static; margin-bottom: 16px; }
+  body.prompter .setlist-title { font-size: 20px; margin-bottom: 16px; }
+  body.prompter .song-block-title { font-size: 26px; }
+  body.prompter .song-block-artist { font-size: 16px; }
+  body.prompter .song-block { scroll-margin-top: 12px; }
+  body.prompter .cm-song-content { overflow-x: auto; }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
-    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
     #setlist-wrap { margin: 0; padding: 0; }
     .song-block { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -1117,16 +1175,27 @@
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
   <span id="offline-status" role="status"></span>
   <button id="btn-top">⬆ Top</button>
 </div>
+<div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
+  <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
+  <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
+  <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
+  <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+</div>
+
 
 <script id="setlist-sources" type="application/json">{"man-i-need--olivia-dean":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC6 Am7 Dm7 G7\n\n#v\nC6 Am7 Dm7 G7\nC6 Am7 Dm7 G7\n\n#p\nFmaj7 Em7 Dm7 G7\nFmaj7 Em7 Dm7 G7\n\n#c\nC6 Am7 Dm7 G7\nC6 Am7 Dm7 G7\n\n#b\nFmaj7 Em7 Am7 D7\nDm7 G7 C6 C6\n\n#o\nC6 Am7 Dm7 G7\nC6\n","that-dont-impress-me-much--shania-twain":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey B\n\n#i\nB F# C#m E\n\n#v\nB F# C#m E\nB F# C#m E\n\n#p\nE F# G#m G#m\nE F# B F#\n\n#c\nB F# C#m E\nB F# C#m E\n\n#b\nE F# G#m B\nE F# B F#\n\n#o\nB F# C#m E\nB\n","no-scrubs--tlc":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey F#m\n\n#i\nF#m C#m D A\n\n#v\nF#m C#m D A\nF#m C#m D A\n\n#p\nD C#m Bm C#7\nD C#m Bm C#7\n\n#c\nF#m C#m D A\nF#m C#m D A\n\n#b\nBm C#m D C#7\nBm C#m D C#7\n\n#o\nF#m C#m D A\nF#m\n","sugar--maroon-5":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nC#m A E B\n\n#v\nC#m A E B\nC#m A E B\n\n#p\nA B C#m C#m\nA B E B\n\n#c\nC#m A E B\nC#m A E B\n\n#b\nA B C#m E\nA B E B\n\n#o\nC#m A E B\nE\n","manchild":"tempo: 123\r\nkey G\r\n4/4\r\n\r\n#i\r\nG\r\n_ Oh boy\r\n\r\n \r\n\r\n \r\n\r\n#v\r\nAm7 C G\r\n_ _ You sai_d your phone was broken, just forgot to charge it\r\nAm7 C\r\nWhole_ outfit you're wearing, God, I _hope it's ironic\r\nG\r\nDid you_ just say you're finished? Didn't know we started\r\nAm7 C\r\nIt's all_ just so familiar, baby, _what do you call it?\r\n\r\n \r\n\r\n \r\n\r\n#p\r\nG\r\n_ Stupid\r\nAm7\r\nOr is it_ slow?\r\nC G\r\n_ Maybe it's_ useless?\r\nAm7 C\r\nBut there's a _cuter word for it, I _know\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\nG\r\nNever heard_ of selfcare\r\nAm7\r\nHalf your brain_ just ain't there\r\nC G\r\n_ Manchild_\r\nAm7 C G Am7 C\r\nWhy you al_ways come a running, _taking all my loving from m_e?_ _\r\n\r\n \r\n\r\n \r\n\r\n#v\r\nG\r\n_Why so sexy if so dumb?\r\nAm7 C\r\nAnd _how survive the _Earth so long?\r\nG\r\nIf _I'm not there, it won't get done\r\nAm7 C\r\nI _choose to blame your _mom\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\nG\r\nNever heard_ of selfcare\r\nAm7\r\nHalf your brain_ just ain't there\r\nC G\r\n_ Manchild_\r\nAm7 C\r\nWhy you al_ways come a running, _taking all my loving from me?\r\n\r\n \r\n\r\n \r\n\r\n#b\r\nG\r\nOh I lik_e my boys playing hard to get\r\nAm7 C\r\nAnd I like_ my men all _incompetent\r\nG\r\nAnd I swear_ they choose me, I'm not choosing them\r\nAm7 C\r\nAmen,_ hey, men_\r\nG\r\nOh I like_ my boys playing hard to get\r\nAm7 C\r\nAnd I like_ my men all _incompetent\r\nG\r\nAnd I swear_ they choose me, I'm not choosing them\r\nAm7 C\r\nAmen,_ hey, men_\r\nG\r\nManchil_d\r\n\r\n \r\n\r\n \r\n\r\n#c\r\nAm7 C\r\nWhy you al_ways come a running to me?_\r\nG\r\nFuck my _life\r\nAm7 C\r\nWon't you let_ an innocent woman be?_\r\n\r\n \r\n\r\n \r\n\r\n#Post-Chorus\r\nG Am7 C G Am7 C\r\n_ And I like _my men all in_competent_ _ _\r\n\r\n \r\n\r\n \r\n\r\n#Fade Out\r\nG Am7 C G\r\nAm7 C G Am7\r\nC\r\n","whats-up--4-non-blondes":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey A\n\n#i\nA Bm D A\n\n#v\nA Bm D A\nA Bm D A\n\n#p\nA Bm D A\nA Bm D A\n\n#c\nA Bm D A\nA Bm D A\n\n#b\nBm D A A\nBm D E E\n\n#o\nA Bm D A\nA\n","play-that-funky-music--wild-cherry":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE7 E7 E7 E7\n\n#v\nE7 E7 E7 E7\nA7 A7 E7 E7\n\n#p\nB7 A7 E7 B7\n\n#c\nE7 E7 A7 E7\nB7 A7 E7 B7\n\n#s\nE7 E7 A7 E7\nB7 A7 E7 B7\n\n#o\nE7 A7 E7\n","moves-like-jagger":"Song: Moves Like Jagger\r\n","pink-pony-club--chappell-roan":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey G\n\n#i\nG Em C D\n\n#v\nG Em C D\nG Em C D\n\n#p\nC D G Em\nC D G D\n\n#c\nG Em C D\nG Em C D\n\n#b\nC D Em Em\nC D G D\n\n#o\nG Em C D\nG\n","this-love--maroon-5":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Cm\n\n#i\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#v\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#p\nAb Bb Cm Cm\nAb Bb G7 G7\n\n#c\nCm Fm Bb Eb\nAb Fm G7 G7\n\n#b\nAb Bb Cm Gm\nAb Fm G7 G7\n\n#o\nCm Fm Bb Eb\nCm\n","valerie--amy-winehouse":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Eb\n\n#i\nEb Fm\nEb Fm\n\n#v\nEb Fm\nEb Fm\nEb Fm\nEb Fm\n\n#p\nAb Gm\nFm Bb\n\n#c\nEb Fm\nEb Fm\nAb Gm\nFm Bb\n\n#b\nAb Gm Fm Bb\nAb Gm Fm Bb\n\n#o\nEb Fm Eb\n","dont-start-now-dua-lipa":"#i\r\nBm D\r\n_ If you don't wanna _see me\r\nE5 Em Bm\r\n_ Did a full one _eighty, _crazy\r\n \r\n \r\n#v\r\nG D\r\n_Thinking 'bout the way I _was\r\nA6 Em Bm\r\nDid the _heartbreak _change me?_ Maybe\r\nG D A6\r\n_But look at where I ended _up_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D\r\nDon't start _caring about me _now\r\n \r\n \r\n#v\r\nA6 Em Bm\r\nAren't _you the _guy who _tried to\r\nG D\r\n_Hurt me with the word \"good_bye\"?\r\nA6 Em Bm\r\nThough it _took some _time to_ survive you\r\nG D A6\r\nI'm _better on the other _side_\r\nEm\r\nI'm all _good already\r\nBm\r\nSo moved _on, it's scary\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up, don't co_me out\r\n \r\n \r\n#c\r\nG D A6\r\nDon't start _caring about me _now_\r\nEm Bm\r\nWalk a_way, you know _how\r\nG D A6\r\nDon't start _caring about me _now_\r\n \r\n \r\n#b\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nD A6\r\n_ Don't start _now\r\nEm\r\n_ Up, up\r\nBm\r\n_Don't come out, out\r\nG D A6\r\nI'm not _where you left me at all,_ _ so\r\n \r\n \r\n#p\r\nBm D E5\r\n_ If you don't wanna _see me dancing with somebo_dy\r\nD Gmaj7 Bm D E5\r\n_ _ _ If you wanna_ believe that anything could s_top me\r\n \r\n \r\n#c\r\nD Gmaj7 Em Bm\r\n_ _ Don't sh_ow up (Don't show up), don't co_me out (Don't come out)\r\nG D A6\r\nDon't start _caring about me _now ('Bout me _now)\r\nEm Bm\r\nWalk a_way (Walk away), you know _how (You know how)\r\nG D A6\r\nDon't start _caring about me _now_ (So)\r\n \r\n \r\n#o\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away (So)\r\nBm\r\n_ Up, up\r\nD\r\n_Don't come out, out, out\r\nG\r\n_Don't show up, up, up\r\nAsus4\r\n_Walk away, walk away, oh","shut-up-and-dance--walk-the-moon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey D\n\n#i\nD G Bm A\n\n#v\nD G Bm A\nD G Bm A\n\n#p\nG A Bm A\nG A D D\n\n#c\nD G Bm A\nD G Bm A\n\n#b\nG A Bm D\nG A D D\n\n#o\nD G Bm A\nD\n","dance-the-night--dua-lipa":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Bm\n\n#i\nBm Em A D\n\n#v\nBm Em A D\nBm Em A D\n\n#p\nG A Bm Bm\nG A D F#\n\n#c\nBm Em A D\nBm Em A D\n\n#b\nG A F#m Bm\nEm A D F#\n\n#o\nBm Em A D\nBm\n","i-just-might--bruno-mars":"#i\r\nOne, two, three, four\r\nF Gm F Gm\r\n \r\n \r\n#v\r\nF Gm F Gm\r\n_ You stepped inside with a_ vibe I ain't never _seen Yes, you_\r\ndid, ooh\r\nF Gm F Gm\r\n_ So girl, if you talk like you_ walk, come and talk to _me_\r\nBut look here\r\n \r\n \r\n#p\r\nF Gm\r\nIt would _break my heart, break my heart, break my_ heart\r\nF Gm\r\nIf I find out you can't _move_\r\nF Gm\r\nYou better _show me now, show me now, show me _now\r\nF Gm\r\n'Cause when I take you to the _floor, ooh, you gotta get down_\r\nYou know what to do\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby, hey\r\n \r\n \r\n#u\r\nF Gm\r\n_ _ I just might\r\nF Gm\r\n_ _ Oh, I just might\r\n \r\n \r\n#v\r\nF Gm F Gm\r\nBut first,_ may I just say that your_ face got me so in_trigued? I'm_\r\nso intrigued\r\nF Gm\r\n_ But what good is beauty if your_ booty can't find the beat?\r\nF Gm\r\n_ I don't wanna know, girl_\r\nSo please don't do that to me\r\n \r\n \r\n#p\r\nF Gm\r\n'Cause it would _break my heart, break my heart, break my_ heart\r\nF Gm\r\nIf I find out you can't _move_\r\nF Gm\r\nYou better _show me now, show me now, show me _now\r\nF Gm\r\n'Cause when I take you to the _floor, ooh, you gotta get down_\r\nYou know what to do\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby, hey\r\n \r\n \r\n#b\r\nAm7 Gm7 Am7 Gm7\r\nAm7 Gm7\r\n_This the part where you break it all the way down,_ down, down, down\r\nAm7 Gm7\r\n_This the part where I turn you all the way around,_ 'round, 'round, 'round\r\nAm7 Gm7 Am7 Bbmaj7\r\n_Put some spirit in it, put your heart_ into it That's _all I_\r\nC7sus4\r\nneed_\r\nAnd if I like what I see, you're comin' home with me\r\nGm7 Abm7 Am7\r\n_Hey, Mis_ter D_J\r\n \r\n \r\n#c\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby\r\nGm7 Abm7 Am7\r\n_Hey, _Mister _DJ\r\nGm7 Am7\r\n_ Play a song for this pretty little _lady\r\nGm7 Am7\r\n_ 'Cause if she dance as good as she look_ right now\r\nGm7 Am7 Bbmaj7 C7sus4\r\n_ I just might, I _just might _make her my _baby\r\nI just might make her my baby hey\r\n \r\n \r\n#o\r\nF Gm\r\n_ _ I just might\r\nF Gm\r\n_ _ Oh, I just might\r\n","treasure-bruno-mars":"\r\n","dont-stop-believin--journey":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE B C#m A\n\n#v\nE B C#m A\nE B G#m A\n\n#p\nC#m B E A\nC#m B A A\n\n#c\nE B C#m A\nE B G#m A\n\n#b\nA E A E\nA E B B\n\n#o\nE B C#m A\nE\n","man-i-feel-like-a-woman--shania-twain":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Bb\n\n#i\nBb Eb F Bb\n\n#v\nBb Eb F Bb\nBb Eb F Bb\n\n#p\nEb F Bb Bb\nEb F Bb F\n\n#c\nBb Eb F Bb\nBb Eb F Bb\n\n#b\nEb F Gm Gm\nEb F Bb F\n\n#o\nBb Eb F Bb\nBb\n","material-girl--madonna":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC G F G\n\n#v\nC G F G\nC G F G\n\n#p\nAm G F F\nAm G F G\n\n#c\nC G F G\nC G F G\n\n#b\nAm F C G\nAm F G G\n\n#o\nC G F G\nC\n","exes-and-ohs--elle-king":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Em\n\n#i\nEm G D A\n\n#v\nEm G D A\nEm G D A\n\n#p\nC G D D\nC G B7 B7\n\n#c\nEm G D A\nEm G D A\n\n#b\nC G D Em\nC G B7 B7\n\n#o\nEm G D A\nEm\n","teenage-dirtbag--wheatus":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE B A B\n\n#v\nE B A B\nE B A B\n\n#p\nC#m A E B\nC#m A B B\n\n#c\nE B A B\nE B A B\n\n#b\nC#m A E B\nC#m A B B\n\n#o\nE B A B\nE\n","use-somebody--kings-of-leon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC C/E F F\n\n#v\nC C/E F F\nC C/E F F\n\n#p\nAm G F F\nAm G F G\n\n#c\nC G Am F\nC G Am F\n\n#b\nAm C F F\nAm C F G\n\n#o\nC C/E F F\nC\n","sex-on-fire--kings-of-leon":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey E\n\n#i\nE C#m A E\n\n#v\nE C#m A E\nE C#m A E\n\n#p\nA B C#m C#m\nA B E B\n\n#c\nE C#m A E\nE C#m A E\n\n#b\nA B C#m E\nA B E B\n\n#o\nE C#m A E\nE\n","mr-brightside--the-killers":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey C\n\n#i\nC F Am G\n\n#v\nC F Am G\nC F Am G\n\n#p\nF G Am Am\nF G C G\n\n#c\nC F Am G\nC F Am G\n\n#b\nF G Am C\nF G C G\n\n#o\nC F Am G\nC\n"}</script>
 <script id="setlist-tempos" type="application/json">{"man-i-need--olivia-dean":null,"that-dont-impress-me-much--shania-twain":null,"no-scrubs--tlc":null,"sugar--maroon-5":null,"manchild":null,"whats-up--4-non-blondes":null,"play-that-funky-music--wild-cherry":null,"moves-like-jagger":null,"pink-pony-club--chappell-roan":null,"this-love--maroon-5":null,"valerie--amy-winehouse":null,"dont-start-now-dua-lipa":null,"shut-up-and-dance--walk-the-moon":null,"dance-the-night--dua-lipa":null,"i-just-might--bruno-mars":null,"treasure-bruno-mars":null,"dont-stop-believin--journey":null,"man-i-feel-like-a-woman--shania-twain":null,"material-girl--madonna":null,"exes-and-ohs--elle-king":null,"teenage-dirtbag--wheatus":null,"use-somebody--kings-of-leon":null,"sex-on-fire--kings-of-leon":null,"mr-brightside--the-killers":null}</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/annotations.js"></script>
 <script src="/songhits/assets/setlist.js"></script>
 
 </body>

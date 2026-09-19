@@ -9,6 +9,8 @@
   const setlistKey = ui.byId('setlist-wrap').dataset.setlist;
   const offline = document.documentElement.dataset.offline === 'true';
   const controls = ui.performanceControls({ playId: 'btn-toggle', bodyId: 'setlist-wrap', sizeId: 'zoom-val', headerId: 'controls' });
+  const prompter = ui.prompterMode({ controls, chartSelector: '.cm-song-content' });
+  const views = ui.viewControls({ bodyId: 'setlist-wrap', switcherId: 'view-switcher', notesId: 'btn-notes' });
   for (const block of blocks) {
     if (!block.dataset.slug) continue;
     const content = block.querySelector('.cm-song-content');
@@ -29,13 +31,13 @@
     const source = songs[block.dataset.slug];
     try {
       if (typeof source !== 'string') throw new Error('Chart not found');
-      element.innerHTML = renderChart(source, { ...preferences, transposeValue: Number(block.dataset.transpose) });
+      renderChart.into(element, source, { ...preferences, transposeValue: Number(block.dataset.transpose), slug: block.dataset.slug });
     } catch (error) {
       element.replaceChildren();
       const fallback = document.createElement('pre'); fallback.className = 'cm-raw-fallback';
       fallback.textContent = 'Unable to render chart: ' + error.message + '\n\n' + (source || ''); element.append(fallback);
     }
-    controls.refresh();
+    views.sync(); controls.refresh(); prompter.refresh();
   }
   function renderAll() { blocks.forEach(renderBlock); }
   renderAll();
@@ -80,7 +82,7 @@
   const download = ui.byId('btn-offline'), status = ui.byId('offline-status');
   if (offline) { download.hidden = true; status.textContent = 'Offline copy'; }
   download.onclick = async () => {
-    controls.stop(); download.disabled = true; status.textContent = 'Preparing offline copy…';
+    controls.stop(); prompter.exit(); download.disabled = true; status.textContent = 'Preparing offline copy…';
     try {
       const copy = document.documentElement.cloneNode(true);
       for (const script of copy.querySelectorAll('script[src]')) {

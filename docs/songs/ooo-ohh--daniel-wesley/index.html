@@ -171,12 +171,57 @@
       animation-play-state: running;
     }
 
+    /* ── Display modes (charts render in full; CSS filters) ─── */
+    [data-mode="lyrics"] .cmLine--chord { display: none; }
+    [data-mode="chords"] .cmLine--lyric { display: none; }
+    [data-mode="chordsFirstLyricLine"] .cmLine--lyric:not(.cmLine--firstLyric) { display: none; }
+
+    /* ── Annotations: > cue, >role cue, ! shout, // note ────── */
+    .cmAnno {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      margin-block: 0.35em;
+      padding-inline-start: 0.6em;
+      border-inline-start: 0.15em solid currentColor;
+      font-size: 0.85em;
+      line-height: 1.3;
+    }
+    .cmAnno--cue   { color: var(--muted); font-style: italic; }
+    .cmAnno--shout { color: var(--chord); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cmAnno--note  { color: #6b7280; font-size: 0.78em; display: none; }
+    [data-notes="on"] .cmAnno--note { display: flex; }
+    .cmAnnoRole { flex: none; font-variant: all-small-caps; font-weight: 600; letter-spacing: 0.06em; opacity: 0.85; }
+    .cmAnnoChip { flex: none; padding-inline: 0.35em; border: 1px solid currentColor; border-radius: 0.2em; font-size: 0.85em; font-variant-numeric: tabular-nums; }
+    .view-switcher { display: inline-flex; gap: 4px; }
+    .view-switcher button[aria-pressed="true"], #btn-notes.active { background: var(--section); color: #000; border-color: var(--section); }
+
     /* ── Autoscroll playhead ───────────────────────────────── */
     .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
     .cmLine.cm-playhead::before {
       content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
       width: 3px; border-radius: 2px; background: var(--section);
     }
+    /* ── Teleprompter mode (page bars are hidden in each layout's own styles) ── */
+    body.prompter { --nav-h: 0px; }
+    body.prompter nav { display: none; }
+    body.prompter .cmSong { max-width: none; line-height: 1.15; }
+    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.15; }
+    body.prompter .cmSectionLabel { font-size: 0.6em; margin-bottom: 0.3em; }
+    body.prompter .cmEmptyLine { height: 0.35em; }
+    #prompter-bar {
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 10px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(8, 8, 8, 0.82);
+      backdrop-filter: blur(6px); border-top: 1px solid #1e1e1e;
+    }
+    body.prompter #prompter-bar { display: flex; align-items: center; }
+    .prompter-btn {
+      min-height: 52px; min-width: 64px; padding: 0 16px; font-size: 18px; font-weight: 700; border-radius: 8px;
+      border: 1px solid #333; background: #1e1e1e; color: #ddd; cursor: pointer; touch-action: manipulation;
+    }
+    .prompter-play { background: var(--section); color: #000; border: none; flex: 1; }
+    .prompter-play.playing { background: var(--red); }
+    .prompter-exit { margin-left: auto; }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -185,6 +230,10 @@
       .cmBarSeparator { color: #555; opacity: 1; }
       .cmChordDuration { color: #444; }
       .cmLyricLine { white-space: pre-wrap; }
+      .cmAnno--note { display: none !important; }
+      .cmAnno { break-inside: avoid; }
+      .cmAnno--cue { color: #555; }
+      .cmAnno--shout { color: #000; }
     }
   </style>
 </head>
@@ -308,6 +357,10 @@
     flex-shrink: 0;
   }
 
+  @media (max-width: 1100px) {
+    #song-toolbar { flex-wrap: wrap; height: auto; }
+    #song-toolbar .song-heading { min-width: 12em; }
+  }
   @media (max-width: 760px) {
     #song-toolbar, #scroll-controls { flex-wrap: wrap; height: auto; padding: 7px 10px; gap: 6px; }
     #song-toolbar .song-heading { flex: 1 0 100%; }
@@ -315,8 +368,11 @@
     #song-body { padding-left: 12px; padding-right: 12px; overflow-x: auto; }
     .ctrl-btn { width: 32px; height: 32px; }
   }
+  /* ── Teleprompter mode ────────────────────────────────────── */
+  body.prompter #song-toolbar, body.prompter #scroll-controls { display: none; }
+  body.prompter #song-body { max-width: none; padding: 16px 20px 60vh; overflow-x: auto; }
   @media print {
-    nav, #song-toolbar, #scroll-controls { display: none; }
+    nav, #song-toolbar, #scroll-controls, #prompter-bar { display: none; }
     #song-body { padding: 0; }
     .cmSection { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -346,8 +402,11 @@
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <div class="toolbar-sep"></div>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
 </div>
 
 <div id="song-body" data-slug="ooo-ohh--daniel-wesley" data-tempo="">
@@ -372,10 +431,18 @@
   <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
   <button id="btn-top">⬆ Top</button>
 </div>
+<div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
+  <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
+  <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
+  <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
+  <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+</div>
+
 
 <script id="song-source" type="application/json">"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the live arrangement.\nkey Am\n\n#i\nAm F\nDm C\n\n#v\nAm F\nDm C\nAm F\nDm C\n\n#c\nF Dm\nAm C\nF Dm\nAm\n\n#b\nDm C\nAm\n\n#o\nAm F Dm C\nAm\n"</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/annotations.js"></script>
 <script src="/songhits/assets/song.js"></script>
 
 </body>

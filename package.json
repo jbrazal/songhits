@@ -157,8 +157,9 @@
     "chordmark:validate": "node scripts/validate-chordmark.cjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.cjs",
-    "check": "npm run typecheck && npm test && npm run build && npm run site:build -- --output=_site/check",
-    "lyrics:status": "node scripts/lyrics-status.cjs"
+    "check": "npm run typecheck && npm test && npm run lint:charts && npm run build && npm run site:build -- --output=_site/check",
+    "lyrics:status": "node scripts/lyrics-status.cjs",
+    "lint:charts": "node scripts/lint-chordmark.cjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "3.1.5",
@@ -170,6 +171,6 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "chord-mark": "^0.17.0"
+    "chord-mark": "0.17.0"
   }
 }

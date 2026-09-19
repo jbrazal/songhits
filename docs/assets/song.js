@@ -9,11 +9,13 @@
   content.dataset.slug = body.dataset.slug;
   content.dataset.bpm = ui.tempo(source, Number(body.dataset.tempo)) || '';
   const controls = ui.performanceControls({ playId: 'btn-play', bodyId: 'song-body', sizeId: 'size-val', headerId: 'song-toolbar', footerId: 'scroll-controls' });
+  const prompter = ui.prompterMode({ controls, chartSelector: '#cm-content' });
+  const views = ui.viewControls({ bodyId: 'song-body', switcherId: 'view-switcher', notesId: 'btn-notes' });
   const preferences = ui.preferences(render);
   function render() {
     const error = ui.byId('cm-error'), raw = ui.byId('cm-raw');
     try {
-      content.innerHTML = renderChart(source, { ...preferences, transposeValue: transpose });
+      renderChart.into(content, source, { ...preferences, transposeValue: transpose, slug: body.dataset.slug });
       error.style.display = raw.style.display = 'none'; content.style.display = '';
     } catch (e) {
       error.textContent = 'Parse error: ' + e.message; error.style.display = 'block';
@@ -21,7 +23,7 @@
     }
     ui.byId('transpose-val').textContent = transpose > 0 ? '+' + transpose : transpose;
     ui.byId('btn-up').disabled = transpose === 11; ui.byId('btn-down').disabled = transpose === -11;
-    controls.refresh();
+    views.sync(); controls.refresh(); prompter.refresh();
   }
   function setTranspose(value) {
     transpose = Math.max(-11, Math.min(11, value)); ui.storage.set(key, transpose); render();

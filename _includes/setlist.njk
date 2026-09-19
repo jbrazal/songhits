@@ -230,9 +230,18 @@ layout: base.njk
   #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
   .song-block-header { flex-wrap: wrap; }
   .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Teleprompter mode (after the toc-on rules so the overlay stays hidden) ── */
+  body.prompter #controls, body.prompter #toc-sidebar, body.prompter #toc-overlay, body.prompter .transpose-control { display: none; }
+  body.prompter #setlist-wrap { margin-left: 0; padding: 16px 20px 60vh; }
+  body.prompter .song-block-header { position: static; margin-bottom: 16px; }
+  body.prompter .setlist-title { font-size: 20px; margin-bottom: 16px; }
+  body.prompter .song-block-title { font-size: 26px; }
+  body.prompter .song-block-artist { font-size: 16px; }
+  body.prompter .song-block { scroll-margin-top: 12px; }
+  body.prompter .cm-song-content { overflow-x: auto; }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
-    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
     #setlist-wrap { margin: 0; padding: 0; }
     .song-block { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -315,14 +324,19 @@ layout: base.njk
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
   <span id="offline-status" role="status"></span>
   <button id="btn-top">⬆ Top</button>
 </div>
+{% include "prompter-bar.njk" %}
 
 <script id="setlist-sources" type="application/json">{% setlistSongsJson parts %}</script>
 <script id="setlist-tempos" type="application/json">{% setlistTemposJson parts %}</script>
 <script src="{{ '/assets/chord-mark.js' | url }}"></script>
 <script src="{{ '/assets/site-controls.js' | url }}"></script>
+<script src="{{ '/assets/annotations.js' | url }}"></script>
 <script src="{{ '/assets/setlist.js' | url }}"></script>

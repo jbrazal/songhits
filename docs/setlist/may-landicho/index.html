@@ -171,12 +171,57 @@
       animation-play-state: running;
     }
 
+    /* ── Display modes (charts render in full; CSS filters) ─── */
+    [data-mode="lyrics"] .cmLine--chord { display: none; }
+    [data-mode="chords"] .cmLine--lyric { display: none; }
+    [data-mode="chordsFirstLyricLine"] .cmLine--lyric:not(.cmLine--firstLyric) { display: none; }
+
+    /* ── Annotations: > cue, >role cue, ! shout, // note ────── */
+    .cmAnno {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      margin-block: 0.35em;
+      padding-inline-start: 0.6em;
+      border-inline-start: 0.15em solid currentColor;
+      font-size: 0.85em;
+      line-height: 1.3;
+    }
+    .cmAnno--cue   { color: var(--muted); font-style: italic; }
+    .cmAnno--shout { color: var(--chord); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cmAnno--note  { color: #6b7280; font-size: 0.78em; display: none; }
+    [data-notes="on"] .cmAnno--note { display: flex; }
+    .cmAnnoRole { flex: none; font-variant: all-small-caps; font-weight: 600; letter-spacing: 0.06em; opacity: 0.85; }
+    .cmAnnoChip { flex: none; padding-inline: 0.35em; border: 1px solid currentColor; border-radius: 0.2em; font-size: 0.85em; font-variant-numeric: tabular-nums; }
+    .view-switcher { display: inline-flex; gap: 4px; }
+    .view-switcher button[aria-pressed="true"], #btn-notes.active { background: var(--section); color: #000; border-color: var(--section); }
+
     /* ── Autoscroll playhead ───────────────────────────────── */
     .cmLine.cm-playhead { position: relative; background: rgba(74, 222, 128, 0.07); }
     .cmLine.cm-playhead::before {
       content: ''; position: absolute; left: -10px; top: 0; bottom: 0;
       width: 3px; border-radius: 2px; background: var(--section);
     }
+    /* ── Teleprompter mode (page bars are hidden in each layout's own styles) ── */
+    body.prompter { --nav-h: 0px; }
+    body.prompter nav { display: none; }
+    body.prompter .cmSong { max-width: none; line-height: 1.15; }
+    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.15; }
+    body.prompter .cmSectionLabel { font-size: 0.6em; margin-bottom: 0.3em; }
+    body.prompter .cmEmptyLine { height: 0.35em; }
+    #prompter-bar {
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 10px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(8, 8, 8, 0.82);
+      backdrop-filter: blur(6px); border-top: 1px solid #1e1e1e;
+    }
+    body.prompter #prompter-bar { display: flex; align-items: center; }
+    .prompter-btn {
+      min-height: 52px; min-width: 64px; padding: 0 16px; font-size: 18px; font-weight: 700; border-radius: 8px;
+      border: 1px solid #333; background: #1e1e1e; color: #ddd; cursor: pointer; touch-action: manipulation;
+    }
+    .prompter-play { background: var(--section); color: #000; border: none; flex: 1; }
+    .prompter-play.playing { background: var(--red); }
+    .prompter-exit { margin-left: auto; }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -185,6 +230,10 @@
       .cmBarSeparator { color: #555; opacity: 1; }
       .cmChordDuration { color: #444; }
       .cmLyricLine { white-space: pre-wrap; }
+      .cmAnno--note { display: none !important; }
+      .cmAnno { break-inside: avoid; }
+      .cmAnno--cue { color: #555; }
+      .cmAnno--shout { color: #000; }
     }
   </style>
 </head>
@@ -423,9 +472,18 @@
   #controls { flex-wrap: wrap; height: auto; min-height: 48px; padding-top: 7px; padding-bottom: 7px; }
   .song-block-header { flex-wrap: wrap; }
   .song-block { scroll-margin-top: calc(var(--nav-h) + var(--ctrl-h) + 12px); }
+  /* ── Teleprompter mode (after the toc-on rules so the overlay stays hidden) ── */
+  body.prompter #controls, body.prompter #toc-sidebar, body.prompter #toc-overlay, body.prompter .transpose-control { display: none; }
+  body.prompter #setlist-wrap { margin-left: 0; padding: 16px 20px 60vh; }
+  body.prompter .song-block-header { position: static; margin-bottom: 16px; }
+  body.prompter .setlist-title { font-size: 20px; margin-bottom: 16px; }
+  body.prompter .song-block-title { font-size: 26px; }
+  body.prompter .song-block-artist { font-size: 16px; }
+  body.prompter .song-block { scroll-margin-top: 12px; }
+  body.prompter .cm-song-content { overflow-x: auto; }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
-    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control { display: none !important; }
+    nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
     #setlist-wrap { margin: 0; padding: 0; }
     .song-block { page-break-inside: avoid; }
     @page { margin: 1.5cm 2cm; size: A4 portrait; }
@@ -938,16 +996,27 @@
     <option value="chords">Chords Only</option>
     <option value="chordsFirstLyricLine">Chords + First Line</option>
   </select>
+  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
   <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
   <span id="offline-status" role="status"></span>
   <button id="btn-top">⬆ Top</button>
 </div>
+<div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
+  <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
+  <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
+  <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
+  <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+</div>
+
 
 <script id="setlist-sources" type="application/json">{"salidumay":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nTraditional Cordillera (Igorot/Itneg) folk song; commonly played G-C-D.\nkey G\n\n#i\nG C\nG D\n\n#v\nG C\nG D\nG C\nG D\n\n#c\nC G\nC D\nG C\nG D\n\n#o\nG C G\n","buwan--juan-karlos":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey G\n\n#i\nAm Em\nAm Em\n\n#v\nC D\nG\nC D7\nG G7\n\n#c\nC D7\nG\nC D\nG\n\n#b\nAm C\nD G\n\n#o\nC D\nG\n","kapayapaan--tropical-depression":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae. Intro is an ethnic percussion break before the band enters.\nkey A\n\n#i\nA D E\nA D E\n\n#v\nA D E\nA\nD E\nA\n\n#c\nA D E\nA D E\n\n#o\nA D E\nA\n","ang-himig-natin--juan-de-la-cruz-band":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted as played in the Tropical Depression medley with Kapayapaan.\nkey E\n\n#i\nEmaj7 Amaj7\nEmaj7 Amaj7\n\n#v\nEmaj7 Amaj7\nEmaj7 Amaj7\n\n#c\nB A\nB A\nEmaj7 Amaj7\n\n#o\nEmaj7 Amaj7\nEmaj7\n","mga-matang-mapanghusga--vinch":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae remix cover version.\nkey Am\n\n#i\nAm Dm\nG C\n\n#v\nAm Dm\nG C\nAm Dm\nG C\n\n#c\nAm Dm\nG C\nAm Dm\nG Am\n\n#o\nAm Dm G Am\n","jopay--mayonnaise":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nWritten and recorded by Mayonnaise; charted for the reggae cover arrangement.\nkey G\n\n#i\nD/F# C\nD/F# C\n\n#v\nD/F# C\nD/F# C\nD/F# C\nD/F# C\n\n#p\nAm Bm\nC D/F#\n\n#c\nG/B Am\nBm Am\nG/B Am\nBm Am\n\n#o\nD/F# C\nG\n","come-together--the-beatles":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the Aerosmith arrangement; D blues, riff-driven.\nkey Dm\n\n#i\nDm\nDm\n\n#v\nDm\nDm\nDm\nDm\n\n#c\nBm\nA\nG\nA\n\n#s\nBm\nA\nDm\n\n#o\nDm\n","crazy--gnarls-barkley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nTransposed to Am for the slower arrangement (original key is Cm).\nkey Am\n\n#i\nAm C\nF E\n\n#v\nAm C\nF E\nAm C\nF E\n\n#c\nAm C\nF E\nAm C\nF E\n\n#b\nF E\nAm\n\n#o\nAm C F E\nAm\n","to-be-with-you--mr-big":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey E\n\n#i\nE B\nC#m A\n\n#v\nE B\nC#m A\nE B\nC#m A\n\n#p\nA B\nE\n\n#c\nA B\nE C#m\nA B\nE\n\n#b\nC#m A\nB\n\n#o\nE B\nE\n","ill-be--edwin-mccain":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nOften played capo 2 with A-shapes.\nkey B\n\n#i\nB E\nB E\n\n#v\nB F#\nE B\nB F#\nE B\n\n#p\nG#m E\nF#\n\n#c\nE F#\nB G#m\nE F#\nB\n\n#b\nG#m E\nF# B\n\n#o\nB E\nB\n","everytime-i-see-you--fra-lippo-lippi":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey D\n\n#i\nD Bm\nA G\n\n#v\nD A\nBm G\nD A\nBm G\n\n#p\nG A\nD Bm\n\n#c\nG A\nD Bm\nG A\nD\n\n#b\nBm F#m\nG A\n\n#o\nD Bm A G\nD\n","wherever-you-will-go--the-calling":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey D\n\n#i\nD A/C#\nBm7 G\n\n#v\nD A/C#\nBm7 G\nD A/C#\nBm7 G\n\n#p\nG A\nBm7 G\n\n#c\nD A/C#\nBm7 G\nD A/C#\nBm7 G\n\n#b\nBm7 G\nD A\n\n#o\nD A/C# Bm7 G\nD\n","lovesong--adele":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nAdele's cover of The Cure. Capo 3 with Am-G-Fmaj7-E7 shapes is the common alternative.\nkey Cm\n\n#i\nCm\nCm Bb Ab G\n\n#v\nCm Bb\nAb G\nCm Bb\nAb G\n\n#c\nAb Fm\nCm Bb\nAb Fm\nCm Bb\n\n#b\nAb G\nCm\n\n#o\nCm Bb Ab G\nCm\n","gravity--john-mayer":"#i\nG Am7/C\n\n#s\nG Am7/C G Am7/C\n\n#v\nG Am7/C\n_Gravity is working a_gainst me\nG Am7/C\nAnd _gravity wants to bring me _down\n\n#c\nAm7\nOh I'll _never know what makes this man\nD7\nWith _all the love that his heart can stand\nGm/A# D#M7\n_Dream of ways to _throw it all away\n\n#v\nD7 G Am7/C\n_Oh, _gravity is working a_gainst me\nG Am7/C\nAnd _gravity wants to bring me _down\n\n#c\nAm7\nOh tw_ice as much ain't twice as good\nD7\nAnd _can't sustain like one half could\nGm/A#\nIt's _wanting more\nD#M7 D7\nThat's gonna _send me to my knees_\n\n#s\nG Am7/C G Am7/C\n\n#c\nAm7\nOh tw_ice as much ain't twice as good\nD7\nAnd _can't sustain like one half could\nGm/A#\nIt's _wanting more\nD#M7\nThat's gonna _send me to my knees\n\n#v\nD7 G Am7/C\n_Oh _gravity, stay the hell a_way from me\nG Am7/C\nOh _gravity has taken better men_ than me\nNow, how can that be?\nG\nJust keep me where the light_ is\n\n#o\nAm7/C\nJust keep me where the _light is\nG\nJust keep me where the _light is\nAm7/C\nC'mon keep me where the _light is\nG\nC'mon keep me where the _light is\n\n#o\nAm7/C G\nC'mon keep me where _keep me where the light is_\n","dont-let-me-down--the-beatles":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the John Mayer / Keith Urban live arrangement.\nkey E\n\n#c\nE F#m7\nE\nB E\nE\n\n#v\nE\nEmaj7\nA\nE\n\n#b\nF#m7 B\nE\n\n#o\nE F#m7\nE\n","rude--magic":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae-pop. Transposed to G (original key is Db).\nkey G\n\n#i\nC D\nG Em D\n\n#v\nC D\nG Em D\nC D\nG Em D\n\n#c\nC D\nG Em\nC D\nG Em D\n\n#b\nEm C\nG D\n\n#o\nC D\nG\n","ooo-ohh--daniel-wesley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the live arrangement.\nkey Am\n\n#i\nAm F\nDm C\n\n#v\nAm F\nDm C\nAm F\nDm C\n\n#c\nF Dm\nAm C\nF Dm\nAm\n\n#b\nDm C\nAm\n\n#o\nAm F Dm C\nAm\n","waiting-in-vain--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nReggae; keep the maj7 voicings ringing on the offbeats.\nkey Ab\n\n#i\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\n\n#v\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\nAbmaj7 Dbmaj7\n\n#c\nDbmaj7 Abmaj7\nDbmaj7 Abmaj7\n\n#b\nFm Bbm\nDbmaj7 Eb\n\n#o\nAbmaj7 Dbmaj7\nAbmaj7\n","jamming--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCapo 2 with Am-D7-F-Em7 shapes is the common alternative.\nkey Bm\n\n#i\nBm E7\nG F#m7\n\n#v\nBm E7\nBm E7\nG F#m7\nG F#m7\n\n#c\nBm E7\nG F#m7\nBm E7\nG F#m7\n\n#b\nG F#m7\nBm E7\n\n#o\nBm E7\nG F#m7\nBm\n","three-little-birds--bob-marley":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nListed on the setlist as \"Don't Worry\".\nkey A\n\n#i\nA\nA\n\n#c\nA\nA\nD A\nE A\n\n#v\nA\nA\nD A\nE A\n\n#o\nA D\nA E\nA\n","save-your-tears--the-weeknd":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey C\n\n#i\nC Am\nEm G\n\n#v\nC Am\nEm G\nC Am\nEm G\n\n#p\nDm Am\nF G\n\n#c\nDm Am\nF G\nDm Am\nF G\n\n#b\nF G\nC\n\n#o\nC Am Em G\nC\n","valerie--amy-winehouse":"AI generated chord-focused chart from Ultimate Guitar research; lyrics omitted.\nkey Eb\n\n#i\nEb Fm\nEb Fm\n\n#v\nEb Fm\nEb Fm\nEb Fm\nEb Fm\n\n#p\nAb Gm\nFm Bb\n\n#c\nEb Fm\nEb Fm\nAb Gm\nFm Bb\n\n#b\nAb Gm Fm Bb\nAb Gm Fm Bb\n\n#o\nEb Fm Eb\n","lose-control--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\n6/8 time, soul feel.\nkey F#m\n\n#i\nF#m A/E\nD/F# C#\n\n#v\nF#m A/E\nD/F# C#\nF#m A/E\nD/F# C#\n\n#p\nD C#\nF#m\n\n#c\nF#m A\nD C#7\nF#m A\nD C#7\n\n#b\nD C#7\nF#m\n\n#o\nF#m A D C#7\nF#m\n","the-door--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted capo 4 in Em shapes; sounding key is G#m.\nkey Em\n\n#i\nEm C\nD B7\n\n#v\nEm C\nD B7\nEm C\nD B7\n\n#p\nC D\nEm\n\n#c\nEm C\nD B7\nEm C\nD B7\nEm\n\n#b\nC D\nB7 Em\n\n#o\nEm C D B7\nEm\n","bad-dreams--teddy-swims":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nkey Cm\n\n#i\nCm Bb\nAb Bb\n\n#v\nCm Bb\nAb Bb\nGm7\nCm\n\n#p\nAb Bb\nGm7 Cm\n\n#c\nCm Bb\nAb Bb\nAb Gm7\nCm\n\n#b\nAb Bb\nGm7 Cm\n\n#o\nCm Bb Ab Gm7\nCm\n","all-along-the-watchtower--jimi-hendrix":"AI generated chord-focused chart from online tab research; lyrics omitted. Verify before performing.\nCharted for the Hendrix arrangement.\nkey C#m\n\n#i\nC#m B\nA B\n\n#v\nC#m B\nA B\nC#m B\nA B\n\n#s\nC#m B\nA B\nC#m B\nA B\n\n#o\nC#m B\nA B\nC#m\n"}</script>
 <script id="setlist-tempos" type="application/json">{"salidumay":null,"buwan--juan-karlos":null,"kapayapaan--tropical-depression":null,"ang-himig-natin--juan-de-la-cruz-band":null,"mga-matang-mapanghusga--vinch":null,"jopay--mayonnaise":null,"come-together--the-beatles":null,"crazy--gnarls-barkley":null,"to-be-with-you--mr-big":null,"ill-be--edwin-mccain":null,"everytime-i-see-you--fra-lippo-lippi":null,"wherever-you-will-go--the-calling":null,"lovesong--adele":null,"gravity--john-mayer":null,"dont-let-me-down--the-beatles":null,"rude--magic":null,"ooo-ohh--daniel-wesley":null,"waiting-in-vain--bob-marley":null,"jamming--bob-marley":null,"three-little-birds--bob-marley":null,"save-your-tears--the-weeknd":null,"valerie--amy-winehouse":null,"lose-control--teddy-swims":null,"the-door--teddy-swims":null,"bad-dreams--teddy-swims":null,"all-along-the-watchtower--jimi-hendrix":null}</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
+<script src="/songhits/assets/annotations.js"></script>
 <script src="/songhits/assets/setlist.js"></script>
 
 </body>
