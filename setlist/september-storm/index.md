@@ -7,9 +7,9 @@ parts:
       - slug: mottaka-cheese
         title: Mottaka
         artist: Cheese
-      - slug: digital-bath--deftones
-        title: Digital Bath
-        artist: Deftones
+      - slug: faith--limp-bizkit
+        title: Faith
+        artist: Limp Bizkit
       - slug: freak-on-a-leash--korn
         title: Freak on a Leash
         artist: Korn
@@ -19,9 +19,6 @@ parts:
       - slug: wait-and-bleed--slipknot
         title: Wait and Bleed
         artist: Slipknot
-      - slug: faith--limp-bizkit
-        title: Faith
-        artist: Limp Bizkit
       - slug: pigface--greyhoundz
         title: Pigface
         artist: Greyhoundz

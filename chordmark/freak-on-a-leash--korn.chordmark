@@ -1,18 +1,22 @@
-tempo: 103
+tempo: 100
 4/4
 
 #i
+> 9 bars instrumental
+
 D5 D#5 D5 D#5
 D5 D#5 D5
 D#5
 
 #v
+>vox Verse 1
+
 D5 D#5
 _Something takes a part of_ me.
 D5 D#5
 _Something lost and never _seen.
 D5 D#5
-_Everytime I start to bel_ieve,
+_Every time I start to bel_ieve,
 D5 D#5
 _Something's raped and taken from m_e, from me.
 D5 D#5
@@ -25,6 +29,8 @@ D5 D#5
 _I try to every night, all in vai_n, in vain.
 
 #p
+> tempo lifts to 109 BPM
+
 D5 C5 D5
 _Sometimes I ca_nnot take this pla_ce.
 C5
@@ -46,7 +52,8 @@ Some_thing takes_ a part of me.
 
 
 #v
->vox come in right away
+>vox Verse 2 enters immediately; tempo returns to 100 BPM
+
 D5 D#5
 _Feeling like a freak on a l_eash.
 D5 D#5
@@ -57,6 +64,8 @@ D5 D#5
 _Nothing in my life i_s free, is free.
 
 #p
+> tempo lifts to 109 BPM
+
 D5 C5 D5
 _Sometimes I ca_nnot take this pla_ce.
 C5
@@ -77,13 +86,15 @@ E5 F5
 Some_thing takes_ a part of me.
 
 #b
->vox vox and drums
+>vox vocals and drums; repeat the scat phrase
+
 Boom na da mmm dum na ema
 Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema,
 
->bass slap
+>bass slap enters after the first four phrases
+
 Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema,
@@ -94,7 +105,7 @@ Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema,
 Da boom na da mmm dum na ema, go!
 
-> 4 bars 
+> 3 bars; full band re-entry on "Go!"
 
 B5 C5 C#5 D5 B5 C5 C#5 D5 B5 C5 C#5 D5
 
