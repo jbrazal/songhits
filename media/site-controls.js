@@ -88,21 +88,66 @@
     }
     return { points, duration: points[points.length - 1].t, tempoEnd, indexAt, yAt, tAt, lineAt: t => points[indexAt(t)].line };
   }
+  // Timed blocks of a rendered chart: every chord line, plus, in sections without chord lines, every
+  // lyric line (LYRIC_BARS bars each, times a trailing "xN"; a "> N bars" cue sets the section total)
+  // and a bars cue standing alone. Each block runs until the next one.
+  const LYRIC_BARS = 2;
+  const repeats = text => { const match = text.match(/(?:^|\s)[x×](\d+)\s*$/i); return match ? Number(match[1]) : 1; };
+  function timedBlocks(container) {
+    const lines = [...container.querySelectorAll('p.cmLine')], blocks = [];
+    let section, state = null, ts = '4/4';
+    function finish() {
+      if (!state || state.chords || !state.cueBars) return;
+      if (state.lyrics.length) {
+        const total = state.lyrics.reduce((sum, block) => sum + block.bars, 0);
+        for (const block of state.lyrics) block.beats *= state.cueBars / total;
+      } else if (state.cue) blocks.push({ index: state.cue.index, beats: state.cueBars * beatsPerBar(ts) });
+    }
+    lines.forEach((line, index) => {
+      const owner = line.closest('.cmSection');
+      if (!state || owner !== section) { finish(); section = owner; state = { chords: false, cueBars: null, cue: null, lyrics: [] }; }
+      const signature = line.querySelector(':scope > .cmTimeSignature');
+      if (signature) { ts = signature.textContent.trim(); return; }
+      if (line.classList.contains('cmAnno')) {
+        const chip = [...line.querySelectorAll('.cmAnnoChip')].map(el => el.textContent.match(/^(\d+) bars$/)).find(Boolean);
+        if (chip && line.classList.contains('cmAnno--cue') && !state.cueBars) { state.cueBars = Number(chip[1]); state.cue = { index }; }
+        return;
+      }
+      const chord = line.querySelector(':scope > .cmChordLine');
+      if (chord) {
+        const beats = lineBeats(chord, ts);
+        if (beats > 0) { blocks.push({ index, beats }); state.chords = true; }
+        return;
+      }
+      const lyric = section && !state.chords && line.querySelector(':scope > .cmLyricLine');
+      if (lyric && lyric.textContent.trim()) {
+        const bars = LYRIC_BARS * repeats(lyric.textContent);
+        const block = { index, beats: bars * beatsPerBar(ts), bars };
+        blocks.push(block); state.lyrics.push(block);
+      }
+    });
+    finish();
+    return { lines, blocks: blocks.sort((a, b) => a.index - b.index) };
+  }
   // Chart containers carry data-bpm; bpmOf(container) may apply a per-song override.
   function measure(root, bpmOf) {
     const anchors = [];
     for (const container of root.querySelectorAll('[data-bpm]')) {
       const bpm = bpmOf(container), box = container.getBoundingClientRect();
       if (!(bpm > 0) || !box.height) continue;
-      let ts = '4/4', last = null;
-      for (const element of container.querySelectorAll('.cmChordLine, .cmLine > .cmTimeSignature')) {
-        if (element.classList.contains('cmTimeSignature')) { ts = element.textContent.trim(); continue; }
-        const line = element.closest('.cmLine'), beats = lineBeats(element, ts);
-        const rect = line && line.getBoundingClientRect();
-        // Lines hidden by the display mode take no time.
-        if (line && beats > 0 && rect.height > 0) anchors.push(last = { y: rect.top + window.scrollY, seconds: beats * 60 / bpm, line });
-      }
-      if (last) anchors.push({ y: Math.max(last.y, box.bottom + window.scrollY), seconds: null, line: null });
+      const { lines, blocks } = timedBlocks(container);
+      let first = anchors.length, carry = 0;
+      blocks.forEach((block, i) => {
+        const seconds = block.beats * 60 / bpm + carry, end = i + 1 < blocks.length ? blocks[i + 1].index : lines.length;
+        carry = 0;
+        // Anchor on the block's first line the display mode shows; hidden blocks lend their time onward.
+        for (let j = block.index; j < end; j++) {
+          const rect = lines[j].getBoundingClientRect();
+          if (rect.height > 0) { anchors.push({ y: rect.top + window.scrollY, seconds, line: lines[j] }); return; }
+        }
+        if (anchors.length > first) anchors[anchors.length - 1].seconds += seconds; else carry = seconds;
+      });
+      if (anchors.length > first) anchors.push({ y: Math.max(anchors[anchors.length - 1].y, box.bottom + window.scrollY), seconds: null, line: null });
     }
     return anchors;
   }
@@ -139,7 +184,8 @@
     function eyeLine() {
       const header = headerId && byId(headerId), footer = footerId && byId(footerId);
       const top = header ? header.getBoundingClientRect().bottom : 0;
-      const bottom = window.innerHeight - (footer ? footer.offsetHeight : 0);
+      const prompter = byId('prompter-bar');
+      const bottom = window.innerHeight - Math.max(footer ? footer.offsetHeight : 0, prompter ? prompter.offsetHeight : 0);
       return top + Math.max(0, bottom - top) * 0.3;
     }
     function highlight(line) {

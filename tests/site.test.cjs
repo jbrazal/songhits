@@ -247,7 +247,11 @@ function stubLayout(dom) {
   dom.window.Element.prototype.getBoundingClientRect = function () {
     const lines = [...this.ownerDocument.querySelectorAll('.cmLine')], total = lines.length * 20;
     if (this.matches('.cmLine')) { const top = lines.indexOf(this) * 20; return { top, bottom: top + 20, height: 20, left: 0, right: 0, width: 0 }; }
-    if (this.matches('[data-bpm]')) return { top: 0, bottom: total, height: total, left: 0, right: 0, width: 0 };
+    if (this.matches('[data-bpm]')) {
+      const own = [...this.querySelectorAll('.cmLine')].map(line => lines.indexOf(line) * 20);
+      const top = own.length ? own[0] : 0, bottom = own.length ? own[own.length - 1] + 20 : total;
+      return { top, bottom, height: bottom - top, left: 0, right: 0, width: 0 };
+    }
     return { top: 0, bottom: 0, height: 0, left: 0, right: 0, width: 0 };
   };
 }
@@ -266,7 +270,7 @@ test('beat counting follows chord-mark bar rules and inline time signatures stay
   dom.window.close();
 });
 
-test('measure builds tempo anchors in document order and skips charts without tempo or chord lines', () => {
+test('measure builds tempo anchors in document order; chordless sections time their lyric lines', () => {
   const dom = controlsDom('<div id="a" data-bpm="120" data-slug="a"></div><div id="b" data-bpm="" data-slug="b"></div><div id="c" data-bpm="90"></div>');
   const ui = dom.window.SongHits, cm = dom.window['chord-mark'], document = dom.window.document, render = ui.renderer();
   stubLayout(dom);
@@ -276,10 +280,34 @@ test('measure builds tempo anchors in document order and skips charts without te
   document.getElementById('c').innerHTML = render(source, { chartType: 'lyrics' });
   const bpmOf = container => Number(container.dataset.bpm) || null;
   const anchors = ui.measure(document.body, bpmOf);
-  assert.deepEqual([...anchors].map(a => a.seconds), [4, 4.5, null]);
-  assert.ok(anchors[0].y < anchors[1].y && anchors[1].y < anchors[2].y);
+  // a: two chord lines and the chart end; c has no chord lines, so x (2 bars of 4/4) and y (2 bars of 3/4) are timed at 90 BPM.
+  assert.deepEqual([...anchors].map(a => a.seconds), [4, 4.5, null, 16 / 3, 4, null]);
+  for (let i = 1; i < anchors.length; i++) assert.ok(anchors[i - 1].y <= anchors[i].y);
   assert.ok(anchors[0].line.classList.contains('cmLine') && anchors[2].line === null);
   assert.ok(cm.parseSong(source).allLines.some(line => line.type === 'timeSignature'));
+  dom.window.close();
+});
+
+test('lyric timing: hidden chord lines time the lyric below; cues set chordless section totals; xN repeats', () => {
+  const chart = 'tempo: 120\n\n#i\n> vocals only\n> 12 bars\nHupaw, Huhupaw\nBaw, Huhupaw\n\n#v\nC G\n_look _at me\nlook at me again\n\n#c\nHey x4\n\n#b\n> 4 bars of silence\n';
+  const dom = controlsDom('<div id="chart" data-bpm="120" data-slug="t"></div>');
+  const ui = dom.window.SongHits, document = dom.window.document, element = document.getElementById('chart');
+  const seconds = () => [...ui.measure(document.body, () => 120)].map(a => a.seconds);
+  const text = () => [...ui.measure(document.body, () => 120)].map(a => a.line ? a.line.textContent.trim() : null);
+  stubLayout(dom);
+  ui.renderer().into(element, chart, { chartType: 'all', slug: 't' });
+  // #i: 12 bars over two lines = 6 bars = 12 s each; #v: chord line 2 bars = 4 s; #c: Hey x4 = 8 bars = 16 s; #b: cue alone = 4 bars = 8 s.
+  assert.deepEqual(seconds(), [12, 12, 4, 16, 8, null]);
+  const labels = text();
+  assert.deepEqual([labels[0], labels[1], labels[3], labels[4]], ['Hupaw, Huhupaw', 'Baw, Huhupaw', 'Hey x4', '4 bars of silence4 bars']);
+  assert.match(labels[2], /^\|C\s+\|G\s+\|$/);
+  // Lyrics-only display: the hidden chord line lends its 4 s to the lyric under it.
+  ui.renderer().into(element, chart, { chartType: 'lyrics', slug: 't' });
+  const hidden = new Set([...element.querySelectorAll('.cmLine--chord')]);
+  const rect = dom.window.Element.prototype.getBoundingClientRect;
+  dom.window.Element.prototype.getBoundingClientRect = function () { return hidden.has(this) ? { top: 0, bottom: 0, height: 0, left: 0, right: 0, width: 0 } : rect.call(this); };
+  assert.deepEqual(seconds(), [12, 12, 4, 16, 8, null]);
+  assert.equal(text()[2], 'look at me');
   dom.window.close();
 });
 
