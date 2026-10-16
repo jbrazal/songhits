@@ -78,6 +78,8 @@ parts:
         title: Stickwitu
         artist: The Pussycat Dolls
       - title: The Sweet Escape
+        slug: the-sweet-escape--gwen-stefani
+        artist: Gwen Stefani
       - slug: take-a-bow--rihanna
         title: Take a Bow
         artist: Rihanna
