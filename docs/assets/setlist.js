@@ -10,6 +10,8 @@
   const offline = document.documentElement.dataset.offline === 'true';
   const controls = ui.performanceControls({ playId: 'btn-toggle', bodyId: 'setlist-wrap', sizeId: 'zoom-val', headerId: 'controls' });
   const prompter = ui.prompterMode({ controls, chartSelector: '.cm-song-content' });
+  const stageButton = ui.byId('btn-stage-mobile');
+  if (stageButton) stageButton.onclick = () => prompter.enter();
   const views = ui.viewControls({ bodyId: 'setlist-wrap', switcherId: 'view-switcher', notesId: 'btn-notes' });
   for (const block of blocks) {
     if (!block.dataset.slug) continue;

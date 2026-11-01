@@ -481,3 +481,40 @@ test('setlist teleprompter sizes each chart on its own, mirrors Play, hides the 
   assert.ok(Math.abs(fontPx(chart) - expectedFit(chart, 1.5)) < 1e-6);
   seeded.window.close();
 });
+
+test('FEAST mobile prompter keeps chord and lyric pairs together and uses a manual pace slider', () => {
+  const page = pages.find(p => p.inputPath.includes('feast-2026-11-07/index.md'));
+  const dom = pageDom(page.content, d => {
+    d.window.matchMedia = query => ({ matches: query.includes('max-width: 680px'), addEventListener() {} });
+  });
+  const { document } = dom.window;
+  const blocks = [...document.querySelectorAll('.song-block')];
+  assert.equal(blocks.length, 5);
+  assert.equal(blocks.at(-1).dataset.slug, 'turn-it-up-closing--planetshakers');
+  const chart = blocks[0].querySelector('.cm-song-content');
+  assert.equal(chart.textContent.includes('title: Turn It Up'), false, 'frontmatter stays out of the performance view');
+  const previous = dom.window.Element.prototype.getBoundingClientRect;
+  dom.window.Element.prototype.getBoundingClientRect = function () {
+    const rect = previous.call(this);
+    return this.matches('.cm-song-content') ? { ...rect, width: 390, right: 390 } : rect;
+  };
+  dom.window.Range.prototype.getBoundingClientRect = function () {
+    return { width: this.toString().length * 11 };
+  };
+  document.getElementById('btn-stage-mobile').click();
+  const slider = document.getElementById('prompter-speed-slider');
+  assert.equal(slider.value, '0.6');
+  assert.equal(document.getElementById('speed-val').textContent, '0.6');
+  const pairs = [...chart.querySelectorAll('p.cmLine--chord')].map(line => [line, line.nextElementSibling])
+    .filter(([, next]) => next && next.classList.contains('cmLine--lyric'));
+  assert.ok(pairs.some(([chord, lyric]) => chord.style.fontSize && chord.style.fontSize === lyric.style.fontSize));
+  slider.value = '0.9'; slider.dispatchEvent(new dom.window.Event('input'));
+  assert.equal(document.getElementById('prompter-speed-val').textContent, '0.9×');
+  assert.equal(dom.window.localStorage.getItem('sh-stage-speed'), '0.9');
+  document.querySelector('#prompter-bar [data-prompter="play"]').click();
+  assert.equal(document.getElementById('btn-toggle').textContent, '⏸ Pause');
+  document.querySelector('#prompter-bar [data-prompter="exit"]').click();
+  assert.equal(document.getElementById('speed-val').textContent, '124 BPM');
+  assert.ok(pairs.every(([chord, lyric]) => !chord.style.fontSize && !lyric.style.fontSize));
+  dom.window.close();
+});

@@ -205,16 +205,23 @@
     /* ── Teleprompter mode (page bars are hidden in each layout's own styles) ── */
     body.prompter { --nav-h: 0px; }
     body.prompter nav { display: none; }
-    body.prompter .cmSong { max-width: none; line-height: 1.15; }
-    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.15; }
-    body.prompter .cmSectionLabel { font-size: 0.6em; margin-bottom: 0.3em; }
+    body.prompter .cmSong { max-width: none; line-height: 1.25; }
+    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.25; }
+    body.prompter .cmSectionLabel { font-size: 0.75em; margin-bottom: 0.4em; }
     body.prompter .cmEmptyLine { height: 0.35em; }
     #prompter-bar {
-      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 10px;
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 8px;
+      flex-direction: column;
       padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(8, 8, 8, 0.82);
       backdrop-filter: blur(6px); border-top: 1px solid #1e1e1e;
     }
     body.prompter #prompter-bar { display: flex; align-items: center; }
+    .prompter-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 900px; }
+    .prompter-row-tools { justify-content: flex-end; }
+    .prompter-pace { color: var(--muted); font-size: 13px; font-weight: 700; }
+    #prompter-speed-slider { flex: 1; min-width: 0; height: 44px; accent-color: var(--section); touch-action: manipulation; }
+    #prompter-speed-val { min-width: 3.2em; color: var(--section); font: 700 15px ui-monospace, monospace; text-align: right; }
+    .prompter-hint { color: var(--muted); font-size: 12px; margin-right: auto; }
     .prompter-btn {
       min-height: 52px; min-width: 64px; padding: 0 16px; font-size: 18px; font-weight: 700; border-radius: 8px;
       border: 1px solid #333; background: #1e1e1e; color: #ddd; cursor: pointer; touch-action: manipulation;
@@ -222,6 +229,15 @@
     .prompter-play { background: var(--section); color: #000; border: none; flex: 1; }
     .prompter-play.playing { background: var(--red); }
     .prompter-exit { margin-left: auto; }
+    @media (max-width: 680px) {
+      body.prompter .cmSong { font-family: ui-monospace, 'Courier New', monospace; }
+      body.prompter .cmLine { overflow: visible; }
+      body.prompter .cmSection { margin-bottom: 1.5em; }
+      body.prompter .cmAnno--cue { white-space: normal; line-height: 1.4; }
+      .prompter-btn { min-height: 48px; min-width: 52px; padding: 0 11px; font-size: 16px; }
+      .prompter-play { min-width: 92px; }
+      .prompter-hint { font-size: 11px; }
+    }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -405,6 +421,13 @@
     padding-bottom: 8px;
     border-bottom: 2px solid var(--red);
   }
+  .mobile-stage-entry { display: none; }
+  .mobile-stage-entry button {
+    width: 100%; min-height: 52px; border: 0; border-radius: 10px;
+    background: var(--section); color: #06120a; font-size: 17px; font-weight: 800;
+    touch-action: manipulation;
+  }
+  .mobile-stage-entry p { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
   .song-block { margin-bottom: 48px; }
   .song-block-header {
@@ -464,6 +487,7 @@
     body.toc-off #setlist-wrap { margin-left: 0; }
 
     .cm-song-content { overflow-x: auto; }
+    .mobile-stage-entry { display: block; margin: -12px 0 24px; }
   }
 
   .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
@@ -481,6 +505,14 @@
   body.prompter .song-block-artist { font-size: 16px; }
   body.prompter .song-block { scroll-margin-top: 12px; }
   body.prompter .cm-song-content { overflow-x: auto; }
+  body.prompter .mobile-stage-entry { display: none; }
+  @media (max-width: 680px) {
+    body.prompter #setlist-wrap { padding: 12px 12px 60vh; }
+    body.prompter .song-block-header { position: sticky; top: 0; z-index: 50; background: var(--bg); padding: 8px 0; }
+    body.prompter .song-block-title { font-size: 20px; }
+    body.prompter .song-block-artist { display: none; }
+    body.prompter .cm-song-content { overflow-x: auto; overscroll-behavior-x: contain; }
+  }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
     nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
@@ -765,6 +797,10 @@
 
 <div id="setlist-wrap" data-setlist="new-castle">
   <h1 class="setlist-title">New Castle</h1>
+  <div class="mobile-stage-entry">
+    <button type="button" id="btn-stage-mobile">Open stage view</button>
+    <p>Large chords and lyrics · manual scroll pace · pause and swipe</p>
+  </div>
 
   
   
@@ -1269,10 +1305,18 @@
   <button id="btn-top">⬆ Top</button>
 </div>
 <div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
-  <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
-  <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
-  <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
-  <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+  <div class="prompter-row">
+    <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
+    <label class="prompter-pace" for="prompter-speed-slider">Pace</label>
+    <input type="range" id="prompter-speed-slider" aria-label="Scroll pace" min="0.2" max="8" step="0.1" value="0.6">
+    <output id="prompter-speed-val" for="prompter-speed-slider">0.6×</output>
+  </div>
+  <div class="prompter-row prompter-row-tools">
+    <span class="prompter-hint">Swipe to reposition. Play continues from there.</span>
+    <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
+    <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
+    <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+  </div>
 </div>
 
 

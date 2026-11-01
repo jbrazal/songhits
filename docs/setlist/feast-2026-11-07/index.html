@@ -205,16 +205,23 @@
     /* ── Teleprompter mode (page bars are hidden in each layout's own styles) ── */
     body.prompter { --nav-h: 0px; }
     body.prompter nav { display: none; }
-    body.prompter .cmSong { max-width: none; line-height: 1.15; }
-    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.15; }
-    body.prompter .cmSectionLabel { font-size: 0.6em; margin-bottom: 0.3em; }
+    body.prompter .cmSong { max-width: none; line-height: 1.25; }
+    body.prompter .cmChordLine, body.prompter .cmLyricLine { line-height: 1.25; }
+    body.prompter .cmSectionLabel { font-size: 0.75em; margin-bottom: 0.4em; }
     body.prompter .cmEmptyLine { height: 0.35em; }
     #prompter-bar {
-      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 10px;
+      display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10000; gap: 8px;
+      flex-direction: column;
       padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: rgba(8, 8, 8, 0.82);
       backdrop-filter: blur(6px); border-top: 1px solid #1e1e1e;
     }
     body.prompter #prompter-bar { display: flex; align-items: center; }
+    .prompter-row { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 900px; }
+    .prompter-row-tools { justify-content: flex-end; }
+    .prompter-pace { color: var(--muted); font-size: 13px; font-weight: 700; }
+    #prompter-speed-slider { flex: 1; min-width: 0; height: 44px; accent-color: var(--section); touch-action: manipulation; }
+    #prompter-speed-val { min-width: 3.2em; color: var(--section); font: 700 15px ui-monospace, monospace; text-align: right; }
+    .prompter-hint { color: var(--muted); font-size: 12px; margin-right: auto; }
     .prompter-btn {
       min-height: 52px; min-width: 64px; padding: 0 16px; font-size: 18px; font-weight: 700; border-radius: 8px;
       border: 1px solid #333; background: #1e1e1e; color: #ddd; cursor: pointer; touch-action: manipulation;
@@ -222,6 +229,15 @@
     .prompter-play { background: var(--section); color: #000; border: none; flex: 1; }
     .prompter-play.playing { background: var(--red); }
     .prompter-exit { margin-left: auto; }
+    @media (max-width: 680px) {
+      body.prompter .cmSong { font-family: ui-monospace, 'Courier New', monospace; }
+      body.prompter .cmLine { overflow: visible; }
+      body.prompter .cmSection { margin-bottom: 1.5em; }
+      body.prompter .cmAnno--cue { white-space: normal; line-height: 1.4; }
+      .prompter-btn { min-height: 48px; min-width: 52px; padding: 0 11px; font-size: 16px; }
+      .prompter-play { min-width: 92px; }
+      .prompter-hint { font-size: 11px; }
+    }
     button:focus-visible, select:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
     button:disabled { opacity: 0.45; cursor: default; }
     @media print {
@@ -405,6 +421,13 @@
     padding-bottom: 8px;
     border-bottom: 2px solid var(--red);
   }
+  .mobile-stage-entry { display: none; }
+  .mobile-stage-entry button {
+    width: 100%; min-height: 52px; border: 0; border-radius: 10px;
+    background: var(--section); color: #06120a; font-size: 17px; font-weight: 800;
+    touch-action: manipulation;
+  }
+  .mobile-stage-entry p { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
   .song-block { margin-bottom: 48px; }
   .song-block-header {
@@ -464,6 +487,7 @@
     body.toc-off #setlist-wrap { margin-left: 0; }
 
     .cm-song-content { overflow-x: auto; }
+    .mobile-stage-entry { display: block; margin: -12px 0 24px; }
   }
 
   .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
@@ -481,6 +505,14 @@
   body.prompter .song-block-artist { font-size: 16px; }
   body.prompter .song-block { scroll-margin-top: 12px; }
   body.prompter .cm-song-content { overflow-x: auto; }
+  body.prompter .mobile-stage-entry { display: none; }
+  @media (max-width: 680px) {
+    body.prompter #setlist-wrap { padding: 12px 12px 60vh; }
+    body.prompter .song-block-header { position: sticky; top: 0; z-index: 50; background: var(--bg); padding: 8px 0; }
+    body.prompter .song-block-title { font-size: 20px; }
+    body.prompter .song-block-artist { display: none; }
+    body.prompter .cm-song-content { overflow-x: auto; overscroll-behavior-x: contain; }
+  }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
     nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
@@ -524,6 +556,12 @@
       
     </li>
     
+    <li>
+      
+        <a href="#song-1-5">Turn It Up - Closing</a>
+      
+    </li>
+    
   </ul>
   
 </aside>
@@ -531,6 +569,10 @@
 
 <div id="setlist-wrap" data-setlist="feast-2026-11-07">
   <h1 class="setlist-title">FEAST-2026-11-07</h1>
+  <div class="mobile-stage-entry">
+    <button type="button" id="btn-stage-mobile">Open stage view</button>
+    <p>Large chords and lyrics · manual scroll pace · pause and swipe</p>
+  </div>
 
   
   
@@ -579,6 +621,17 @@
       
     </div>
     
+    <div class="song-block" id="song-1-5" data-slug="turn-it-up-closing--planetshakers" data-transpose="0">
+      <div class="song-block-header">
+        <span class="song-block-title">Turn It Up - Closing</span>
+        <label class="transpose-control">Transpose <select class="song-transpose pref-select" aria-label="Transpose Turn It Up - Closing"></select></label>
+        <span class="song-block-artist">— Planetshakers</span>
+      </div>
+      
+        <div class="cm-song-content cmSong" data-slug="turn-it-up-closing--planetshakers"></div>
+      
+    </div>
+    
   
 </div>
 
@@ -622,15 +675,23 @@
   <button id="btn-top">⬆ Top</button>
 </div>
 <div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
-  <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
-  <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
-  <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
-  <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+  <div class="prompter-row">
+    <button type="button" class="prompter-btn prompter-play" data-prompter="play" data-play-mirror aria-pressed="false">▶ Play</button>
+    <label class="prompter-pace" for="prompter-speed-slider">Pace</label>
+    <input type="range" id="prompter-speed-slider" aria-label="Scroll pace" min="0.2" max="8" step="0.1" value="0.6">
+    <output id="prompter-speed-val" for="prompter-speed-slider">0.6×</output>
+  </div>
+  <div class="prompter-row prompter-row-tools">
+    <span class="prompter-hint">Swipe to reposition. Play continues from there.</span>
+    <button type="button" class="prompter-btn" data-prompter="smaller" aria-label="Smaller text">A−</button>
+    <button type="button" class="prompter-btn" data-prompter="larger" aria-label="Larger text">A+</button>
+    <button type="button" class="prompter-btn prompter-exit" data-prompter="exit">Exit</button>
+  </div>
 </div>
 
 
-<script id="setlist-sources" type="application/json">{"turn-it-up--planetshakers":"---\ntitle: Turn It Up\nkey: E\ntempo: 124\nfeel: Upbeat praise, 4/4\ntags: [worship, praise, upbeat]\n---\n\nkey E\n\n#Notes\n// Opening arrangement. The closing reprise has a separate chart.\n> Opening loop: soft E–A–C#m–B under welcome/exhortation. Lead guitar enters on the two-pass intro; full band joins.\n> First chorus and the two choruses after verse 2: full band in.\n\n#i\n> Lead guitar enters; full band in. Play twice.\nE/G# A C#m B\n\n#v\n>vox All voices.\nE/G#.. A.. C#m.. B..\n_You are _here as we _lift you _up\nE/G# B\nYou are _riding on our _praise\nE/G#.. A.. C#m.. B..\n_Be enthroned _over _everything _\nE/G# B\nYou are _seated in our _praise\n\n#p\n> Build with fills on “Oh”; chorus all in.\nC#m B\n_This is prophetic I can _feel it in the air\nA B\n_We lift our praise and you _change the atmosphere\nC#m B\n_With hearts open now _everybody singing out\nA B\n_Oh! _\nI am free!\n\n#c\nE B\nTurn it _up this sound of _praise\nA\nMake it _louder than any other\nE B C#m.. A.. B\nLift him _up and shout his _name over _all _ _\n\n#Interlude\n> Hold B before verse 2.\nB\n\n#v\n>vox All voices; keep the groove moving.\nE/G#.. A.. C#m.. B..\n_As we _praise I can _feel the _change\nE/G#.. A.. C#m.. B..\nAs your _presence _now in_vades _\nE/G#.. A.. C#m.. B..\n_Hear the _sound of the _broken _chains\nE/G#.. A.. C#m.. B..\nPrison _doors are _giving _way _\n\n#p\n> C#m drop/pause; come back in on “air,” return to normal groove, then build into two choruses.\nC#m B\n_This is prophetic I can _feel it in the air\nA B\n_We lift our praise and you _change the atmosphere\nC#m B\n_With hearts open now _everybody singing out\nA B\n_I am _free!\n\n#c x2\n\n#Interlude\n> Full band; play twice.\nA B C#m B/D#\nA B C#m B/D#\n\n#b\n> First two “Our praise goes up” lines: soft groove.\nE A\n_Our praise goes up, _Your rain comes down\nE A\n_Our praise goes up, _Your rain comes down\n> Next two lines: semi build.\nE A\n_Our praise goes up, _Your rain comes down\nE A\n_Our praise goes up, _Your rain comes down\n> Full band and all voices on “With shouts of praise.”\nC#m B\nWith shouts of _praise we cele_brate\nE/G# A\n_King of glory _enter in\nC#m B\n_You are riding on _our praise\nA\n_Oh Lord\n\n> Next chorus: drums only on the first pass, guitar drives the build; full band on the second pass.\n#c x2\n\n#o\n> Full band on A; end with a swell on E and a shout of praise.\nA\nE\n","christ-is-my-rock--feast-worship":"---\ntitle: Christ Is My Rock\nkey: G\ntempo: 148\nfeel: Worship anthem, 4/4\ntags: [worship]\n---\n\nkey G\n\n#Notes\n// Confirm the live key: the workbook header says E, its chord cells use D, and this chart is in G. Chords below remain in G.\n// Confirm the ending chord: the workbook chord cell says A, while its dynamics note says “swell on G.”\n> All choruses: full band and all voices. The first verse is Sis Lala only; support singers join the pre-chorus. Verse 2 is all voices.\n> After chorus x2: instrumental, four tom-groove bridges, tag, chorus, two more tom-groove bridges, then tag and ending swell.\n\n#i\n> Acoustic guitar only for the intro/loop.\nG G Dsus Cadd9\n\n#v\n> Sis Lala only; acoustic guitar, G1, and G2.\nG\n_In times of need and plenty\nDsus\nIn moments _of joy and mourning\nEm7\n_I'm never forgotten\nCadd9\n_Never forsaken\nG\n_When I am tired and weary\nDsus\nWhen odds are _stacked against me\nEm7\n_I'm never abandoned\nCadd9\n_I stand unshaken\n\n#p\n>vox Support singers join; build into the chorus.\nDsus Em\n_Though storms may _come\nCadd9 G\n_And winds may _blow\nC Dsus\n_I know this rock will _hold\n\n#c\n> Full band; all voices.\nG Dsus\n_Christ is my Rock, my Living _Hope\nEm7 Dsus\n_I stand on Him, on Him _alone\nCadd9.. G.. D.. Em..\n_No other _ground will _I build _on\nCadd9.. G.. D\n_But Jesus _Christ, the _Cornerstone\n\n#Interlude\n> Full band.\nG G\n\n#v\n>vox All voices.\nG\n_I've walked through hills and valleys\nDsus\nIn every turn _He's with me\nEm7\n_His goodness and mercy\nCadd9\n_He goes before me\nG\n_His cross stands through the ages\nDsus\nNo power can stand _against Him\nEm7\n_Forever He's risen\nCadd9\n_He reigns above all things\n\n#p\n>vox Support singers join; build into two full-band choruses.\nDsus Em\n_Though seasons _change\nCadd9 G\n_And kingdoms _fail\nC Dsus\n_I know this rock _remains\n\n#c x2\n\n#Instrumental\n> Full band.\nCadd9... Em7. Dsus... G/B.\nCadd9... Em7. Dsus... G/B.\n\n#b x4\n> Tom groove; all voices. Repeat four times.\nCadd9 Em7\n_Take a_way what can be taken\nDsus\n_All that shake\nG/B\n_let them be shaken\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#Tag\n>vox All voices on the “solid Rock” tag.\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#c\n\n#b x2\n\n#Tag\n","goodness-of-god--bethel-music":"---\ntitle: Goodness Of God\ncomposer: Ed Cash, Jason Ingram, Ben Fielding, Brian Johnson, Jenn Johnson\nkey: G\ntempo: 63\nfeel: Slow worship ballad, 4/4\ntags: [worship, ballad]\n---\n\nkey G\n\n#Notes\n// Workbook marks 4/4 with occasional 2/4 or passing chords; it does not locate every short bar. Follow the worship leader's count.\n// The workbook goes from bridge x2 to an acoustic-only chorus and then an all-in final chorus. This chart also has an instrumental and another bridge x2 between those choruses; confirm whether to use those extra sections.\n> Lead: Sis Aryet on verse 1; Aryet plus support on the first chorus. All voices from verse 2 onward.\n> First chorus: add bass. Chorus after verse 2: full band in.\n\n#i\n> Acoustic guitar only for the intro/loop.\nG Gsus4 G Gsus4\n\n#v\n>vox Sis Aryet only; acoustic guitar only.\nG\nI love you, _Lord\nC G\nFor your _mercy never _fails me\nD/F#.. Em.. C.. D..\n_All my _days, I've been _held in your _hands\nEm C\nFrom the moment that I _wake _up\nG.. D/F#.. Em\nUntil I lay _my _head _\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#c\nC G\n_All my life you have been _faithful\nC G.. D..\n_All my life you have been _so, so _good\nC G D/F#.. Em..\n_With every breath that I am _able _ _\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#v\n> Soft groove; all voices. Build with drum fills into the next chorus, then full band in.\nG\nI love your _voice\nC G\nYou have _led me through the _fire\nD/F#.. Em.. C.. D..\nIn _darkest _night you are _close like no _other\nEm C\nI've known you as a _father _\nG.. D/F#.. Em\nI've known you as _a _friend _\nC.. D.. G\nI have _lived in the _goodness of _God\n\n#c\n\n#b x2\n> Full band; repeat the bridge twice.\nG/B C\n_Your goodness is _running after,\nD G\nIt's _running after _me\nG/B C\n_Your goodness is _running after,\nD G\nIt's _running after _me\nG/B C\nWith my _life laid down, I'm _surrendered now\nD Em\nI _give you _everything\nG/B C\n_Your goodness is _running after,\nD G\nIt keeps _running after _me\n\n> Swell out for two bars. Next chorus: acoustic guitar only, all voices; build on “God.”\n#c\n\n#Instrumental\n> Chart-only instrumental; the workbook moves directly from the acoustic chorus to the final all-in chorus.\nG/B C D G\nG/B C D G\nG/B C D G\nG/B C D G\n\n> Chart-only repeat of the bridge; confirm with the worship leader.\n#b x2\n\n#c\n> Full band in for the final chorus.\nC G\n_All my life you have been _faithful\nC G.. D..\n_All my life you have been _so, so _good\nC G D/F#.. Em..\n_With every breath that I am _able _ _\nC.. D.. Em\nI will _sing of the _goodness of _God\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#Tag\n>vox “Oh, I'm gonna sing.”\nC D G\n_Oh, I'm _gonna _sing\n\n#o\n> Swell on G to end.\nG\n","never-walk-alone--hillsong-worship":"---\ntitle: Never Walk Alone\nkey: F\nfeel: Building worship anthem, 4/4\ntags: [worship]\n---\n\nkey F\n\n#Notes\n// Confirm the live key: the workbook is in E while this chart is in F. Chords below remain in F.\n// Workbook note: occasional 2/4 and passing chords; exact short bars are not marked in this chart.\n> The instrumental after chorus 2 is for the prayer for dreams.\n> First chorus: add bass and support singers. Chorus after verse 3: full band and all voices.\n> After the first bridge x2, swell out on the tag. Sing two choruses: first acoustic guitar and Sis Angel only, then all in with all voices. Build for four, then eight, into the second chorus.\n> Finish with one more bridge, two “You are faithful” tags, slow the last tag into the ending swell.\n\n#i\n> Chart intro; the workbook starts at verse 1.\nF5 F5\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bb5\nYour _heart is for me, Your _ear is listening\nDm\nI'm _safe in Your love\nCsus Bb\nYour _army of angels watch _over me\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bbsus2\nYou're _always present, You're _always with me\nDm7 Csus\nFor _all of my life Your _favour has followed\nBbsus2\nYou're my _covering\n\n#c\nF\nI have never walked _alone\nDm7 C\nI've never _been _abandoned\nBbsus2 F/A\nYou are my _inheritance _\nDm7 C\nYou are my _strength and _shield\nF\nAnd I have _confidence\nDm7 C\nYou _go before _me\nBbsus2 F/A\nYou're my _deliverer _\nDm7.. C.. F\nI know I _never _walk alone _\n\n#v\n> Soft groove; all voices.\nF5 Bbsus2\nYou're _always faithful, You're _strong and able\nDm7 Csus\nI'm _lifting my head in _You I find help\nBbsus2\nYou're my _providence\n\n#c\n\n#Instrumental\n> Prayer for dreams over the instrumental.\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\n\n#b x2\n> Full band; repeat the bridge twice.\nBb.. F/A.. Dm7\n_Every _hour, every _minute\nC\nYou have _always been there\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\nBb.. F/A.. Dm7\n_In every _triumph, every _failure\nC\nYou are _loyal to me\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#Tag\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#c x2\n\n#b\n\n#Tag\n\n#Tag\nBbsus2.. F/A.. Dm7.. Csus2..\n_You are _faithful and You _always will _be\n\n#o\n> Slow the last tag into the ending; swell on Bb in this chart's key.\nBbsus2.. F/A.. Dm7.. Csus.. Bb\n"}</script>
-<script id="setlist-tempos" type="application/json">{"turn-it-up--planetshakers":null,"christ-is-my-rock--feast-worship":null,"goodness-of-god--bethel-music":null,"never-walk-alone--hillsong-worship":null}</script>
+<script id="setlist-sources" type="application/json">{"turn-it-up--planetshakers":"---\ntitle: Turn It Up\nkey: E\ntempo: 124\nfeel: Upbeat praise, 4/4\ntags: [worship, praise, upbeat]\n---\n\nkey E\n\n#Notes\n// Opening arrangement. The closing reprise has a separate chart.\n> Opening loop: soft E–A–C#m–B under welcome/exhortation. Lead guitar enters on the two-pass intro; full band joins.\n> First chorus and the two choruses after verse 2: full band in.\n\n#i\n> Lead guitar enters; full band in. Play twice.\nE/G# A C#m B\n\n#v\n>vox All voices.\nE/G#.. A.. C#m.. B..\n_You are _here as we _lift you _up\nE/G# B\nYou are _riding on our _praise\nE/G#.. A.. C#m.. B..\n_Be enthroned _over _everything _\nE/G# B\nYou are _seated in our _praise\n\n#p\n> Build with fills on “Oh”; chorus all in.\nC#m B\n_This is prophetic I can _feel it in the air\nA B\n_We lift our praise and you _change the atmosphere\nC#m B\n_With hearts open now _everybody singing out\nA B\n_Oh! _\nI am free!\n\n#c\nE B\nTurn it _up this sound of _praise\nA\nMake it _louder than any other\nE B C#m.. A.. B\nLift him _up and shout his _name over _all _ _\n\n#Interlude\n> Hold B before verse 2.\nB\n\n#v\n>vox All voices; keep the groove moving.\nE/G#.. A.. C#m.. B..\n_As we _praise I can _feel the _change\nE/G#.. A.. C#m.. B..\nAs your _presence _now in_vades _\nE/G#.. A.. C#m.. B..\n_Hear the _sound of the _broken _chains\nE/G#.. A.. C#m.. B..\nPrison _doors are _giving _way _\n\n#p\n> C#m drop/pause; come back in on “air,” return to normal groove, then build into two choruses.\nC#m B\n_This is prophetic I can _feel it in the air\nA B\n_We lift our praise and you _change the atmosphere\nC#m B\n_With hearts open now _everybody singing out\nA B\n_I am _free!\n\n#c x2\n\n#Interlude\n> Full band; play twice.\nA B C#m B/D#\nA B C#m B/D#\n\n#b\n> First two “Our praise goes up” lines: soft groove.\nE A\n_Our praise goes up, _Your rain comes down\nE A\n_Our praise goes up, _Your rain comes down\n> Next two lines: semi build.\nE A\n_Our praise goes up, _Your rain comes down\nE A\n_Our praise goes up, _Your rain comes down\n> Full band and all voices on “With shouts of praise.”\nC#m B\nWith shouts of _praise we cele_brate\nE/G# A\n_King of glory _enter in\nC#m B\n_You are riding on _our praise\nA\n_Oh Lord\n\n> Next chorus: drums only on the first pass, guitar drives the build; full band on the second pass.\n#c x2\n\n#o\n> Full band on A; end with a swell on E and a shout of praise.\nA\nE\n","christ-is-my-rock--feast-worship":"---\ntitle: Christ Is My Rock\nkey: G\ntempo: 148\nfeel: Worship anthem, 4/4\ntags: [worship]\n---\n\nkey G\n\n#Notes\n// Confirm the live key: the workbook header says E, its chord cells use D, and this chart is in G. Chords below remain in G.\n// Confirm the ending chord: the workbook chord cell says A, while its dynamics note says “swell on G.”\n> All choruses: full band and all voices. The first verse is Sis Lala only; support singers join the pre-chorus. Verse 2 is all voices.\n> After chorus x2: instrumental, four tom-groove bridges, tag, chorus, two more tom-groove bridges, then tag and ending swell.\n\n#i\n> Acoustic guitar only for the intro/loop.\nG G Dsus Cadd9\n\n#v\n> Sis Lala only; acoustic guitar, G1, and G2.\nG\n_In times of need and plenty\nDsus\nIn moments _of joy and mourning\nEm7\n_I'm never forgotten\nCadd9\n_Never forsaken\nG\n_When I am tired and weary\nDsus\nWhen odds are _stacked against me\nEm7\n_I'm never abandoned\nCadd9\n_I stand unshaken\n\n#p\n>vox Support singers join; build into the chorus.\nDsus Em\n_Though storms may _come\nCadd9 G\n_And winds may _blow\nC Dsus\n_I know this rock will _hold\n\n#c\n> Full band; all voices.\nG Dsus\n_Christ is my Rock, my Living _Hope\nEm7 Dsus\n_I stand on Him, on Him _alone\nCadd9.. G.. D.. Em..\n_No other _ground will _I build _on\nCadd9.. G.. D\n_But Jesus _Christ, the _Cornerstone\n\n#Interlude\n> Full band.\nG G\n\n#v\n>vox All voices.\nG\n_I've walked through hills and valleys\nDsus\nIn every turn _He's with me\nEm7\n_His goodness and mercy\nCadd9\n_He goes before me\nG\n_His cross stands through the ages\nDsus\nNo power can stand _against Him\nEm7\n_Forever He's risen\nCadd9\n_He reigns above all things\n\n#p\n>vox Support singers join; build into two full-band choruses.\nDsus Em\n_Though seasons _change\nCadd9 G\n_And kingdoms _fail\nC Dsus\n_I know this rock _remains\n\n#c x2\n\n#Instrumental\n> Full band.\nCadd9... Em7. Dsus... G/B.\nCadd9... Em7. Dsus... G/B.\n\n#b x4\n> Tom groove; all voices. Repeat four times.\nCadd9 Em7\n_Take a_way what can be taken\nDsus\n_All that shake\nG/B\n_let them be shaken\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#Tag\n>vox All voices on the “solid Rock” tag.\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#c\n\n#b x2\n\n#Tag\n","goodness-of-god--bethel-music":"---\ntitle: Goodness Of God\ncomposer: Ed Cash, Jason Ingram, Ben Fielding, Brian Johnson, Jenn Johnson\nkey: G\ntempo: 63\nfeel: Slow worship ballad, 4/4\ntags: [worship, ballad]\n---\n\nkey G\n\n#Notes\n// Workbook marks 4/4 with occasional 2/4 or passing chords; it does not locate every short bar. Follow the worship leader's count.\n// The workbook goes from bridge x2 to an acoustic-only chorus and then an all-in final chorus. This chart also has an instrumental and another bridge x2 between those choruses; confirm whether to use those extra sections.\n> Lead: Sis Aryet on verse 1; Aryet plus support on the first chorus. All voices from verse 2 onward.\n> First chorus: add bass. Chorus after verse 2: full band in.\n\n#i\n> Acoustic guitar only for the intro/loop.\nG Gsus4 G Gsus4\n\n#v\n>vox Sis Aryet only; acoustic guitar only.\nG\nI love you, _Lord\nC G\nFor your _mercy never _fails me\nD/F#.. Em.. C.. D..\n_All my _days, I've been _held in your _hands\nEm C\nFrom the moment that I _wake _up\nG.. D/F#.. Em\nUntil I lay _my _head _\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#c\nC G\n_All my life you have been _faithful\nC G.. D..\n_All my life you have been _so, so _good\nC G D/F#.. Em..\n_With every breath that I am _able _ _\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#v\n> Soft groove; all voices. Build with drum fills into the next chorus, then full band in.\nG\nI love your _voice\nC G\nYou have _led me through the _fire\nD/F#.. Em.. C.. D..\nIn _darkest _night you are _close like no _other\nEm C\nI've known you as a _father _\nG.. D/F#.. Em\nI've known you as _a _friend _\nC.. D.. G\nI have _lived in the _goodness of _God\n\n#c\n\n#b x2\n> Full band; repeat the bridge twice.\nG/B C\n_Your goodness is _running after,\nD G\nIt's _running after _me\nG/B C\n_Your goodness is _running after,\nD G\nIt's _running after _me\nG/B C\nWith my _life laid down, I'm _surrendered now\nD Em\nI _give you _everything\nG/B C\n_Your goodness is _running after,\nD G\nIt keeps _running after _me\n\n> Swell out for two bars. Next chorus: acoustic guitar only, all voices; build on “God.”\n#c\n\n#Instrumental\n> Chart-only instrumental; the workbook moves directly from the acoustic chorus to the final all-in chorus.\nG/B C D G\nG/B C D G\nG/B C D G\nG/B C D G\n\n> Chart-only repeat of the bridge; confirm with the worship leader.\n#b x2\n\n#c\n> Full band in for the final chorus.\nC G\n_All my life you have been _faithful\nC G.. D..\n_All my life you have been _so, so _good\nC G D/F#.. Em..\n_With every breath that I am _able _ _\nC.. D.. Em\nI will _sing of the _goodness of _God\nC.. D.. G\nI will _sing of the _goodness of _God\n\n#Tag\n>vox “Oh, I'm gonna sing.”\nC D G\n_Oh, I'm _gonna _sing\n\n#o\n> Swell on G to end.\nG\n","never-walk-alone--hillsong-worship":"---\ntitle: Never Walk Alone\nkey: F\nfeel: Building worship anthem, 4/4\ntags: [worship]\n---\n\nkey F\n\n#Notes\n// Confirm the live key: the workbook is in E while this chart is in F. Chords below remain in F.\n// Workbook note: occasional 2/4 and passing chords; exact short bars are not marked in this chart.\n> The instrumental after chorus 2 is for the prayer for dreams.\n> First chorus: add bass and support singers. Chorus after verse 3: full band and all voices.\n> After the first bridge x2, swell out on the tag. Sing two choruses: first acoustic guitar and Sis Angel only, then all in with all voices. Build for four, then eight, into the second chorus.\n> Finish with one more bridge, two “You are faithful” tags, slow the last tag into the ending swell.\n\n#i\n> Chart intro; the workbook starts at verse 1.\nF5 F5\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bb5\nYour _heart is for me, Your _ear is listening\nDm\nI'm _safe in Your love\nCsus Bb\nYour _army of angels watch _over me\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bbsus2\nYou're _always present, You're _always with me\nDm7 Csus\nFor _all of my life Your _favour has followed\nBbsus2\nYou're my _covering\n\n#c\nF\nI have never walked _alone\nDm7 C\nI've never _been _abandoned\nBbsus2 F/A\nYou are my _inheritance _\nDm7 C\nYou are my _strength and _shield\nF\nAnd I have _confidence\nDm7 C\nYou _go before _me\nBbsus2 F/A\nYou're my _deliverer _\nDm7.. C.. F\nI know I _never _walk alone _\n\n#v\n> Soft groove; all voices.\nF5 Bbsus2\nYou're _always faithful, You're _strong and able\nDm7 Csus\nI'm _lifting my head in _You I find help\nBbsus2\nYou're my _providence\n\n#c\n\n#Instrumental\n> Prayer for dreams over the instrumental.\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\n\n#b x2\n> Full band; repeat the bridge twice.\nBb.. F/A.. Dm7\n_Every _hour, every _minute\nC\nYou have _always been there\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\nBb.. F/A.. Dm7\n_In every _triumph, every _failure\nC\nYou are _loyal to me\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#Tag\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#c x2\n\n#b\n\n#Tag\n\n#Tag\nBbsus2.. F/A.. Dm7.. Csus2..\n_You are _faithful and You _always will _be\n\n#o\n> Slow the last tag into the ending; swell on Bb in this chart's key.\nBbsus2.. F/A.. Dm7.. Csus.. Bb\n","turn-it-up-closing--planetshakers":"---\ntitle: Turn It Up - Closing\nkey: E\ntempo: 124\nfeel: Upbeat praise, 4/4\ntags: [worship, praise, upbeat]\n---\n\nkey E\n\n#Notes\n// Closing arrangement from the workbook's “Turn It Up (closing)” tab.\n// The workbook marks A and C#m as optional passing chords on the second and fourth verse lines; the E-to-B move below is the simple path.\n> Order: soft loop and thanksgiving, lead-guitar intro x2, verse 1, pre-chorus, chorus x2, outro, ending swell.\n\n#Loop\n> Soft E–A–C#m–B loop. Thank the Lord and praise Him once again.\nE A C#m B\n\n#i x2\n> Lead guitar enters; full band in. Play twice.\nE A C#m B\n\n#v\n>vox All voices.\nE.. A.. C#m.. B..\n_You are _here as we _lift you _up\nE B\nYou are _riding on our _praise\nE.. A.. C#m.. B..\n_Be enthroned _over _everything _\nE B\nYou are _seated in our _praise\n\n#p\n> Build with fills on “I am free!”\nC#m B\n_This is prophetic I can _feel it in the air\nA B\n_We lift our praise and you _change the atmosphere\nC#m B\n_With hearts open now _everybody singing out\nA B\n_I am _free!\n\n#c x2\n> Full band; sing the chorus twice.\nE B\nTurn it _up this sound of _praise\nA\nMake it _louder than any other\nE B C#m.. A.. B\nLift him _up and shout his _name over _all _ _\n\n#o\n> Full band on A; finish with a swell on E and “Thank you!”\nA\nE\n"}</script>
+<script id="setlist-tempos" type="application/json">{"turn-it-up--planetshakers":null,"christ-is-my-rock--feast-worship":null,"goodness-of-god--bethel-music":null,"never-walk-alone--hillsong-worship":null,"turn-it-up-closing--planetshakers":null}</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
 <script src="/songhits/assets/annotations.js"></script>

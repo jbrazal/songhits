@@ -163,6 +163,13 @@ layout: base.njk
     padding-bottom: 8px;
     border-bottom: 2px solid var(--red);
   }
+  .mobile-stage-entry { display: none; }
+  .mobile-stage-entry button {
+    width: 100%; min-height: 52px; border: 0; border-radius: 10px;
+    background: var(--section); color: #06120a; font-size: 17px; font-weight: 800;
+    touch-action: manipulation;
+  }
+  .mobile-stage-entry p { color: var(--muted); font-size: 12px; margin-top: 6px; }
 
   .song-block { margin-bottom: 48px; }
   .song-block-header {
@@ -222,6 +229,7 @@ layout: base.njk
     body.toc-off #setlist-wrap { margin-left: 0; }
 
     .cm-song-content { overflow-x: auto; }
+    .mobile-stage-entry { display: block; margin: -12px 0 24px; }
   }
 
   .transpose-control { font-size: 12px; color: var(--text); margin-left: auto; }
@@ -239,6 +247,14 @@ layout: base.njk
   body.prompter .song-block-artist { font-size: 16px; }
   body.prompter .song-block { scroll-margin-top: 12px; }
   body.prompter .cm-song-content { overflow-x: auto; }
+  body.prompter .mobile-stage-entry { display: none; }
+  @media (max-width: 680px) {
+    body.prompter #setlist-wrap { padding: 12px 12px 60vh; }
+    body.prompter .song-block-header { position: sticky; top: 0; z-index: 50; background: var(--bg); padding: 8px 0; }
+    body.prompter .song-block-title { font-size: 20px; }
+    body.prompter .song-block-artist { display: none; }
+    body.prompter .cm-song-content { overflow-x: auto; overscroll-behavior-x: contain; }
+  }
   /* ── Print ────────────────────────────────────────────────── */
   @media print {
     nav, #toc-sidebar, #controls, #toc-overlay, .transpose-control, #prompter-bar { display: none !important; }
@@ -273,6 +289,10 @@ layout: base.njk
 {# ── Main content ─────────────────────────────────────────────── #}
 <div id="setlist-wrap" data-setlist="{{ page.filePathStem | replace('/setlist/', '') | replace('/index', '') | escape }}">
   <h1 class="setlist-title">{{ title }}</h1>
+  <div class="mobile-stage-entry">
+    <button type="button" id="btn-stage-mobile">Open stage view</button>
+    <p>Large chords and lyrics · manual scroll pace · pause and swipe</p>
+  </div>
 
   {% for part in parts %}
   {% set partIndex = loop.index %}

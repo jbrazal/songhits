@@ -17,4 +17,7 @@ parts:
       - title: Never Walk Alone
         slug: never-walk-alone--hillsong-worship
         artist: Hillsong Worship
+      - title: Turn It Up - Closing
+        slug: turn-it-up-closing--planetshakers
+        artist: Planetshakers
 ---

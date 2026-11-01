@@ -168,6 +168,7 @@
   function performanceControls({ playId, bodyId, sizeId, headerId, footerId }) {
     const playButton = byId(playId), slider = byId('speed-slider'), label = byId('speed-label');
     let playing = false, speed = SPEED.initial, frame, lastTime = null;
+    let manualPace = false, previousSpeed = speed;
     let t = 0, lastSet = 0, holdUntil = 0, dirty = true, plan = null, eye = 0, lit = null;
     let context = { slug: null, written: null };
     const sizes = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28];
@@ -177,10 +178,11 @@
       return value >= BPM.min && value <= BPM.max ? value : null;
     }
     function bpmOf(container) {
+      if (manualPace) return null;
       const written = Number(container.dataset.bpm) || null;
       return written && container.dataset.slug ? override(container.dataset.slug) ?? written : written;
     }
-    const effectiveBpm = () => context.written && (context.slug ? override(context.slug) ?? context.written : context.written);
+    const effectiveBpm = () => !manualPace && context.written && (context.slug ? override(context.slug) ?? context.written : context.written);
     function eyeLine() {
       const header = headerId && byId(headerId), footer = footerId && byId(footerId);
       const top = header ? header.getBoundingClientRect().bottom : 0;
@@ -244,15 +246,19 @@
       slider.setAttribute('aria-label', bpm ? 'Tempo in BPM' : 'Autoscroll speed');
       byId('speed-val').textContent = bpm ? bpm + ' BPM' : speed.toFixed(1);
       byId('speed-val').title = bpm ? 'Written tempo ' + context.written + ' BPM' : '';
+      const stageSlider = byId('prompter-speed-slider'), stageValue = byId('prompter-speed-val');
+      if (stageSlider) stageSlider.value = String(speed);
+      if (stageValue) stageValue.textContent = speed.toFixed(1) + '×';
       blink(bpm);
     }
     function setValue(value) {
-      if (context.written) {
+      if (context.written && !manualPace) {
         const bpm = Math.round(Math.max(BPM.min, Math.min(BPM.max, Number(value) || context.written)));
         if (context.slug) { if (bpm === context.written) storage.remove('sh-bpm:' + context.slug); else storage.set('sh-bpm:' + context.slug, bpm); }
         else context.written = bpm;
       } else {
         speed = Math.round(Math.max(SPEED.min, Math.min(SPEED.max, Number(value) || SPEED.initial)) * 10) / 10;
+        if (manualPace) storage.set('sh-stage-speed', String(speed));
       }
       dirty = true; showControl();
     }
@@ -265,6 +271,16 @@
       context = { slug: (container && container.dataset.slug) || null, written: container ? Number(container.dataset.bpm) || null : null };
       dirty = true; showControl();
     }
+    function setManualPace(on) {
+      if (manualPace === on) return;
+      if (on) {
+        previousSpeed = speed;
+        const saved = Number(storage.get('sh-stage-speed', '0.6'));
+        speed = Math.round(Math.max(SPEED.min, Math.min(SPEED.max, Number.isFinite(saved) ? saved : 0.6)) * 10) / 10;
+      } else speed = previousSpeed;
+      manualPace = on;
+      dirty = true; plan = null; showControl();
+    }
     function zoom(delta) {
       sizeIndex = Math.max(0, Math.min(sizes.length - 1, sizeIndex + delta));
       byId(bodyId).style.fontSize = sizes[sizeIndex] + 'px';
@@ -276,6 +292,8 @@
     byId('btn-slower').onclick = () => nudge(-1);
     byId('btn-faster').onclick = () => nudge(1);
     slider.oninput = event => setValue(event.target.value);
+    const stageSlider = byId('prompter-speed-slider');
+    if (stageSlider) stageSlider.oninput = event => setValue(event.target.value);
     const resetButton = byId('btn-speed-reset');
     if (resetButton) resetButton.onclick = reset;
     byId('btn-zoom-out').onclick = () => zoom(-1);
@@ -292,7 +310,7 @@
       if (Object.hasOwn(actions, event.key)) { event.preventDefault(); actions[event.key](); }
     });
     showControl(); zoom(0); stop();
-    return { stop, toggle, refresh: () => { dirty = true; }, setTempoContext };
+    return { stop, toggle, refresh: () => { dirty = true; }, setTempoContext, setManualPace };
   }
 
   // ── Teleprompter mode ─────────────────────────────────────────
@@ -304,6 +322,7 @@
     const body = document.body, button = byId('btn-prompter');
     const clampScale = value => Math.min(SCALE.max, Math.max(SCALE.min, value));
     let active = false, scale = clampScale(Number(storage.get(SCALE.key, 1)) || 1), wakeLock = null, frame;
+    const previousModes = new Map();
     const containers = () => [...document.querySelectorAll(chartSelector)];
     // Line spans are blocks, so only a Range reports the text extent; hidden lines measure 0.
     function lineWidth(line) {
@@ -313,7 +332,31 @@
     }
     function fit() {
       const charts = containers();
-      for (const container of charts) container.style.fontSize = '';
+      for (const container of charts) {
+        container.style.fontSize = '';
+        for (const line of container.querySelectorAll('p.cmLine')) line.style.fontSize = '';
+      }
+      if (window.matchMedia && window.matchMedia('(max-width: 680px)').matches) {
+        for (const container of charts) {
+          const base = Math.min(32, Math.max(16, 22 * scale));
+          const available = container.getBoundingClientRect().width * FIT.margin;
+          container.style.fontSize = base + 'px';
+          if (!(available > 0)) continue;
+          const lines = [...container.querySelectorAll('p.cmLine')];
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (line.classList.contains('cmAnno')) continue;
+            const paired = line.classList.contains('cmLine--chord') && lines[i + 1] && lines[i + 1].classList.contains('cmLine--lyric') ? lines[++i] : null;
+            const width = Math.max(lineWidth(line), paired ? lineWidth(paired) : 0);
+            if (width <= available) continue;
+            const fitted = Math.max(12, Math.min(base, base * available / width));
+            line.style.fontSize = fitted + 'px';
+            if (paired) paired.style.fontSize = fitted + 'px';
+          }
+        }
+        controls.refresh();
+        return;
+      }
       const sizes = charts.map(container => {
         const base = parseFloat(getComputedStyle(container).fontSize) || 14;
         const available = container.getBoundingClientRect().width * FIT.margin;
@@ -351,17 +394,24 @@
     function enter() {
       if (active) return;
       active = true; body.classList.add('prompter');
+      for (const container of containers()) { previousModes.set(container, container.dataset.mode); container.dataset.mode = 'all'; }
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       if (button) button.setAttribute('aria-pressed', 'true');
-      fit(); requestFullscreen(); requestWakeLock();
+      controls.setManualPace(true); fit(); requestFullscreen(); requestWakeLock();
       if (document.fonts && document.fonts.ready) swallow(document.fonts.ready.then(refresh));
     }
     function exit() {
       if (!active) return;
       active = false; cancelAnimationFrame(frame); body.classList.remove('prompter');
-      for (const container of containers()) container.style.fontSize = '';
+      for (const container of containers()) {
+        container.style.fontSize = '';
+        for (const line of container.querySelectorAll('p.cmLine')) line.style.fontSize = '';
+        const mode = previousModes.get(container);
+        if (mode) container.dataset.mode = mode; else delete container.dataset.mode;
+      }
+      previousModes.clear();
       if (button) button.setAttribute('aria-pressed', 'false');
-      controls.refresh(); releaseWakeLock(); exitFullscreen();
+      controls.setManualPace(false); controls.refresh(); releaseWakeLock(); exitFullscreen();
     }
     function toggle() { if (active) exit(); else enter(); }
     body.classList.remove('prompter');
@@ -390,7 +440,7 @@
     const parsed = new Map();
     const render = (source, options) => {
       // Windows line endings would turn "4/4" into a lyric line.
-      source = source.replace(/\r\n?/g, '\n');
+      source = source.replace(/\r\n?/g, '\n').replace(/^---\n[\s\S]*?\n---(?:\n|$)/, '');
       if (!parsed.has(source)) parsed.set(source, window['chord-mark'].parseSong(source));
       return window['chord-mark'].renderSong(parsed.get(source), {
         alignBars: true, printBarSeparators: 'always', printChordsDuration: 'uneven', ...options
