@@ -1,0 +1,463 @@
+[
+  {
+    "title": "Turn It Up",
+    "bpm": 124,
+    "bars": 96,
+    "duration_seconds": 186.456,
+    "file": "01-turn-it-up.mp3",
+    "midi": "01-turn-it-up.mid",
+    "sections": [
+      {
+        "section": "Intro x2",
+        "bar": 2,
+        "seconds": 1.935,
+        "bars": 8,
+        "feel": "full"
+      },
+      {
+        "section": "Verse 1",
+        "bar": 10,
+        "seconds": 17.419,
+        "bars": 6,
+        "feel": "groove"
+      },
+      {
+        "section": "Pre-Chorus 1",
+        "bar": 16,
+        "seconds": 29.032,
+        "bars": 8,
+        "feel": "build"
+      },
+      {
+        "section": "Chorus 1",
+        "bar": 24,
+        "seconds": 44.516,
+        "bars": 7,
+        "feel": "full"
+      },
+      {
+        "section": "Interlude",
+        "bar": 31,
+        "seconds": 58.065,
+        "bars": 1,
+        "feel": "full"
+      },
+      {
+        "section": "Verse 2",
+        "bar": 32,
+        "seconds": 60.0,
+        "bars": 4,
+        "feel": "groove"
+      },
+      {
+        "section": "Pre-Chorus 2",
+        "bar": 36,
+        "seconds": 67.742,
+        "bars": 8,
+        "feel": "build"
+      },
+      {
+        "section": "Chorus x2",
+        "bar": 44,
+        "seconds": 83.226,
+        "bars": 14,
+        "feel": "full"
+      },
+      {
+        "section": "Interlude x2",
+        "bar": 58,
+        "seconds": 110.323,
+        "bars": 8,
+        "feel": "full"
+      },
+      {
+        "section": "Bridge",
+        "bar": 66,
+        "seconds": 125.806,
+        "bars": 15,
+        "feel": "groove"
+      },
+      {
+        "section": "Chorus x2",
+        "bar": 81,
+        "seconds": 154.839,
+        "bars": 14,
+        "feel": "full"
+      },
+      {
+        "section": "Outro",
+        "bar": 95,
+        "seconds": 181.935,
+        "bars": 2,
+        "feel": "ending"
+      }
+    ],
+    "set_start_seconds": 0.0
+  },
+  {
+    "title": "Christ Is My Rock",
+    "bpm": 148,
+    "bars": 128,
+    "duration_seconds": 208.218,
+    "file": "02-christ-is-my-rock.mp3",
+    "midi": "02-christ-is-my-rock.mid",
+    "sections": [
+      {
+        "section": "Acoustic intro",
+        "bar": 2,
+        "seconds": 1.622,
+        "bars": 4,
+        "feel": "silent"
+      },
+      {
+        "section": "Verse 1",
+        "bar": 6,
+        "seconds": 8.108,
+        "bars": 8,
+        "feel": "silent"
+      },
+      {
+        "section": "Pre-Chorus 1",
+        "bar": 14,
+        "seconds": 21.081,
+        "bars": 6,
+        "feel": "build"
+      },
+      {
+        "section": "Chorus 1",
+        "bar": 20,
+        "seconds": 30.811,
+        "bars": 8,
+        "feel": "full"
+      },
+      {
+        "section": "Interlude",
+        "bar": 28,
+        "seconds": 43.784,
+        "bars": 2,
+        "feel": "full"
+      },
+      {
+        "section": "Verse 2",
+        "bar": 30,
+        "seconds": 47.027,
+        "bars": 8,
+        "feel": "groove"
+      },
+      {
+        "section": "Pre-Chorus 2",
+        "bar": 38,
+        "seconds": 60.0,
+        "bars": 6,
+        "feel": "build"
+      },
+      {
+        "section": "Chorus x2",
+        "bar": 44,
+        "seconds": 69.73,
+        "bars": 16,
+        "feel": "full"
+      },
+      {
+        "section": "Instrumental",
+        "bar": 60,
+        "seconds": 95.676,
+        "bars": 4,
+        "feel": "full"
+      },
+      {
+        "section": "Bridge x4",
+        "bar": 64,
+        "seconds": 102.162,
+        "bars": 32,
+        "feel": "groove"
+      },
+      {
+        "section": "Tag",
+        "bar": 96,
+        "seconds": 154.054,
+        "bars": 4,
+        "feel": "full"
+      },
+      {
+        "section": "Chorus",
+        "bar": 100,
+        "seconds": 160.541,
+        "bars": 8,
+        "feel": "full"
+      },
+      {
+        "section": "Bridge x2",
+        "bar": 108,
+        "seconds": 173.514,
+        "bars": 16,
+        "feel": "groove"
+      },
+      {
+        "section": "Tag",
+        "bar": 124,
+        "seconds": 199.459,
+        "bars": 4,
+        "feel": "full"
+      },
+      {
+        "section": "Ending swell",
+        "bar": 128,
+        "seconds": 205.946,
+        "bars": 1,
+        "feel": "ending"
+      }
+    ],
+    "set_start_seconds": 188.456
+  },
+  {
+    "title": "Goodness Of God",
+    "bpm": 63,
+    "bars": 100,
+    "duration_seconds": 381.602,
+    "file": "03-goodness-of-god.mp3",
+    "midi": "03-goodness-of-god.mid",
+    "sections": [
+      {
+        "section": "Acoustic intro",
+        "bar": 2,
+        "seconds": 3.81,
+        "bars": 4,
+        "feel": "silent"
+      },
+      {
+        "section": "Verse 1",
+        "bar": 6,
+        "seconds": 19.048,
+        "bars": 11,
+        "feel": "silent"
+      },
+      {
+        "section": "Chorus 1",
+        "bar": 17,
+        "seconds": 60.952,
+        "bars": 9,
+        "feel": "light"
+      },
+      {
+        "section": "Verse 2",
+        "bar": 26,
+        "seconds": 95.238,
+        "bars": 11,
+        "feel": "groove"
+      },
+      {
+        "section": "Chorus 2",
+        "bar": 37,
+        "seconds": 137.143,
+        "bars": 9,
+        "feel": "full"
+      },
+      {
+        "section": "Bridge x2",
+        "bar": 46,
+        "seconds": 171.429,
+        "bars": 32,
+        "feel": "full"
+      },
+      {
+        "section": "Acoustic chorus",
+        "bar": 78,
+        "seconds": 293.333,
+        "bars": 9,
+        "feel": "silent"
+      },
+      {
+        "section": "Final chorus",
+        "bar": 87,
+        "seconds": 327.619,
+        "bars": 10,
+        "feel": "full"
+      },
+      {
+        "section": "Tag",
+        "bar": 97,
+        "seconds": 365.714,
+        "bars": 3,
+        "feel": "light"
+      },
+      {
+        "section": "Ending swell",
+        "bar": 100,
+        "seconds": 377.143,
+        "bars": 1,
+        "feel": "ending"
+      }
+    ],
+    "set_start_seconds": 398.674
+  },
+  {
+    "title": "Never Walk Alone",
+    "bpm": 72,
+    "bars": 121,
+    "duration_seconds": 403.983,
+    "file": "04-never-walk-alone.mp3",
+    "midi": "04-never-walk-alone.mid",
+    "sections": [
+      {
+        "section": "Acoustic intro",
+        "bar": 2,
+        "seconds": 3.333,
+        "bars": 2,
+        "feel": "silent"
+      },
+      {
+        "section": "Verse 1",
+        "bar": 4,
+        "seconds": 10.0,
+        "bars": 5,
+        "feel": "silent"
+      },
+      {
+        "section": "Verse 2",
+        "bar": 9,
+        "seconds": 26.667,
+        "bars": 5,
+        "feel": "silent"
+      },
+      {
+        "section": "Chorus 1",
+        "bar": 14,
+        "seconds": 43.333,
+        "bars": 14,
+        "feel": "light"
+      },
+      {
+        "section": "Verse 3",
+        "bar": 28,
+        "seconds": 90.0,
+        "bars": 5,
+        "feel": "groove"
+      },
+      {
+        "section": "Chorus 2",
+        "bar": 33,
+        "seconds": 106.667,
+        "bars": 14,
+        "feel": "full"
+      },
+      {
+        "section": "Prayer instrumental",
+        "bar": 47,
+        "seconds": 153.333,
+        "bars": 8,
+        "feel": "light"
+      },
+      {
+        "section": "Bridge x2",
+        "bar": 55,
+        "seconds": 180.0,
+        "bars": 20,
+        "feel": "full"
+      },
+      {
+        "section": "Tag",
+        "bar": 75,
+        "seconds": 246.667,
+        "bars": 2,
+        "feel": "ending"
+      },
+      {
+        "section": "Acoustic chorus",
+        "bar": 77,
+        "seconds": 253.333,
+        "bars": 14,
+        "feel": "silent"
+      },
+      {
+        "section": "All-in chorus",
+        "bar": 91,
+        "seconds": 300.0,
+        "bars": 14,
+        "feel": "full"
+      },
+      {
+        "section": "Bridge",
+        "bar": 105,
+        "seconds": 346.667,
+        "bars": 10,
+        "feel": "full"
+      },
+      {
+        "section": "Tag 1",
+        "bar": 115,
+        "seconds": 380.0,
+        "bars": 2,
+        "feel": "groove"
+      },
+      {
+        "section": "Tag 2",
+        "bar": 117,
+        "seconds": 386.667,
+        "bars": 2,
+        "feel": "groove"
+      },
+      {
+        "section": "Ending",
+        "bar": 119,
+        "seconds": 393.333,
+        "bars": 3,
+        "feel": "ending"
+      }
+    ],
+    "set_start_seconds": 782.276
+  },
+  {
+    "title": "Turn It Up - Closing",
+    "bpm": 124,
+    "bars": 43,
+    "duration_seconds": 83.876,
+    "file": "05-turn-it-up-closing.mp3",
+    "midi": "05-turn-it-up-closing.mid",
+    "sections": [
+      {
+        "section": "Soft spoken loop",
+        "bar": 2,
+        "seconds": 1.935,
+        "bars": 4,
+        "feel": "light"
+      },
+      {
+        "section": "Intro x2",
+        "bar": 6,
+        "seconds": 9.677,
+        "bars": 8,
+        "feel": "full"
+      },
+      {
+        "section": "Verse 1",
+        "bar": 14,
+        "seconds": 25.161,
+        "bars": 6,
+        "feel": "groove"
+      },
+      {
+        "section": "Pre-Chorus",
+        "bar": 20,
+        "seconds": 36.774,
+        "bars": 8,
+        "feel": "build"
+      },
+      {
+        "section": "Chorus x2",
+        "bar": 28,
+        "seconds": 52.258,
+        "bars": 14,
+        "feel": "full"
+      },
+      {
+        "section": "Outro",
+        "bar": 42,
+        "seconds": 79.355,
+        "bars": 2,
+        "feel": "ending"
+      }
+    ],
+    "set_start_seconds": 1188.26
+  }
+]

@@ -1,6 +1,8 @@
 ---
 layout: setlist.njk
 title: FEAST-2026-11-07
+backingTrack: /assets/feast-2026-11-07-kick-hat-snare.mp3
+backingTrackLabel: Kick, closed hat, and snare rehearsal track
 
 parts:
     - name: Set

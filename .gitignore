@@ -48,3 +48,6 @@ coverage/
 *.sln
 
 *.vsix
+
+# Local lossless Feast drum masters (the published set uses MP3)
+ChatGPT/feast-drums/*.wav

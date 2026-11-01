@@ -421,6 +421,10 @@
     padding-bottom: 8px;
     border-bottom: 2px solid var(--red);
   }
+  .setlist-backing-track { margin: -14px 0 28px; max-width: 520px; }
+  .setlist-backing-track p { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+  .setlist-backing-track audio { display: block; width: 100%; }
+  .setlist-backing-track a { color: var(--section); font-size: 12px; }
   .mobile-stage-entry { display: none; }
   .mobile-stage-entry button {
     width: 100%; min-height: 52px; border: 0; border-radius: 10px;
@@ -501,6 +505,7 @@
   body.prompter #setlist-wrap { margin-left: 0; padding: 16px 20px 60vh; }
   body.prompter .song-block-header { position: static; margin-bottom: 16px; }
   body.prompter .setlist-title { font-size: 20px; margin-bottom: 16px; }
+  body.prompter .setlist-backing-track { display: none; }
   body.prompter .song-block-title { font-size: 26px; }
   body.prompter .song-block-artist { font-size: 16px; }
   body.prompter .song-block { scroll-margin-top: 12px; }
@@ -785,6 +790,7 @@
 
 <div id="setlist-wrap" data-setlist="dera-chill">
   <h1 class="setlist-title">D&#39;ERA Chill</h1>
+
   <div class="mobile-stage-entry">
     <button type="button" id="btn-stage-mobile">Open stage view</button>
     <p>Large chords and lyrics · manual scroll pace · pause and swipe</p>
