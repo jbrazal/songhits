@@ -2,6 +2,12 @@
 
 A ChordMark library, an Eleventy website, and a VS Code preview extension.
 
+## Android APK
+
+`npm run android:apk` builds the site into an offline Android WebView app and writes an installable debug APK to `ChatGPT/apk/songhits-0.1.0-debug.apk` with a SHA-256 checksum in the same folder. The APK includes the song library, setlists, chart renderer, and available rehearsal MP3. Chart transposition, display choices, and stage pace are saved on the device. Stage view keeps the screen awake; PDF opens Android's print dialog.
+
+Build on Windows with Node.js 22, Java 21, Android SDK platform 35, and Gradle access. The script uses `JAVA_HOME` and `ANDROID_HOME` when set, or the local JDK and SDK paths shown in `scripts/build-apk.ps1`. To install on a connected Android device, run `adb install -r ChatGPT/apk/songhits-0.1.0-debug.apk`. This is a debug-signed installer for direct installation, not a Play Store release package.
+
 ## Development
 
 Use Node.js 22 and install the locked dependencies with `npm ci`.

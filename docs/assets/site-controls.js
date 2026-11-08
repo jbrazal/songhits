@@ -1,6 +1,8 @@
 (function () {
   'use strict';
   const byId = id => document.getElementById(id);
+  if (window.SongHitsAndroid) document.documentElement.classList.add('android-app');
+  if (window.innerWidth <= 760) document.querySelectorAll('details.chart-settings').forEach(details => { details.open = false; });
   const storage = {
     get(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
     set(key, value) { try { localStorage.setItem(key, value); } catch { /* Preferences are optional. */ } },
@@ -172,7 +174,7 @@
     let t = 0, lastSet = 0, holdUntil = 0, dirty = true, plan = null, eye = 0, lit = null;
     let context = { slug: null, written: null };
     const sizes = [10, 11, 12, 13, 14, 16, 18, 20, 22, 24, 28];
-    let sizeIndex = 4;
+    let sizeIndex = window.innerWidth <= 760 ? 6 : 4;
     function override(slug) {
       const value = Math.round(Number(storage.get('sh-bpm:' + slug, NaN)));
       return value >= BPM.min && value <= BPM.max ? value : null;
@@ -385,9 +387,11 @@
       if ((document.fullscreenElement || document.webkitFullscreenElement) && exit) try { swallow(exit.call(document)); } catch { /* Best effort. */ }
     }
     function requestWakeLock() {
+      if (window.SongHitsAndroid) window.SongHitsAndroid.setStageMode(true);
       try { swallow(navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; })); } catch { /* Not supported. */ }
     }
     function releaseWakeLock() {
+      if (window.SongHitsAndroid) window.SongHitsAndroid.setStageMode(false);
       if (wakeLock) try { swallow(wakeLock.release()); } catch { /* Already released. */ }
       wakeLock = null;
     }

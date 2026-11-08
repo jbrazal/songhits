@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>May Landicho | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="/songhits/assets/mobile.css">
 </head>
 <body>
-<nav>
- <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="/songhits/" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="/songhits/songs/">Songs</a>
   <a href="/songhits/setlist/">Setlists</a>
 </nav>
@@ -1009,42 +1008,46 @@
 
 
 <div id="controls">
-  <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
-  <div class="toolbar-sep"></div>
-  <span id="tempo-blinker" title=""></span>
-  <div class="toolbar-sep"></div>
-  <button id="btn-toggle">▶ Play</button>
-  <div class="toolbar-sep"></div>
-  <span class="ctrl-label" id="speed-label">Speed</span>
-  <button class="ctrl-btn" id="btn-slower" aria-label="Slower">−</button>
-  <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
-  <button class="ctrl-btn" id="btn-faster" aria-label="Faster">+</button>
-  <span id="speed-val">1.5</span>
-  <button class="ctrl-btn" id="btn-speed-reset" title="Reset speed or tempo" aria-label="Reset speed or tempo" style="font-size:13px">↺</button>
-  <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Size</span>
-  <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
-  <span class="zoom-val" id="zoom-val">14px</span>
-  <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
-  <div class="toolbar-sep"></div>
-  <select id="sel-font" class="pref-select" title="Chart font"></select>
-  <select id="sel-symbol" class="pref-select" title="Symbol type">
-    <option value="chord">Chord Symbols</option>
-    <option value="roman">Roman Numerals</option>
-  </select>
-  <select id="sel-chart" class="pref-select" title="Chart type">
-    <option value="all">Show Everything</option>
-    <option value="lyrics">Lyrics Only</option>
-    <option value="chords">Chords Only</option>
-    <option value="chordsFirstLyricLine">Chords + First Line</option>
-  </select>
-  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
-  <span id="offline-status" role="status"></span>
-  <button id="btn-top">⬆ Top</button>
+  <div class="setlist-main-actions">
+    <button id="btn-toc" title="Toggle song list" aria-label="Toggle song list" aria-controls="toc-sidebar" aria-expanded="false">☰</button>
+    <button id="btn-toggle">▶ Play</button>
+    <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Stage view (t)" aria-pressed="false">Stage view</button>
+  </div>
+  <div class="setlist-pace-actions">
+    <span id="tempo-blinker" title=""></span>
+    <span class="ctrl-label" id="speed-label">Speed</span>
+    <button class="ctrl-btn" id="btn-slower" aria-label="Slower">−</button>
+    <input type="range" id="speed-slider" aria-label="Autoscroll speed" min="0.2" max="8" step="0.1" value="1.5">
+    <button class="ctrl-btn" id="btn-faster" aria-label="Faster">+</button>
+    <span id="speed-val">1.5</span>
+    <button class="ctrl-btn" id="btn-speed-reset" title="Reset speed or tempo" aria-label="Reset speed or tempo">↺</button>
+  </div>
+  <details class="chart-settings" open>
+    <summary>Chart options</summary>
+    <div class="chart-settings-body">
+      <span class="ctrl-label">Size</span>
+      <button class="ctrl-btn" id="btn-zoom-out" aria-label="Decrease chart size">−</button>
+      <span class="zoom-val" id="zoom-val">14px</span>
+      <button class="ctrl-btn" id="btn-zoom-in" aria-label="Increase chart size">+</button>
+      <select id="sel-font" class="pref-select" title="Chart font" aria-label="Chart font"></select>
+      <select id="sel-symbol" class="pref-select" title="Symbol type" aria-label="Symbol type">
+        <option value="chord">Chord Symbols</option>
+        <option value="roman">Roman Numerals</option>
+      </select>
+      <select id="sel-chart" class="pref-select" title="Chart type" aria-label="Chart type">
+        <option value="all">Show Everything</option>
+        <option value="lyrics">Lyrics Only</option>
+        <option value="chords">Chords Only</option>
+        <option value="chordsFirstLyricLine">Chords + First Line</option>
+      </select>
+      <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-offline">Save offline</button>
+      <span id="offline-status" role="status"></span>
+      <button id="btn-top">⬆ Top</button>
+    </div>
+  </details>
 </div>
 <div id="prompter-bar" role="toolbar" aria-label="Teleprompter controls">
   <div class="prompter-row">

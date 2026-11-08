@@ -83,8 +83,14 @@ title: SongHits
 
 <div id="home-wrap">
 
+  <header class="home-hero">
+    <p class="home-eyebrow">Your music, ready to play</p>
+    <h1>Find a chart. Start playing.</h1>
+    <p>Browse songs and setlists, change key, and open a clear stage view when it is time to perform.</p>
+  </header>
+
   {% if collections.setlists.length %}
-  <div class="home-section-title">Setlists</div>
+  <div class="home-section-title">Setlists <span>{{ collections.setlists.length }}</span></div>
   <div class="setlist-cards">
     {% for sl in collections.setlists %}
     <a class="setlist-card" href="{{ sl.url | url }}">
@@ -95,7 +101,7 @@ title: SongHits
   </div>
   {% endif %}
 
-  <div class="home-section-title">Songs</div>
+  <div class="home-section-title">Songs <span>{{ collections.songs.length }}</span></div>
   <div class="songs-filter">
     <input id="song-search" type="search" placeholder="Filter songs…" autocomplete="off">
   </div>

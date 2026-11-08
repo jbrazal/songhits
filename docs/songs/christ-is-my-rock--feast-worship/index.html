@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>Christ Is My Rock — Feast Worship | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="/songhits/assets/mobile.css">
 </head>
 <body>
-<nav>
- <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="/songhits/" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="/songhits/songs/">Songs</a>
   <a href="/songhits/setlist/">Setlists</a>
 </nav>
@@ -399,30 +398,34 @@
   <div class="song-heading">
     <strong>Christ Is My Rock</strong><span>— Feast Worship</span>
   </div>
-  <span id="tempo-blinker" title=""></span>
-  <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Transpose</span>
-  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
-  <span id="transpose-val">0</span>
-  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
-  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
-  <div class="toolbar-sep"></div>
-  <select id="sel-font" class="pref-select" title="Chart font"></select>
-  <select id="sel-symbol" class="pref-select" title="Symbol type">
-    <option value="chord">Chord Symbols</option>
-    <option value="roman">Roman Numerals</option>
-  </select>
-  <select id="sel-chart" class="pref-select" title="Chart type">
-    <option value="all">Show Everything</option>
-    <option value="lyrics">Lyrics Only</option>
-    <option value="chords">Chords Only</option>
-    <option value="chordsFirstLyricLine">Chords + First Line</option>
-  </select>
-  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
-  <div class="toolbar-sep"></div>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
+  <div class="chart-main-actions">
+    <span id="tempo-blinker" title=""></span>
+    <span class="ctrl-label">Transpose</span>
+    <button class="ctrl-btn" id="btn-down" title="Transpose down (,)" aria-label="Transpose down">−</button>
+    <span id="transpose-val">0</span>
+    <button class="ctrl-btn" id="btn-up" title="Transpose up (.)" aria-label="Transpose up">+</button>
+    <button class="ctrl-btn" id="btn-reset" title="Reset (0)" aria-label="Reset transposition">↺</button>
+    <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Stage view (t)" aria-pressed="false">Stage view</button>
+  </div>
+  <details class="chart-settings" open>
+    <summary>Chart options</summary>
+    <div class="chart-settings-body">
+      <select id="sel-font" class="pref-select" title="Chart font" aria-label="Chart font"></select>
+      <select id="sel-symbol" class="pref-select" title="Symbol type" aria-label="Symbol type">
+        <option value="chord">Chord Symbols</option>
+        <option value="roman">Roman Numerals</option>
+      </select>
+      <select id="sel-chart" class="pref-select" title="Chart type" aria-label="Chart type">
+        <option value="all">Show Everything</option>
+        <option value="lyrics">Lyrics Only</option>
+        <option value="chords">Chords Only</option>
+        <option value="chordsFirstLyricLine">Chords + First Line</option>
+      </select>
+      <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+    </div>
+  </details>
 </div>
 
 <div id="song-body" data-slug="christ-is-my-rock--feast-worship" data-tempo="">
@@ -463,7 +466,7 @@
 </div>
 
 
-<script id="song-source" type="application/json">"\nkey G\n\n#Notes\n// Confirm the live key: the workbook header says E, its chord cells use D, and this chart is in G. Chords below remain in G.\n// Confirm the ending chord: the workbook chord cell says A, while its dynamics note says “swell on G.”\n> All choruses: full band and all voices. The first verse is Sis Lala only; support singers join the pre-chorus. Verse 2 is all voices.\n> After chorus x2: instrumental, four tom-groove bridges, tag, chorus, two more tom-groove bridges, then tag and ending swell.\n\n#i\n> Acoustic guitar only for the intro/loop.\nG G Dsus Cadd9\n\n#v\n> Sis Lala only; acoustic guitar, G1, and G2.\nG\n_In times of need and plenty\nDsus\nIn moments _of joy and mourning\nEm7\n_I'm never forgotten\nCadd9\n_Never forsaken\nG\n_When I am tired and weary\nDsus\nWhen odds are _stacked against me\nEm7\n_I'm never abandoned\nCadd9\n_I stand unshaken\n\n#p\n>vox Support singers join; build into the chorus.\nDsus Em\n_Though storms may _come\nCadd9 G\n_And winds may _blow\nC Dsus\n_I know this rock will _hold\n\n#c\n> Full band; all voices.\nG Dsus\n_Christ is my Rock, my Living _Hope\nEm7 Dsus\n_I stand on Him, on Him _alone\nCadd9.. G.. D.. Em..\n_No other _ground will _I build _on\nCadd9.. G.. D\n_But Jesus _Christ, the _Cornerstone\n\n#Interlude\n> Full band.\nG G\n\n#v\n>vox All voices.\nG\n_I've walked through hills and valleys\nDsus\nIn every turn _He's with me\nEm7\n_His goodness and mercy\nCadd9\n_He goes before me\nG\n_His cross stands through the ages\nDsus\nNo power can stand _against Him\nEm7\n_Forever He's risen\nCadd9\n_He reigns above all things\n\n#p\n>vox Support singers join; build into two full-band choruses.\nDsus Em\n_Though seasons _change\nCadd9 G\n_And kingdoms _fail\nC Dsus\n_I know this rock _remains\n\n#c x2\n\n#Instrumental\n> Full band.\nCadd9... Em7. Dsus... G/B.\nCadd9... Em7. Dsus... G/B.\n\n#b x4\n> Tom groove; all voices. Repeat four times.\nCadd9 Em7\n_Take a_way what can be taken\nDsus\n_All that shake\nG/B\n_let them be shaken\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#Tag\n>vox All voices on the “solid Rock” tag.\nCadd9 Em7\n_I stand on _solid Rock\nDsus G/B\n_on Firm _Foundation\n\n#c\n\n#b x2\n\n#Tag\n"</script>
+<script id="song-source" type="application/json">"\nkey D\n\n#Notes\n// Performance key D by request. The workbook header says E, its chord cells use D, and the previous chart was in G.\n// Confirm the ending chord: the workbook chord cell says A, while its dynamics note says “swell on G.”\n> All choruses: full band and all voices. The first verse is Sis Lala only; support singers join the pre-chorus. Verse 2 is all voices.\n> After chorus x2: instrumental, four tom-groove bridges, tag, chorus, two more tom-groove bridges, then tag and ending swell.\n\n#i\n> Acoustic guitar only for the intro/loop.\nD D Asus Gadd9\n\n#v\n> Sis Lala only; acoustic guitar, G1, and G2.\nD\n_In times of need and plenty\nAsus\nIn moments _of joy and mourning\nBm7\n_I'm never forgotten\nGadd9\n_Never forsaken\nD\n_When I am tired and weary\nAsus\nWhen odds are _stacked against me\nBm7\n_I'm never abandoned\nGadd9\n_I stand unshaken\n\n#p\n>vox Support singers join; build into the chorus.\nAsus Bm\n_Though storms may _come\nGadd9 D\n_And winds may _blow\nG Asus\n_I know this rock will _hold\n\n#c\n> Full band; all voices.\nD Asus\n_Christ is my Rock, my Living _Hope\nBm7 Asus\n_I stand on Him, on Him _alone\nGadd9.. D.. A.. Bm..\n_No other _ground will _I build _on\nGadd9.. D.. A D\n_But Jesus _Christ, the _Corner_stone\n\n#Interlude\n> Full band.\nD D\n\n#v\n>vox All voices.\nD\n_I've walked through hills and valleys\nAsus\nIn every turn _He's with me\nBm7\n_His goodness and mercy\nGadd9\n_He goes before me\nD\n_His cross stands through the ages\nAsus\nNo power can stand _against Him\nBm7\n_Forever He's risen\nGadd9\n_He reigns above all things\n\n#p\n>vox Support singers join; build into two full-band choruses.\nAsus Bm\n_Though seasons _change\nGadd9 D\n_And kingdoms _fail\nG Asus\n_I know this rock _remains\n\n#c x2\n\n#Instrumental\n> Full band.\nGadd9... Bm7. Asus... D/F#.\nGadd9... Bm7. Asus... D/F#.\n\n#b x4\n> Tom groove; all voices. Repeat four times.\nGadd9 Bm7\n_Take away what can be taken_\nAsus\n_All that shake\nD/F#\n_let them be shaken\nGadd9 Bm7\n_I stand on _solid Rock\nAsus D/F#\n_on Firm Foun_dation\n\n#Tag\n>vox All voices on the “solid Rock” tag.\nGadd9 Bm7\n_I stand on _solid Rock\nAsus D/F#\n_on Firm _Foundation\n\n#c\n\n#b x2\n\n#Tag\n"</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
 <script src="/songhits/assets/annotations.js"></script>

@@ -1,119 +1,119 @@
 ---
 title: Christ Is My Rock
-key: G
+key: D
 tempo: 148
 feel: Worship anthem, 4/4
 tags: [worship]
 ---
 
-key G
+key D
 
 #Notes
-// Confirm the live key: the workbook header says E, its chord cells use D, and this chart is in G. Chords below remain in G.
+// Performance key D by request. The workbook header says E, its chord cells use D, and the previous chart was in G.
 // Confirm the ending chord: the workbook chord cell says A, while its dynamics note says “swell on G.”
 > All choruses: full band and all voices. The first verse is Sis Lala only; support singers join the pre-chorus. Verse 2 is all voices.
 > After chorus x2: instrumental, four tom-groove bridges, tag, chorus, two more tom-groove bridges, then tag and ending swell.
 
 #i
 > Acoustic guitar only for the intro/loop.
-G G Dsus Cadd9
+D D Asus Gadd9
 
 #v
 > Sis Lala only; acoustic guitar, G1, and G2.
-G
+D
 _In times of need and plenty
-Dsus
+Asus
 In moments _of joy and mourning
-Em7
+Bm7
 _I'm never forgotten
-Cadd9
+Gadd9
 _Never forsaken
-G
+D
 _When I am tired and weary
-Dsus
+Asus
 When odds are _stacked against me
-Em7
+Bm7
 _I'm never abandoned
-Cadd9
+Gadd9
 _I stand unshaken
 
 #p
 >vox Support singers join; build into the chorus.
-Dsus Em
+Asus Bm
 _Though storms may _come
-Cadd9 G
+Gadd9 D
 _And winds may _blow
-C Dsus
+G Asus
 _I know this rock will _hold
 
 #c
 > Full band; all voices.
-G Dsus
+D Asus
 _Christ is my Rock, my Living _Hope
-Em7 Dsus
+Bm7 Asus
 _I stand on Him, on Him _alone
-Cadd9.. G.. D.. Em..
+Gadd9.. D.. A.. Bm..
 _No other _ground will _I build _on
-Cadd9.. G.. D
-_But Jesus _Christ, the _Cornerstone
+Gadd9.. D.. A D
+_But Jesus _Christ, the _Corner_stone
 
 #Interlude
 > Full band.
-G G
+D D
 
 #v
 >vox All voices.
-G
+D
 _I've walked through hills and valleys
-Dsus
+Asus
 In every turn _He's with me
-Em7
+Bm7
 _His goodness and mercy
-Cadd9
+Gadd9
 _He goes before me
-G
+D
 _His cross stands through the ages
-Dsus
+Asus
 No power can stand _against Him
-Em7
+Bm7
 _Forever He's risen
-Cadd9
+Gadd9
 _He reigns above all things
 
 #p
 >vox Support singers join; build into two full-band choruses.
-Dsus Em
+Asus Bm
 _Though seasons _change
-Cadd9 G
+Gadd9 D
 _And kingdoms _fail
-C Dsus
+G Asus
 _I know this rock _remains
 
 #c x2
 
 #Instrumental
 > Full band.
-Cadd9... Em7. Dsus... G/B.
-Cadd9... Em7. Dsus... G/B.
+Gadd9... Bm7. Asus... D/F#.
+Gadd9... Bm7. Asus... D/F#.
 
 #b x4
 > Tom groove; all voices. Repeat four times.
-Cadd9 Em7
-_Take a_way what can be taken
-Dsus
+Gadd9 Bm7
+_Take away what can be taken_
+Asus
 _All that shake
-G/B
+D/F#
 _let them be shaken
-Cadd9 Em7
+Gadd9 Bm7
 _I stand on _solid Rock
-Dsus G/B
-_on Firm _Foundation
+Asus D/F#
+_on Firm Foun_dation
 
 #Tag
 >vox All voices on the “solid Rock” tag.
-Cadd9 Em7
+Gadd9 Bm7
 _I stand on _solid Rock
-Dsus G/B
+Asus D/F#
 _on Firm _Foundation
 
 #c

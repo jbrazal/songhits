@@ -52,8 +52,13 @@ permalink: /songs/
 </style>
 
 <div id="songs-wrap">
+  <header class="library-header">
+    <p class="library-eyebrow">Song library</p>
+    <h1>All songs</h1>
+    <p>Search by title or artist, then open a chart to play.</p>
+  </header>
   <div class="songs-filter">
-    <input id="song-search" type="search" placeholder="Filter songs…" autocomplete="off">
+    <input id="song-search" type="search" placeholder="Search songs or artists" autocomplete="off" aria-label="Search songs or artists">
     <span id="song-count"></span>
   </div>
   <div class="songs-grid" id="songs-grid">

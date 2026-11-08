@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>Never Walk Alone — Hillsong Worship | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="/songhits/assets/mobile.css">
 </head>
 <body>
-<nav>
- <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="/songhits/" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="/songhits/songs/">Songs</a>
   <a href="/songhits/setlist/">Setlists</a>
 </nav>
@@ -399,30 +398,34 @@
   <div class="song-heading">
     <strong>Never Walk Alone</strong><span>— Hillsong Worship</span>
   </div>
-  <span id="tempo-blinker" title=""></span>
-  <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Transpose</span>
-  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
-  <span id="transpose-val">0</span>
-  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
-  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
-  <div class="toolbar-sep"></div>
-  <select id="sel-font" class="pref-select" title="Chart font"></select>
-  <select id="sel-symbol" class="pref-select" title="Symbol type">
-    <option value="chord">Chord Symbols</option>
-    <option value="roman">Roman Numerals</option>
-  </select>
-  <select id="sel-chart" class="pref-select" title="Chart type">
-    <option value="all">Show Everything</option>
-    <option value="lyrics">Lyrics Only</option>
-    <option value="chords">Chords Only</option>
-    <option value="chordsFirstLyricLine">Chords + First Line</option>
-  </select>
-  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
-  <div class="toolbar-sep"></div>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
+  <div class="chart-main-actions">
+    <span id="tempo-blinker" title=""></span>
+    <span class="ctrl-label">Transpose</span>
+    <button class="ctrl-btn" id="btn-down" title="Transpose down (,)" aria-label="Transpose down">−</button>
+    <span id="transpose-val">0</span>
+    <button class="ctrl-btn" id="btn-up" title="Transpose up (.)" aria-label="Transpose up">+</button>
+    <button class="ctrl-btn" id="btn-reset" title="Reset (0)" aria-label="Reset transposition">↺</button>
+    <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Stage view (t)" aria-pressed="false">Stage view</button>
+  </div>
+  <details class="chart-settings" open>
+    <summary>Chart options</summary>
+    <div class="chart-settings-body">
+      <select id="sel-font" class="pref-select" title="Chart font" aria-label="Chart font"></select>
+      <select id="sel-symbol" class="pref-select" title="Symbol type" aria-label="Symbol type">
+        <option value="chord">Chord Symbols</option>
+        <option value="roman">Roman Numerals</option>
+      </select>
+      <select id="sel-chart" class="pref-select" title="Chart type" aria-label="Chart type">
+        <option value="all">Show Everything</option>
+        <option value="lyrics">Lyrics Only</option>
+        <option value="chords">Chords Only</option>
+        <option value="chordsFirstLyricLine">Chords + First Line</option>
+      </select>
+      <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+    </div>
+  </details>
 </div>
 
 <div id="song-body" data-slug="never-walk-alone--hillsong-worship" data-tempo="">
@@ -463,7 +466,7 @@
 </div>
 
 
-<script id="song-source" type="application/json">"\nkey F\n\n#Notes\n// Confirm the live key: the workbook is in E while this chart is in F. Chords below remain in F.\n// Workbook note: occasional 2/4 and passing chords; exact short bars are not marked in this chart.\n> The instrumental after chorus 2 is for the prayer for dreams.\n> First chorus: add bass and support singers. Chorus after verse 3: full band and all voices.\n> After the first bridge x2, swell out on the tag. Sing two choruses: first acoustic guitar and Sis Angel only, then all in with all voices. Build for four, then eight, into the second chorus.\n> Finish with one more bridge, two “You are faithful” tags, slow the last tag into the ending swell.\n\n#i\n> Chart intro; the workbook starts at verse 1.\nF5 F5\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bb5\nYour _heart is for me, Your _ear is listening\nDm\nI'm _safe in Your love\nCsus Bb\nYour _army of angels watch _over me\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nF5 Bbsus2\nYou're _always present, You're _always with me\nDm7 Csus\nFor _all of my life Your _favour has followed\nBbsus2\nYou're my _covering\n\n#c\nF\nI have never walked _alone\nDm7 C\nI've never _been _abandoned\nBbsus2 F/A\nYou are my _inheritance _\nDm7 C\nYou are my _strength and _shield\nF\nAnd I have _confidence\nDm7 C\nYou _go before _me\nBbsus2 F/A\nYou're my _deliverer _\nDm7.. C.. F\nI know I _never _walk alone _\n\n#v\n> Soft groove; all voices.\nF5 Bbsus2\nYou're _always faithful, You're _strong and able\nDm7 Csus\nI'm _lifting my head in _You I find help\nBbsus2\nYou're my _providence\n\n#c\n\n#Instrumental\n> Prayer for dreams over the instrumental.\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\nBb.. F/A.. Dm7.. C..\n\n#b x2\n> Full band; repeat the bridge twice.\nBb.. F/A.. Dm7\n_Every _hour, every _minute\nC\nYou have _always been there\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\nBb.. F/A.. Dm7\n_In every _triumph, every _failure\nC\nYou are _loyal to me\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#Tag\nBb.. F/A.. Dm7.. C..\n_You are _faithful and You _always will _be\n\n#c x2\n\n#b\n\n#Tag\n\n#Tag\nBbsus2.. F/A.. Dm7.. Csus2..\n_You are _faithful and You _always will _be\n\n#o\n> Slow the last tag into the ending; swell on Bb in this chart's key.\nBbsus2.. F/A.. Dm7.. Csus.. Bb\n"</script>
+<script id="song-source" type="application/json">"\nkey E\n\n#Notes\n// Performance key E by request; this matches the workbook key. The original chart was in F.\n// Workbook note: occasional 2/4 and passing chords; exact short bars are not marked in this chart.\n> The instrumental after chorus 2 is for the prayer for dreams.\n> First chorus: add bass and support singers. Chorus after verse 3: full band and all voices.\n> After the first bridge x2, swell out on the tag. Sing two choruses: first acoustic guitar and Sis Angel only, then all in with all voices. Build for four, then eight, into the second chorus.\n> Finish with one more bridge, two “You are faithful” tags, slow the last tag into the ending swell.\n\n#i\n> Chart intro; the workbook starts at verse 1.\nE5 E5\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nE5 A5\nYour _heart is for me, Your _ear is listening\nC#m\nI'm _safe in Your love\nBsus A\nYour _army of angels watch _over me\n\n#v\n>vox Sis Angel only; acoustic guitar only.\nE5 Asus2\nYou're _always present, You're _always with me\nC#m7 Bsus\nFor _all of my life Your _favour has followed\nAsus2\nYou're my _covering\n\n#c\nE\nI have never walked _alone\nC#m7 B\nI've never _been _abandoned\nAsus2 E/G#\nYou are my _inheritance _\nC#m7 B\nYou are my _strength and _shield\nE\nAnd I have _confidence\nC#m7 B\nYou _go before _me\nAsus2 E/G#\nYou're my _deliverer _\nC#m7.. B.. E\nI know I _never _walk alone _\n\n#v\n> Soft groove; all voices.\nE5 Asus2\nYou're _always faithful, You're _strong and able\nC#m7 Bsus\nI'm _lifting my head in _You I find help\nAsus2\nYou're my _providence\n\n#c\n\n#Instrumental\n> Prayer for dreams over the instrumental.\nA.. E/G#.. C#m7.. B..\nA.. E/G#.. C#m7.. B..\nA.. E/G#.. C#m7.. B..\nA.. E/G#.. C#m7.. B..\n\n#b x2\n> Full band; repeat the bridge twice.\nA.. E/G#.. C#m7\n_Every _hour, every _minute\nB\nYou have _always been there\nA.. E/G#.. C#m7.. B..\n_You are _faithful and You _always will _be\nA.. E/G#.. C#m7\n_In every _triumph, every _failure\nB\nYou are _loyal to me\nA.. E/G#.. C#m7.. B..\n_You are _faithful and You _always will _be\n\n#Tag\nA.. E/G#.. C#m7.. B..\n_You are _faithful and You _always will _be\n\n#c x2\n\n#b\n\n#Tag\n\n#Tag\nAsus2.. E/G#.. C#m7.. Bsus2..\n_You are _faithful and You _always will _be\n\n#o\n> Slow the last tag into the ending; swell on A in this chart's key.\nAsus2.. E/G#.. C#m7.. Bsus.. A\n"</script>
 <script src="/songhits/assets/chord-mark.js"></script>
 <script src="/songhits/assets/site-controls.js"></script>
 <script src="/songhits/assets/annotations.js"></script>

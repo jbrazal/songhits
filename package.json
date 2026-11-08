@@ -154,6 +154,7 @@
     "package": "vsce package --no-dependencies",
     "site:build": "eleventy",
     "site:serve": "eleventy --serve",
+    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
     "chordmark:validate": "node scripts/validate-chordmark.cjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.cjs",

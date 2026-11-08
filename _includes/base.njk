@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>{% if title %}{{ title }}{% if artist %} — {{ artist }}{% endif %} | SongHits{% else %}SongHits{% endif %}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="{{ '/assets/mobile.css' | url }}">
 </head>
 <body>
-<nav>
- <a href="{{ '/' | url }}"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="{{ '/' | url }}" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="{{ '/songs/' | url }}">Songs</a>
   <a href="{{ '/setlist/' | url }}">Setlists</a>
 </nav>

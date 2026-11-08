@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>SongHits | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="/songhits/assets/mobile.css">
 </head>
 <body>
-<nav>
- <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="/songhits/" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="/songhits/songs/">Songs</a>
   <a href="/songhits/setlist/">Setlists</a>
 </nav>
@@ -340,8 +339,14 @@
 
 <div id="home-wrap">
 
+  <header class="home-hero">
+    <p class="home-eyebrow">Your music, ready to play</p>
+    <h1>Find a chart. Start playing.</h1>
+    <p>Browse songs and setlists, change key, and open a clear stage view when it is time to perform.</p>
+  </header>
+
   
-  <div class="home-section-title">Setlists</div>
+  <div class="home-section-title">Setlists <span>14</span></div>
   <div class="setlist-cards">
     
     <a class="setlist-card" href="/songhits/setlist/first-in-two/">
@@ -417,7 +422,7 @@
   </div>
   
 
-  <div class="home-section-title">Songs</div>
+  <div class="home-section-title">Songs <span>140</span></div>
   <div class="songs-filter">
     <input id="song-search" type="search" placeholder="Filter songs…" autocomplete="off">
   </div>

@@ -78,7 +78,7 @@
     blocks.forEach(block => observer.observe(block));
   }
   if (blocks.length) activate(blocks[0]);
-  ui.byId('btn-pdf').onclick = () => window.print();
+  ui.byId('btn-pdf').onclick = () => window.SongHitsAndroid ? window.SongHitsAndroid.printChart() : window.print();
 
   // A single HTML download keeps controls and all charts usable without a server.
   const download = ui.byId('btn-offline'), status = ui.byId('offline-status');

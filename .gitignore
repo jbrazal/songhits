@@ -4,6 +4,11 @@ node_modules/
 # Build output
 out/
 _site/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/songhits/
+android/local.properties
 
 # Logs
 npm-debug.log*

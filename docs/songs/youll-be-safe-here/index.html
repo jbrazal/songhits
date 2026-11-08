@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&family=Montserrat&family=Nunito&family=Open+Sans&family=Roboto&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0b1110">
   <title>Youll Be Safe Here | SongHits</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,10 +250,11 @@
       .cmAnno--shout { color: #000; }
     }
   </style>
+  <link rel="stylesheet" href="/songhits/assets/mobile.css">
 </head>
 <body>
-<nav>
- <a href="/songhits/"> <span class="nav-brand">SongHits</span></a>
+<nav aria-label="Main navigation">
+ <a href="/songhits/" aria-label="SongHits home"><span class="nav-brand">SongHits</span></a>
   <a href="/songhits/songs/">Songs</a>
   <a href="/songhits/setlist/">Setlists</a>
 </nav>
@@ -399,30 +398,34 @@
   <div class="song-heading">
     <strong>Youll Be Safe Here</strong>
   </div>
-  <span id="tempo-blinker" title=""></span>
-  <div class="toolbar-sep"></div>
-  <span class="ctrl-label">Transpose</span>
-  <button class="ctrl-btn" id="btn-down" title="Transpose down (,)">▼</button>
-  <span id="transpose-val">0</span>
-  <button class="ctrl-btn" id="btn-up"   title="Transpose up (.)">▲</button>
-  <button class="ctrl-btn" id="btn-reset" title="Reset (0)" style="font-size:13px">↺</button>
-  <div class="toolbar-sep"></div>
-  <select id="sel-font" class="pref-select" title="Chart font"></select>
-  <select id="sel-symbol" class="pref-select" title="Symbol type">
-    <option value="chord">Chord Symbols</option>
-    <option value="roman">Roman Numerals</option>
-  </select>
-  <select id="sel-chart" class="pref-select" title="Chart type">
-    <option value="all">Show Everything</option>
-    <option value="lyrics">Lyrics Only</option>
-    <option value="chords">Chords Only</option>
-    <option value="chordsFirstLyricLine">Chords + First Line</option>
-  </select>
-  <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
-  <div class="toolbar-sep"></div>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
-  <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Teleprompter mode (t)" aria-pressed="false">Prompter</button>
+  <div class="chart-main-actions">
+    <span id="tempo-blinker" title=""></span>
+    <span class="ctrl-label">Transpose</span>
+    <button class="ctrl-btn" id="btn-down" title="Transpose down (,)" aria-label="Transpose down">−</button>
+    <span id="transpose-val">0</span>
+    <button class="ctrl-btn" id="btn-up" title="Transpose up (.)" aria-label="Transpose up">+</button>
+    <button class="ctrl-btn" id="btn-reset" title="Reset (0)" aria-label="Reset transposition">↺</button>
+    <button class="ctrl-btn ctrl-btn-wide" id="btn-prompter" title="Stage view (t)" aria-pressed="false">Stage view</button>
+  </div>
+  <details class="chart-settings" open>
+    <summary>Chart options</summary>
+    <div class="chart-settings-body">
+      <select id="sel-font" class="pref-select" title="Chart font" aria-label="Chart font"></select>
+      <select id="sel-symbol" class="pref-select" title="Symbol type" aria-label="Symbol type">
+        <option value="chord">Chord Symbols</option>
+        <option value="roman">Roman Numerals</option>
+      </select>
+      <select id="sel-chart" class="pref-select" title="Chart type" aria-label="Chart type">
+        <option value="all">Show Everything</option>
+        <option value="lyrics">Lyrics Only</option>
+        <option value="chords">Chords Only</option>
+        <option value="chordsFirstLyricLine">Chords + First Line</option>
+      </select>
+      <span id="view-switcher" class="view-switcher" role="group" aria-label="Cue view" hidden></span>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-notes" title="Show editorial notes" aria-pressed="false" hidden>Notes</button>
+      <button class="ctrl-btn ctrl-btn-wide" id="btn-pdf" title="Print / Save as PDF">PDF</button>
+    </div>
+  </details>
 </div>
 
 <div id="song-body" data-slug="youll-be-safe-here" data-tempo="">

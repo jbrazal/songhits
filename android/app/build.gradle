@@ -1,0 +1,23 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'ca.papajedder.songhits'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'ca.papajedder.songhits'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    buildTypes {
+        release { minifyEnabled false }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

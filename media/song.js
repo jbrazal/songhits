@@ -31,7 +31,7 @@
   ui.byId('btn-up').onclick = () => setTranspose(transpose + 1);
   ui.byId('btn-down').onclick = () => setTranspose(transpose - 1);
   ui.byId('btn-reset').onclick = () => setTranspose(0);
-  ui.byId('btn-pdf').onclick = () => window.print();
+  ui.byId('btn-pdf').onclick = () => window.SongHitsAndroid ? window.SongHitsAndroid.printChart() : window.print();
   document.addEventListener('keydown', event => {
     if (!ui.handlesKeyboard(event)) return;
     if (['.', ',', '0'].includes(event.key)) {

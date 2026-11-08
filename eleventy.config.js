@@ -6,7 +6,7 @@ module.exports = function (config) {
   for (const entry of fs.readdirSync(__dirname)) if (!publicRoots.has(entry)) config.ignores.add(entry);
   config.ignores.add('setlist/temp/**');
   config.setTemplateFormats(['njk', 'md', 'chordmark']);
-  for (const file of ['chord-mark.js', 'site-controls.js', 'annotations.js', 'song.js', 'setlist.js']) config.addPassthroughCopy({ ['media/' + file]: 'assets/' + file });
+  for (const file of ['chord-mark.js', 'site-controls.js', 'annotations.js', 'song.js', 'setlist.js', 'mobile.css']) config.addPassthroughCopy({ ['media/' + file]: 'assets/' + file });
   config.addPassthroughCopy({ 'ChatGPT/feast-drums/feast-2026-11-07-kick-hat-snare.mp3': 'assets/feast-2026-11-07-kick-hat-snare.mp3' });
   config.addWatchTarget('./chordmark/metadata.json');
   config.on('eleventy.before', validateMetadata);
